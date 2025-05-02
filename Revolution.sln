@@ -1,0 +1,31 @@
+﻿
+Microsoft Visual Studio Solution File, Format Version 12.00
+# Visual Studio Version 17
+VisualStudioVersion = 17.14.35906.104
+MinimumVisualStudioVersion = 10.0.40219.1
+Project("{8BC9CEB8-8B4A-11D0-8D11-00A0C91BC942}") = "Example", "Example\Example.vcxproj", "{0FCDACFE-1583-4C68-840C-C9D6E22517D0}"
+EndProject
+Project("{8BC9CEB8-8B4A-11D0-8D11-00A0C91BC942}") = "Revolution", "Revolution\Revolution.vcxproj", "{F0C5AC37-A2AE-43E1-B1E6-1C787DE6EC93}"
+EndProject
+Global
+	GlobalSection(SolutionConfigurationPlatforms) = preSolution
+		Debug|x64 = Debug|x64
+		Release|x64 = Release|x64
+	EndGlobalSection
+	GlobalSection(ProjectConfigurationPlatforms) = postSolution
+		{F0C5AC37-A2AE-43E1-B1E6-1C787DE6EC93}.Debug|x64.ActiveCfg = Debug|x64
+		{F0C5AC37-A2AE-43E1-B1E6-1C787DE6EC93}.Debug|x64.Build.0 = Debug|x64
+		{F0C5AC37-A2AE-43E1-B1E6-1C787DE6EC93}.Release|x64.ActiveCfg = Release|x64
+		{F0C5AC37-A2AE-43E1-B1E6-1C787DE6EC93}.Release|x64.Build.0 = Release|x64
+		{0FCDACFE-1583-4C68-840C-C9D6E22517D0}.Debug|x64.ActiveCfg = Debug|x64
+		{0FCDACFE-1583-4C68-840C-C9D6E22517D0}.Debug|x64.Build.0 = Debug|x64
+		{0FCDACFE-1583-4C68-840C-C9D6E22517D0}.Release|x64.ActiveCfg = Release|x64
+		{0FCDACFE-1583-4C68-840C-C9D6E22517D0}.Release|x64.Build.0 = Release|x64
+	EndGlobalSection
+	GlobalSection(SolutionProperties) = preSolution
+		HideSolutionNode = FALSE
+	EndGlobalSection
+	GlobalSection(ExtensibilityGlobals) = postSolution
+		SolutionGuid = {605013D8-B048-4041-A3B7-FAC6F8E20BCC}
+	EndGlobalSection
+EndGlobal
