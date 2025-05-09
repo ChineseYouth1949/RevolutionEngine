@@ -1,7 +1,6 @@
 # Directories
 .vs/
-bin/
-bin-int/
+Build/
 
 # Flies
 *.user

@@ -1,0 +1,164 @@
+﻿{
+  "version": 3,
+  "cmakeMinimumRequired": {
+    "major": 3,
+    "minor": 25,
+    "patch": 0
+  },
+  "vendor": {
+    "author": "Chinese Youth.",
+    "description": "The engine to build the revolution."
+  },
+  "configurePresets": [
+    {
+      "name": "base",
+      "hidden": true,
+      "cacheVariables": {
+        "CMAKE_CXX_STANDARD": "17",
+        "CMAKE_CXX_STANDARD_REQUIRED": "ON",
+        "CMAKE_POSITION_INDEPENDENT_CODE": "ON",
+        "CMAKE_EXPORT_COMPILE_COMMANDS": "ON"
+      },
+      "binaryDir": "${sourceDir}/Build/IntFile/${presetName}"
+    },
+
+    {
+      "name": "windows-base",
+      "displayName": "Windows",
+      "hidden": true,
+      "inherits": "base",
+      "cacheVariables": {
+        "RE_PLATFORM": "WINDOWS",
+        "CMAKE_CXX_FLAGS": "/W4 /permissive-"
+      },
+      "vendor": {
+        "microsoft.com/VisualStudioSettings/CMake/1.0": {
+          "hostOS": [ "Windows" ]
+        }
+      }
+    },
+
+    {
+      "name": "linux-base",
+      "displayName": "Linux",
+      "hidden": true,
+      "inherits": "base",
+      "cacheVariables": {
+        "RE_PLATFORM": "LINUX",
+        "CMAKE_CXX_FLAGS": "-Wall -Wextra"
+      },
+      "vendor": {
+        "microsoft.com/VisualStudioSettings/CMake/1.0": {
+          "hostOS": [ "Linux" ]
+        }
+      }
+    },
+
+    {
+      "name": "macos-base",
+      "displayName": "MacOS",
+      "hidden": true,
+      "inherits": "base",
+      "cacheVariables": {
+        "RE_PLATFORM": "MACOS",
+        "CMAKE_OSX_DEPLOYMENT_TARGET": "11.0"
+      },
+      "vendor": {
+        "microsoft.com/VisualStudioSettings/CMake/1.0": {
+          "hostOS": [ "macOS" ]
+        }
+      }
+    },
+
+    {
+      "name": "x64",
+      "hidden": true,
+      "cacheVariables": {
+        "RE_ARCH": "x64"
+      }
+    },
+
+    {
+      "name": "arm64",
+      "hidden": true,
+      "cacheVariables": {
+        "RE_ARCH": "arm64"
+      }
+    },
+
+    {
+      "name": "debug",
+      "displayName": "Debug",
+      "hidden": true,
+      "cacheVariables": {
+        "CMAKE_BUILD_TYPE": "Debug",
+        "RE_CONFIG": "DEBUG",
+        "RE_ENABLE_ASSERTS": "ON"
+      }
+    },
+
+    {
+      "name": "release",
+      "displayName": "Release",
+      "hidden": true,
+      "cacheVariables": {
+        "CMAKE_BUILD_TYPE": "RelWithDebInfo",
+        "RE_CONFIG": "RELEASE",
+        "CMAKE_INTERPROCEDURAL_OPTIMIZATION": "ON"
+      }
+    },
+
+    {
+      "name": "shipping",
+      "displayName": "Shipping",
+      "hidden": true,
+      "cacheVariables": {
+        "RE_CONFIG": "SHIPPING",
+        "RE_ENABLE_ASSERTS": "OFF",
+        "CMAKE_VISIBILITY_INLINES_HIDDEN": "ON"
+      }
+    },
+
+    {
+      "name": "windows-x64-debug",
+      "displayName": "Windows-x64-Debug",
+      "hidden": false,
+      "inherits": [
+        "windows-base",
+        "debug",
+        "x64"
+      ],
+      "cacheVariables": {
+        "OUTPUT_DIR": "${sourceDir}/Build/${hostSystemName}-x64-debug"
+      }
+    },
+
+    {
+      "name": "windows-x64-release",
+      "displayName": "Windows-x64-Release",
+      "hidden": false,
+      "inherits": [
+        "windows-base",
+        "release",
+        "x64"
+      ],
+      "cacheVariables": {
+        "OUTPUT_DIR": "${sourceDir}/Build/${hostSystemName}-x64-release"
+      }
+    },
+
+    {
+      "name": "windows-x64-shipping",
+      "displayName": "Windows-x64-Shipping",
+      "hidden": false,
+      "inherits": [
+        "windows-base",
+        "shipping",
+        "x64"
+      ],
+      "cacheVariables": {
+        "OUTPUT_DIR": "${sourceDir}/Build/${hostSystemName}-x64-shipping"
+      }
+    }
+  ]
+}

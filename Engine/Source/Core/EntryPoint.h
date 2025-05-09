@@ -2,14 +2,15 @@
 
 #include <iostream>
 
-#include "Core.h"
+#include "Engine.h"
+
+extern RE::Engine* RE::CreateEngine();
 
 #ifdef RE_PLATFORM_WINDOWS
-extern RE::Application* RE::CreateApplication();
 
 int main(int argc, char** argv) {
   std::cout << "RE Engine Start up." << std::endl;
-  RE::Application* app = RE::CreateApplication();
+  RE::Engine* app = RE::CreateEngine();
   app->Run();
   delete app;
   return 0;
