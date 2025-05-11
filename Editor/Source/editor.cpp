@@ -1,6 +1,6 @@
 #include "Engine.h"
 
-RE::Engine* RE::CreateEngine() {
-  RE::Engine* engine = new RE::Engine();
-  return engine;
+RE::Application* RE::CreateApplication() {
+  RE::Application* app = new RE::Application();
+  return app;
 }
