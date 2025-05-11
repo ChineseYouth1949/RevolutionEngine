@@ -28,7 +28,7 @@
       "hidden": true,
       "inherits": "base",
       "cacheVariables": {
-        "RE_PLATFORM": "WINDOWS",
+        "RE_PLATFORM": "Windows",
         "CMAKE_CXX_FLAGS": "/W4 /permissive-"
       },
       "vendor": {
@@ -44,7 +44,7 @@
       "hidden": true,
       "inherits": "base",
       "cacheVariables": {
-        "RE_PLATFORM": "LINUX",
+        "RE_PLATFORM": "Linux",
         "CMAKE_CXX_FLAGS": "-Wall -Wextra"
       },
       "vendor": {
@@ -60,7 +60,7 @@
       "hidden": true,
       "inherits": "base",
       "cacheVariables": {
-        "RE_PLATFORM": "MACOS",
+        "RE_PLATFORM": "macOS",
         "CMAKE_OSX_DEPLOYMENT_TARGET": "11.0"
       },
       "vendor": {
@@ -92,7 +92,7 @@
       "hidden": true,
       "cacheVariables": {
         "CMAKE_BUILD_TYPE": "Debug",
-        "RE_CONFIG": "DEBUG",
+        "RE_CONFIG": "Debug",
         "RE_ENABLE_ASSERTS": "ON"
       }
     },
@@ -103,7 +103,7 @@
       "hidden": true,
       "cacheVariables": {
         "CMAKE_BUILD_TYPE": "RelWithDebInfo",
-        "RE_CONFIG": "RELEASE",
+        "RE_CONFIG": "Release",
         "CMAKE_INTERPROCEDURAL_OPTIMIZATION": "ON"
       }
     },
@@ -113,7 +113,7 @@
       "displayName": "Shipping",
       "hidden": true,
       "cacheVariables": {
-        "RE_CONFIG": "SHIPPING",
+        "RE_CONFIG": "Shipping",
         "RE_ENABLE_ASSERTS": "OFF",
         "CMAKE_VISIBILITY_INLINES_HIDDEN": "ON"
       }
@@ -127,10 +127,7 @@
         "windows-base",
         "debug",
         "x64"
-      ],
-      "cacheVariables": {
-        "OUTPUT_DIR": "${sourceDir}/Build/${hostSystemName}-x64-debug"
-      }
+      ]
     },
 
     {
@@ -141,10 +138,7 @@
         "windows-base",
         "release",
         "x64"
-      ],
-      "cacheVariables": {
-        "OUTPUT_DIR": "${sourceDir}/Build/${hostSystemName}-x64-release"
-      }
+      ]
     },
 
     {
@@ -155,10 +149,7 @@
         "windows-base",
         "shipping",
         "x64"
-      ],
-      "cacheVariables": {
-        "OUTPUT_DIR": "${sourceDir}/Build/${hostSystemName}-x64-shipping"
-      }
+      ]
     }
   ]
 }

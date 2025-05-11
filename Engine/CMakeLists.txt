@@ -1,9 +1,16 @@
-﻿cmake_minimum_required(VERSION 3.20)
+﻿project(Engine)
 
 file(GLOB_RECURSE ENGINE_SOURCES 
     "Source/*.cpp"
     "Source/*.h"
 )
+
+set(OUTPUT_DIR ${CMAKE_SOURCE_DIR}/Build/${RE_PLATFORM}-${RE_ARCH}-${RE_CONFIG}/${PROJECT_NAME})
+message(STATUS "${PROJECT_NAME} output dir : ${OUTPUT_DIR}")
+
+set(CMAKE_RUNTIME_OUTPUT_DIRECTORY ${OUTPUT_DIR})
+set(CMAKE_LIBRARY_OUTPUT_DIRECTORY ${OUTPUT_DIR})
+set(CMAKE_ARCHIVE_OUTPUT_DIRECTORY ${OUTPUT_DIR})
 
 add_library(Engine SHARED ${ENGINE_SOURCES})
 
