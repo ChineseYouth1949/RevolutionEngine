@@ -4,12 +4,12 @@
 
 namespace RE {
 class RE_API Application {
- public:
+public:
   Application();
   virtual ~Application();
 
   void Run();
 };
 
-Application* CreateApplication();
-}  // namespace RE
+Application *CreateApplication();
+} // namespace RE
