@@ -1,7 +1,5 @@
-# Directories
-.vs/
-.vscode/
-Build/
+.vscode/*
 
-# Flies
-*.user
+Build/*
+
+CMakePresets.json
