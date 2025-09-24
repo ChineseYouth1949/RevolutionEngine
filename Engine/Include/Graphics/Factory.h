@@ -3,7 +3,7 @@
 #include <memory>
 
 #include "Base/Export.h"
-#include "Base/Check.h"
+#include "Base/Error.h"
 
 namespace RE::Graphics {
 
@@ -13,7 +13,8 @@ class RE_API Factory {
  public:
   Factory();
 
-  ResultCode Build(FactoryFlag flag);
+  void SetFlag(FactoryFlag flag);
+  RESULT Build();
 
  private:
   struct Impl;
