@@ -31,7 +31,9 @@ SceneImporter::SceneImporter() {
 
 SceneImporter::~SceneImporter() {
   std::lock_guard<std::mutex> lock(m_impl->taskMutex);
-  m_impl->taskFuture.wait();
+  if (m_impl->taskFuture.valid()) {
+    m_impl->taskFuture.wait();
+  }
   delete m_impl;
 }
 
@@ -70,7 +72,9 @@ bool SceneImporter::LoadSceneAsync(const std::string& file, unsigned int flags) 
 
 std::shared_ptr<Scene> SceneImporter::GetScene() {
   std::lock_guard<std::mutex> lock(m_impl->taskMutex);
-  m_impl->taskFuture.wait();
+  if (m_impl->taskFuture.valid()) {
+    m_impl->taskFuture.wait();
+  }
   return m_impl->scene;
 }
 
