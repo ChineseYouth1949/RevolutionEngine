@@ -1,35 +1,62 @@
-#include "Resource/ResourceManager.h"
+// #include "Resource/ResourceManager.h"
 
-#include <assimp/postprocess.h>  // Post processing flags
-#include <assimp/scene.h>        // Output data structure
-#include <assimp/Importer.hpp>   // C++ importer interface
+// #include <assimp/postprocess.h>  // Post processing flags
+// #include <assimp/scene.h>        // Output data structure
+// #include <assimp/Importer.hpp>   // C++ importer interface
 
-#include <vector>
+// #include <vector>
+// #include <future>
+// #include <mutex>
 
-#include "Resource/Model.h"
+// #include "Resource/Model.h"
 
-namespace RE::Core {
+// namespace RE::Core {
 
-struct ResourceManager::Impl {
-  std::vector<Assimp::Importer> assimp_importers;
-};
+// struct ModelImporter {
+//  public:
+//   ModelImporter() {}
 
-ResourceManager::ResourceManager() {
-  m_impl = std::make_shared<Impl>();
-}
+//   bool LoadScene(const std::string& file, unsigned int flags) {
+//     if (useable) {
+//       return false;
+//     }
 
-ResourceManager& ResourceManager::Instance() {
-  static ResourceManager instance;
-  return instance;
-}
+//     loadScene = importer.ReadFile(file, flags);
 
-ResourceID ResourceManager::LoadModel() {
-  return ResourceID();
-}
+//     return true;
+//   }
 
-Model& ResourceManager::GetModel(ResourceID id) {
-  return Model();
-}
-void ResourceManager::FreeModel(ResourceID id) {}
+//  private:
+//   bool useable = false;
+//   std::future<const aiScene*> loadScene;
+//   Assimp::Importer importer;
+// };
 
-}  // namespace RE::Core
+// struct ResourceManager::Impl {
+//   std::vector<ModelImporter> modelImporters;
+//   std::mutex mutex;
+// };
+
+// ResourceManager::ResourceManager() {
+//   m_impl = std::make_shared<Impl>();
+// }
+
+// ResourceManager& ResourceManager::Instance() {
+//   static ResourceManager instance;
+//   return instance;
+// }
+
+// void LoadModelImpl() {}
+
+// ResourceID ResourceManager::LoadModel(const std::string& file) {
+//   std::lock_guard<std::mutex> lock(m_impl->mutex);
+
+//   return ResourceID();
+// }
+
+// Model& ResourceManager::GetModel(ResourceID id) {
+//   return Model();
+// }
+// void ResourceManager::FreeModel(ResourceID id) {}
+
+// }  // namespace RE::Core

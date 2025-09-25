@@ -1,25 +1,25 @@
-#pragma once
+// #pragma once
 
-#include <memory>
+// #include <memory>
 
-#include "ResourceInfo.h"
+// #include "ResourceInfo.h"
 
-namespace RE::Core {
-class Model;
+// namespace RE::Core {
+// class Model;
 
-class ResourceManager {
- public:
-  static ResourceManager& Instance();
+// class ResourceManager {
+//  public:
+//   static ResourceManager& Instance();
 
-  ResourceID LoadModel();
-  Model& GetModel(ResourceID id);
-  void FreeModel(ResourceID id);
+//   ResourceID LoadModel(const std::string& file);
+//   Model& GetModel(ResourceID id);
+//   void FreeModel(ResourceID id);
 
- private:
-  ResourceManager();
+//  private:
+//   ResourceManager();
 
-  struct Impl;
-  std::shared_ptr<Impl> m_impl;
-};
+//   struct Impl;
+//   std::shared_ptr<Impl> m_impl;
+// };
 
-}  // namespace RE::Core
+// }  // namespace RE::Core

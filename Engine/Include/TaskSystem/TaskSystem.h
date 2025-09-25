@@ -15,7 +15,8 @@ class TaskSystem {
 
   template <typename F, typename... Args>
   auto Submit(F&& f, Args&&... args) {
-    return m_executor->async(std::forward<F>(f), std::forward<Args>(args)...);
+    auto task = std::bind(std::forward<F>(f), std::forward<Args>(args)...);
+    return m_executor->async(std::move(task));
   }
 
   void WaitAllTask();
