@@ -2,4 +2,6 @@
 
 Build/*
 
+**/lib/*
+
 CMakePresets.json

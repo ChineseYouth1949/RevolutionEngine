@@ -27,12 +27,35 @@ if(CMAKE_BUILD_TYPE STREQUAL "Debug")
     target_compile_definitions(${PROJECT_NAME} PUBLIC _DEBUG)
 endif()
 
+set(EXTERNAL_DIR "${CMAKE_CURRENT_SOURCE_DIR}/External")
+
 target_include_directories(${PROJECT_NAME} 
     PUBLIC 
     $<BUILD_INTERFACE:${RE_HEADER_DIR}>
     PRIVATE 
-    ${CMAKE_CURRENT_SOURCE_DIR}/External/include
+    ${EXTERNAL_DIR}/include
 )
+
+set(EXTERNAL_BIN_DIR "${EXTERNAL_DIR}/bin")
+set(EXTERNAL_LIB_DIR "${EXTERNAL_DIR}/lib")
+
+if(${CMAKE_BUILD_TYPE} STREQUAL "Debug")
+    set(EXTERNAL_BIN_DIR "${EXTERNAL_DIR}/debug/bin")
+    set(EXTERNAL_LIB_DIR "${EXTERNAL_DIR}/debug/lib")
+endif()
+
+file(GLOB_RECURSE EXTERNAL_LIB_FILES "${EXTERNAL_LIB_DIR}/*.lib")
+message("EXTERNAL_LIB_FILES : ${EXTERNAL_LIB_FILES}")
+target_link_libraries(${PROJECT_NAME} PRIVATE ${EXTERNAL_LIB_FILES})
+
+file(GLOB EXTERNAL_LIB_FILES "${CMAKE_CURRENT_SOURCE_DIR}/External/bin/*.dll")
+foreach(DLL_FILE ${DLL_FILES})
+    add_custom_command(TARGET ${PROJECT_NAME} POST_BUILD
+        COMMAND ${CMAKE_COMMAND} -E copy_if_different
+            ${DLL_FILE}
+            $<TARGET_FILE_DIR:${PROJECT_NAME}>
+    )
+endforeach()
 
 target_link_libraries(${PROJECT_NAME} PUBLIC
     d3d12.lib
