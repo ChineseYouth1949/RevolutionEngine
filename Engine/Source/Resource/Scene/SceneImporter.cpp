@@ -30,13 +30,7 @@ SceneImporter::SceneImporter() {
 }
 
 SceneImporter::~SceneImporter() {
-  {
-    std::lock_guard<std::mutex> lock(m_impl->taskMutex);
-    if (m_impl->taskFuture.valid()) {
-      m_impl->taskFuture.wait();
-    }
-  }
-
+  WaitAsyncComplete();
   delete m_impl;
 }
 

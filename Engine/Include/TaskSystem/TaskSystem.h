@@ -17,6 +17,7 @@ class RE_API TaskSystem {
 
   template <typename F, typename... Args>
   auto Submit(F&& f, Args&&... args) {
+    std::lock_guard<std::mutex> lock(m_mutex);
     auto task = std::bind(std::forward<F>(f), std::forward<Args>(args)...);
     return m_executor->async(std::move(task));
   }
