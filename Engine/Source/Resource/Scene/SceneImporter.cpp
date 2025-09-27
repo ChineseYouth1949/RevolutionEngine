@@ -30,10 +30,13 @@ SceneImporter::SceneImporter() {
 }
 
 SceneImporter::~SceneImporter() {
-  std::lock_guard<std::mutex> lock(m_impl->taskMutex);
-  if (m_impl->taskFuture.valid()) {
-    m_impl->taskFuture.wait();
+  {
+    std::lock_guard<std::mutex> lock(m_impl->taskMutex);
+    if (m_impl->taskFuture.valid()) {
+      m_impl->taskFuture.wait();
+    }
   }
+
   delete m_impl;
 }
 
@@ -78,6 +81,12 @@ std::shared_ptr<Scene> SceneImporter::GetScene() {
   return m_impl->scene;
 }
 
+void SceneImporter::WaitAsyncComplete() {
+  if (m_impl->taskFuture.valid()) {
+    m_impl->taskFuture.wait();
+  }
+}
+
 bool SceneImporter::LoadSuccess() {
   return GetScene() != nullptr;
 }
@@ -92,7 +101,9 @@ void SceneImporter::LoadSceneToImporter(SceneImporter* pSceneImporter, const std
     pSceneImporter->m_impl->taskMutex.lock();
   }
 
-  const aiScene* scene = pSceneImporter->m_impl->assimpImporter.ReadFile(file, flags);
+  unsigned int constFlag = aiProcess_CalcTangentSpace | aiProcess_Triangulate | aiProcess_JoinIdenticalVertices | aiProcess_SortByPType;
+
+  const aiScene* scene = pSceneImporter->m_impl->assimpImporter.ReadFile(file, constFlag);
   std::shared_ptr<Scene> result_scene = std::make_shared<Scene>();
 
   if (async) {

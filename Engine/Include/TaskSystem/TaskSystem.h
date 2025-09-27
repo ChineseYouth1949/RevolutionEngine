@@ -5,9 +5,11 @@
 
 #include <taskflow/taskflow.hpp>
 
+#include "Base/Export.h"
+
 namespace RE::Core {
 
-class TaskSystem {
+class RE_API TaskSystem {
  public:
   static TaskSystem& Instance();
 

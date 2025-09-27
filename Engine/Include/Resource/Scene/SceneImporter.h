@@ -20,6 +20,7 @@ class RE_API SceneImporter {
   bool LoadSceneAsync(const std::string& file, unsigned int flags);
 
   std::shared_ptr<Scene> GetScene();
+  void WaitAsyncComplete();
 
   bool LoadSuccess();
   std::string ErrorString() const;

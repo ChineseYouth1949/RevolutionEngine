@@ -17,8 +17,8 @@ TaskSystem::~TaskSystem() {
 }
 
 void TaskSystem::SetThreadNum(size_t num) {
-  std::lock_guard<std::mutex> lock(m_mutex);
   WaitAllTask();
+  std::lock_guard<std::mutex> lock(m_mutex);
   m_executor = std::make_unique<tf::Executor>(num);
 }
 
