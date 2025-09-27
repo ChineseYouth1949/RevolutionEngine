@@ -1,4 +1,4 @@
-#include "Resource/Scene/SceneImporter.h"
+#include "Geometry/Scene/SceneImporter.h"
 
 #include <assimp/postprocess.h>
 #include <assimp/scene.h>
