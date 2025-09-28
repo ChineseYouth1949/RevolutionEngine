@@ -26,38 +26,44 @@ if(CMAKE_BUILD_TYPE STREQUAL "Debug")
     target_compile_definitions(${PROJECT_NAME} PUBLIC _DEBUG)
 endif()
 
-# 设置扩展库目录，链接扩展库和自身头文件（外部可使用）
-set(EXTERNAL_DIR "${CMAKE_CURRENT_SOURCE_DIR}/External")
-target_include_directories(${PROJECT_NAME} 
-    PUBLIC 
+# 设置VCPKG路径
+set(VCPKG_INSTALL_PATH $ENV{VCPKG_ROOT}/installed/x64-windows)
+set(VCPKG_INSTALL_STATIC_PATH $ENV{VCPKG_ROOT}/installed/x64-windows-static-md)
+
+# 包含自身头和扩展头文件
+target_include_directories(${PROJECT_NAME} PUBLIC
+    ${VCPKG_INSTALL_PATH}/include
+    ${VCPKG_INSTALL_STATIC_PATH}/include
     $<BUILD_INTERFACE:${RE_HEADER_DIR}>
-    ${EXTERNAL_DIR}/include
 )
 
-# 设置扩展库dll和lib目录
-set(EXTERNAL_BIN_DIR "${EXTERNAL_DIR}/bin")
-set(EXTERNAL_LIB_DIR "${EXTERNAL_DIR}/lib")
+file(GLOB_RECURSE VCPKG_LIB_PATH "${VCPKG_INSTALL_PATH}/lib/*.lib")
+file(GLOB_RECURSE VCPKG_STATIC_LIB_PATH "${VCPKG_INSTALL_STATIC_PATH}/lib/*.lib")
 
+# 链接扩展库lib目录
 if(${CMAKE_BUILD_TYPE} STREQUAL "Debug")
-    set(EXTERNAL_BIN_DIR "${EXTERNAL_DIR}/debug/bin")
-    set(EXTERNAL_LIB_DIR "${EXTERNAL_DIR}/debug/lib")
+    file(GLOB_RECURSE VCPKG_LIB_PATH "${VCPKG_INSTALL_PATH}/debug/lib/*.lib")
+    file(GLOB_RECURSE VCPKG_STATIC_LIB_PATH "${VCPKG_INSTALL_STATIC_PATH}/debug/lib/*.lib")
 endif()
 
 # 链接扩展库lib
-file(GLOB_RECURSE EXTERNAL_LIB_FILES "${EXTERNAL_LIB_DIR}/*.lib")
-target_link_libraries(${PROJECT_NAME} PRIVATE ${EXTERNAL_LIB_FILES})
+target_link_libraries(${PROJECT_NAME} PRIVATE ${VCPKG_LIB_PATH})
+target_link_libraries(${PROJECT_NAME} PRIVATE ${VCPKG_STATIC_LIB_PATH})
 
-# 拷贝扩展库dll
-file(GLOB_RECURSE EXTERNAL_BIN_FILES "${EXTERNAL_BIN_DIR}/*.dll")
-foreach(DLL_FILE ${EXTERNAL_BIN_FILES})
-    add_custom_command(TARGET ${PROJECT_NAME} POST_BUILD
-        COMMAND ${CMAKE_COMMAND} -E copy_if_different
-            ${DLL_FILE}
-            $<TARGET_FILE_DIR:${PROJECT_NAME}>
-    )
-endforeach()
+# # 拷贝扩展DLL
+# if(CMAKE_BUILD_TYPE STREQUAL "Debug")
+#     file(GLOB DLLS "$ENV{VCPKG_ROOT}/installed/x64-windows/debug/bin/*.dll")
+# else()
+#     file(GLOB DLLS "$ENV{VCPKG_ROOT}/installed/x64-windows/bin/*.dll") 
+# endif()
 
-# 链接所需系统dll
+# foreach(DLL ${DLLS})
+#     add_custom_command(TARGET ${PROJECT_NAME} POST_BUILD
+#         COMMAND ${CMAKE_COMMAND} -E copy ${DLL} $<TARGET_FILE_DIR:${PROJECT_NAME}>
+#     )
+# endforeach()
+
+# 链接所需系统lib
 target_link_libraries(${PROJECT_NAME} PUBLIC
     d3d12.lib
     dxgi.lib
