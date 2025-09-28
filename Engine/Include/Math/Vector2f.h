@@ -19,11 +19,11 @@ struct RE_API Vector2f {
   };
 };
 
-INLINE constexpr Vector2f MaxVector2f() {
+RE_INLINE constexpr Vector2f MaxVector2f() {
   constexpr const float floatMaxValue = std::numeric_limits<float>::max();
   return {floatMaxValue, floatMaxValue};
 }
-INLINE constexpr Vector2f NevMaxVector2f() {
+RE_INLINE constexpr Vector2f NevMaxVector2f() {
   constexpr const float floatMaxValue = std::numeric_limits<float>::max();
   return {-floatMaxValue, -floatMaxValue};
 }

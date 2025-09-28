@@ -7,7 +7,7 @@
 #endif
 
 #ifdef _MSC_VER
-#define INLINE __forceinline
+#define RE_INLINE __forceinline
 #else
-#define INLINE inline __attribute__((always_inline))
+#define RE_INLINE inline __attribute__((always_inline))
 #endif
