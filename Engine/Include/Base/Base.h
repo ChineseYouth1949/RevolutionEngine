@@ -3,4 +3,5 @@
 #include "ClassDefine.h"
 
 // Base type
+#include "Error.h"
 #include "Result.h"

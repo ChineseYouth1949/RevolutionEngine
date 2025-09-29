@@ -1,6 +1,4 @@
-#include "Base/Result.h"
-
-#include "Base/Error.h"
+#include "Base/Base.h"
 
 namespace RE::Core {
 

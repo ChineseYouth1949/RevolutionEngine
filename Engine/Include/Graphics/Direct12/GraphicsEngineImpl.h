@@ -6,22 +6,10 @@
 
 namespace RE::Core {
 
-struct RecordResource {
-  ComPtr<ID3D12CommandAllocator> commandAllocator;
-  ComPtr<ID3D12GraphicsCommandList> commandList;
-};
-
-struct FrameResource {
-  ID3D12Resource renderTarget;
-  UINT64 fenceValue;
-
-  std::shared_ptr<RecordResource> recordResources;
-};
-
 class RE_API GraphicsEngineImpl {
  public:
   GraphicsEngineImpl();
-  ~GraphicsEngineImpl();
+  virtual ~GraphicsEngineImpl();
 
   GraphicsEngineImpl(GraphicsEngineImpl&&) noexcept = default;
   GraphicsEngineImpl& operator=(GraphicsEngineImpl&&) noexcept = default;

@@ -1,4 +1,4 @@
-#include "Geometry/Scene/SceneImporter.h"
+#include "Graphics/Geometry/Scene/SceneImporter.h"
 
 #include <assimp/postprocess.h>
 #include <assimp/scene.h>
@@ -8,7 +8,7 @@
 #include <future>
 #include <mutex>
 
-#include "TaskSystem/TaskSystem.h"
+#include "Utils/TaskSystem.h"
 
 namespace RE::Core {
 

@@ -27,14 +27,18 @@ if(CMAKE_BUILD_TYPE STREQUAL "Debug")
 endif()
 
 # 包含自身头和扩展头文件
-target_include_directories(${PROJECT_NAME} PUBLIC
-    ${VCPKG_INSTALL_PATH}/include
+target_include_directories(${PROJECT_NAME} 
+    PUBLIC  
     $<BUILD_INTERFACE:${RE_HEADER_DIR}>
+    ${VCPKG_INSTALL_PATH}/include
 )
 
 # 链接扩展库
 find_package(assimp REQUIRED static-md)
 target_link_libraries(${PROJECT_NAME} PRIVATE assimp::assimp)
+
+find_package(mimalloc REQUIRED static-md)
+target_link_libraries(${PROJECT_NAME} PRIVATE mimalloc-static)
 
 # 链接所需系统lib
 target_link_libraries(${PROJECT_NAME} PUBLIC

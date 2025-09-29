@@ -1,8 +1,8 @@
 #pragma once
 
-#include "Base/Base.h"
-
 #include <limits>
+
+#include "Base/Base.h"
 
 namespace RE::Core {
 

@@ -32,7 +32,10 @@ class RE_API Result {
   ResultType m_type;
 };
 
-#define ThrowIfFailed_RE(x) Result(ResultType::RE, x).ThrowIfFailed()
-#define ThrowIfFailed_WIN_HRESULT(x) Result(ResultType::WIN_HRESULT, x).ThrowIfFailed()
+#define RESULT_RE(code) Result(ResultType::RE, code)
+#define RESULT_WIN_RESULT(code) Result(ResultType::WIN_HRESULT, code)
+
+#define ThrowIfFailed_RE(code) RESULT_RE(code).ThrowIfFailed()
+#define ThrowIfFailed_WIN_RESULT(code) RESULT_WIN_RESULT(code).ThrowIfFailed()
 
 }  // namespace RE::Core
