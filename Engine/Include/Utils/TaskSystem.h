@@ -34,7 +34,7 @@ class RE_API TaskSystem {
   TaskSystem(const TaskSystem&) = delete;
   TaskSystem& operator=(const TaskSystem&) = delete;
 
-  std::unique_ptr<tf::Executor> m_executor;
+  tf::Executor* m_executor;
   mutable std::mutex m_mutex;
 };
 

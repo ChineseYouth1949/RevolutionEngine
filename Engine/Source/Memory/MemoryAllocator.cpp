@@ -2,6 +2,7 @@
 
 #include <cstdlib>
 #include <memory>
+#include <unordered_map>
 
 #include <mimalloc.h>
 
@@ -244,5 +245,7 @@ void MemoryAllocator::Free(void* p) {
     }
   }
 }
+
+AllocateType MemoryAllocator::sDefaultType = AllocateType::STD;
 
 }  // namespace RE::Core

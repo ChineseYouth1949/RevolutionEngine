@@ -36,8 +36,34 @@ class RE_API MemoryAllocator {
   // Free memory allocate
   void Free(void* p);
 
+  RE_INLINE static MemoryAllocator& GetDefaultAllocator() {
+    static MemoryAllocator defaultAllocator(sDefaultType);
+    return defaultAllocator;
+  }
+
+  template <typename T>
+  RE_INLINE static T* DefaultNew(bool zero = true) {
+    void* p = nullptr;
+    if (zero) {
+      p = GetDefaultAllocator().Zalloc(sizeof(T));
+    } else {
+      p = GetDefaultAllocator().Malloc(sizeof(T));
+    }
+    return static_cast<T*>(p);
+  }
+
+  template <typename T, typename... Args>
+  RE_INLINE static T* DefaultNew(Args&&... args) {
+    void* p = GetDefaultAllocator().Malloc(sizeof(T));
+    return new (p) T(std::forward<Args>(args)...);
+  }
+
+  RE_INLINE static void DefaultDelete(void* p) { GetDefaultAllocator().Free(p); }
+
  private:
   RE_PIMPL
+
+  static AllocateType sDefaultType;
 };
 
 }  // namespace RE::Core

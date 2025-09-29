@@ -1,4 +1,5 @@
 #include "Utils/TaskSystem.h"
+#include "Memory/Memory.h"
 
 namespace RE::Core {
 
@@ -7,19 +8,23 @@ TaskSystem& TaskSystem::Instance() {
   return instance;
 }
 
-TaskSystem::TaskSystem() {
+TaskSystem::TaskSystem() : m_executor(MemoryAllocator::DefaultNew<tf::Executor>()) {
   std::lock_guard<std::mutex> lock(m_mutex);
-  m_executor = std::make_unique<tf::Executor>();
 }
 
 TaskSystem::~TaskSystem() {
   WaitAllTask();
+  MemoryAllocator::DefaultDelete(m_executor);
+  m_executor = nullptr;
 }
 
 void TaskSystem::SetThreadNum(size_t num) {
   WaitAllTask();
   std::lock_guard<std::mutex> lock(m_mutex);
-  m_executor = std::make_unique<tf::Executor>(num);
+
+  MemoryAllocator::DefaultDelete(m_executor);
+  m_executor = nullptr;
+  m_executor = MemoryAllocator::DefaultNew<tf::Executor>();
 }
 
 void TaskSystem::WaitAllTask() {

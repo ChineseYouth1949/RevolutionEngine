@@ -1,5 +1,6 @@
 
 #include "Utils/Json.h"
+#include "Memory/Memory.h"
 
 #include <fstream>
 
@@ -13,8 +14,13 @@ struct JsonDoc::Impl {
   rapidjson::Document doc;
 };
 
-JsonDoc::JsonDoc() {
+JsonDoc::JsonDoc() : m_impl(MemoryAllocator::DefaultNew<Impl>()) {
   m_impl->doc.SetObject();
+}
+
+JsonDoc::~JsonDoc() {
+  MemoryAllocator::DefaultDelete(m_impl);
+  m_impl->doc = nullptr;
 }
 
 bool JsonDoc::Parse(const std::string& jsonStr) {

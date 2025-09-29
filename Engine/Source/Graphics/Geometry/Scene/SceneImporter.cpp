@@ -9,6 +9,7 @@
 #include <mutex>
 
 #include "Utils/TaskSystem.h"
+#include "Memory/Memory.h"
 
 namespace RE::Core {
 
@@ -25,13 +26,12 @@ struct SceneImporter::Impl {
   std::mutex taskMutex;
 };
 
-SceneImporter::SceneImporter() {
-  m_impl = new Impl();
-}
+SceneImporter::SceneImporter() : m_impl(MemoryAllocator::DefaultNew<Impl>()) {}
 
 SceneImporter::~SceneImporter() {
   WaitAsyncComplete();
-  delete m_impl;
+  MemoryAllocator::DefaultDelete(m_impl);
+  m_impl = nullptr;
 }
 
 bool SceneImporter::IsUseable() const {
