@@ -11,7 +11,11 @@
                 "CMAKE_C_COMPILER": "cl.exe",
                 "CMAKE_CXX_COMPILER": "cl.exe",
                 "RUNTIME_ARCHIVE_LIBRARY_BASE_DIRECTORY": "${sourceDir}/Build/${presetName}",
-                "CMAKE_TOOLCHAIN_FILE": "$env{VCPKG_ROOT}/scripts/buildsystems/vcpkg.cmake"
+                "CMAKE_JOB_POOLS": "compile=4;link=2",
+                "CMAKE_BUILD_PARALLEL_LEVEL": "4",
+                "VCPKG_ROOT": "$env{VCPKG_ROOT}",
+                "CMAKE_TOOLCHAIN_FILE": "$env{VCPKG_ROOT}/scripts/buildsystems/vcpkg.cmake",
+                "VCPKG_TARGET_TRIPLET": "x64-windows-static-md"
             },
             "condition": {
                 "type": "equals",

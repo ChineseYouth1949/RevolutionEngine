@@ -1,6 +1,9 @@
-cmake_minimum_required(VERSION 3.19)
+cmake_minimum_required(VERSION 3.30)
 
 project(Revolution VERSION 1.0)
+
+set(VCPKG_INSTALL_PATH "${VCPKG_ROOT}/installed/${VCPKG_TARGET_TRIPLET}")
+message("VCPKG_INSTALL_PATH : ${VCPKG_INSTALL_PATH}")
 
 function(SET_TARGET_OUTPUT_DIRS target_name)
     set(OUTPUT_BASE_DIR "${RUNTIME_ARCHIVE_LIBRARY_BASE_DIRECTORY}")

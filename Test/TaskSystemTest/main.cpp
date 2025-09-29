@@ -13,7 +13,7 @@ int main() {
   std::string file = "./Assets/Model/sibenik.gltf";
 
   bool useAsync = true;
-  int count = 5;
+  int count = 1;
 
   // async
   {
