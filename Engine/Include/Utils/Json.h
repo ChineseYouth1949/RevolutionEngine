@@ -1,33 +1,39 @@
 #pragma once
 
-#include "Base/Base.h"
+#include <string>
+#include <fstream>
+
+#include <rapidjson/document.h>
+#include <rapidjson/writer.h>
+#include <rapidjson/stringbuffer.h>
 
 namespace RE::Core {
 
 class JsonDoc {
  public:
   JsonDoc();
-  ~JsonDoc();
+  ~JsonDoc() = default;
 
   bool Parse(const std::string& jsonStr);
   std::string Stringify() const;
 
-  bool HasKey(const std::string& key);
+  bool SaveToFile(const std::string& filename) const;
+  bool LoadFromFile(const std::string& filename);
 
-  std::string GetString(const std::string& key);
-  int GetInt(const std::string& key);
+  bool HasKey(const std::string& key) const;
+
+  bool GetValue(const std::string& key, std::string& res) const;
+  bool GetValue(const std::string& key, int& res) const;
+  bool GetValue(const std::string& key, double& res) const;
 
   bool SetValue(const std::string& key, const std::string& value);
-  bool RemoveKey(const std::string& key);
+  bool SetValue(const std::string& key, int value);
+  bool SetValue(const std::string& key, double value);
+
+  bool Remove(const std::string& key);
 
  private:
-  RE_PIMPL
-};
-
-class JsonDB {
- public:
-  static bool ExportToFile(const JsonDoc& doc, const std::string& filename);
-  static bool ImportFromFile(JsonDoc& doc, const std::string& filename);
+  rapidjson::Document m_doc;
 };
 
 }  // namespace RE::Core

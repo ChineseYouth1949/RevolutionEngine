@@ -1,11 +1,11 @@
 #pragma once
 
-#include <memory>
-#include <mutex>
+#include "Base/Base.h"
+#include "Memory/Memory.h"
+
+#include <shared_mutex>
 
 #include <taskflow/taskflow.hpp>
-
-#include "Base/Base.h"
 
 namespace RE::Core {
 
@@ -17,9 +17,8 @@ class RE_API TaskSystem {
 
   template <typename F, typename... Args>
   auto Submit(F&& f, Args&&... args) {
-    std::lock_guard<std::mutex> lock(m_mutex);
-    auto task = std::bind(std::forward<F>(f), std::forward<Args>(args)...);
-    return m_executor->async(std::move(task));
+    std::shared_lock lock(m_mutex);
+    return m_executor->async([f = std::forward<F>(f), ... args = std::forward<Args>(args)] { return std::invoke(f, args...); });
   }
 
   void WaitAllTask();
@@ -31,11 +30,14 @@ class RE_API TaskSystem {
   TaskSystem();
   ~TaskSystem();
 
+  TaskSystem(TaskSystem&&) noexcept = default;
+  TaskSystem& operator=(TaskSystem&&) noexcept = default;
+
   TaskSystem(const TaskSystem&) = delete;
   TaskSystem& operator=(const TaskSystem&) = delete;
 
   tf::Executor* m_executor;
-  mutable std::mutex m_mutex;
+  mutable std::shared_mutex m_mutex;
 };
 
 }  // namespace RE::Core

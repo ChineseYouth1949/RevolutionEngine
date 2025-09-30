@@ -22,13 +22,14 @@ set_target_properties(${PROJECT_NAME} PROPERTIES DEBUG_POSTFIX "_d")
 
 # 添加导出和调试宏定义
 target_compile_definitions(${PROJECT_NAME} PRIVATE RE_EXPORT)
+
 if(CMAKE_BUILD_TYPE STREQUAL "Debug")
     target_compile_definitions(${PROJECT_NAME} PUBLIC _DEBUG)
 endif()
 
 # 包含自身头和扩展头文件
-target_include_directories(${PROJECT_NAME} 
-    PUBLIC  
+target_include_directories(${PROJECT_NAME}
+    PUBLIC
     $<BUILD_INTERFACE:${RE_HEADER_DIR}>
     ${VCPKG_INSTALL_PATH}/include
 )

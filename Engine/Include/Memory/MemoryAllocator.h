@@ -4,66 +4,29 @@
 
 namespace RE::Core {
 
-enum struct AllocateType { STD = 0, Mimalloc };
+enum struct AllocType : uint8_t { STD = 0, MIMALLOC };
 
 class RE_API MemoryAllocator {
  public:
-  MemoryAllocator(AllocateType type);
-  virtual ~MemoryAllocator();
+  static void* Malloc(size_t size, AllocType type);
+  static void* Zalloc(size_t size, AllocType type);
+  static void* Calloc(size_t size, size_t count, AllocType type);
 
-  // 基础分配
-  void* Malloc(size_t size);
-  void* Zalloc(size_t size);
-  void* Calloc(size_t size, size_t count);
+  static void* Recalloc(void* p, size_t newSize, AllocType type);
+  static void* Recalloc(void* p, size_t newSize, size_t count, AllocType type);
+  static bool Expand(void* p, size_t newSize, AllocType type);
 
-  // 调整分配
-  void* Recalloc(void* p, size_t newSize);
-  void* Recalloc(void* p, size_t newSize, size_t count);
-  bool Expand(void* p, size_t newSize);
+  static void* MallocAligned(size_t size, size_t alignment, AllocType type);
+  static void* ZallocAligned(size_t size, size_t alignment, AllocType type);
+  static void* CallocAligned(size_t size, size_t count, size_t alignment, AllocType type);
+  static void* ReallocAligned(void* p, size_t newsize, size_t alignment, AllocType type);
 
-  // 对齐分配
-  void* MallocAligned(size_t size, size_t alignment);
-  void* ZallocAligned(size_t size, size_t alignment);
-  void* CallocAligned(size_t size, size_t count, size_t alignment);
-  void* ReallocAligned(void* p, size_t newsize, size_t alignment);
+  static void* MallocAlignedAt(size_t size, size_t alignment, size_t offset, AllocType type);
+  static void* ZallocAlignedAt(size_t size, size_t alignment, size_t offset, AllocType type);
+  static void* CallocAlignedAt(size_t size, size_t count, size_t alignment, size_t offset, AllocType type);
+  static void* ReallocAlignedAt(void* p, size_t newsize, size_t alignment, size_t offset, AllocType type);
 
-  // 带偏移的对齐分配
-  void* MallocAlignedAt(size_t size, size_t alignment, size_t offset);
-  void* ZallocAlignedAt(size_t size, size_t alignment, size_t offset);
-  void* CallocAlignedAt(size_t size, size_t count, size_t alignment, size_t offset);
-  void* ReallocAlignedAt(void* p, size_t newsize, size_t alignment, size_t offset);
-
-  // Free memory allocate
-  void Free(void* p);
-
-  RE_INLINE static MemoryAllocator& GetDefaultAllocator() {
-    static MemoryAllocator defaultAllocator(sDefaultType);
-    return defaultAllocator;
-  }
-
-  template <typename T>
-  RE_INLINE static T* DefaultNew(bool zero = true) {
-    void* p = nullptr;
-    if (zero) {
-      p = GetDefaultAllocator().Zalloc(sizeof(T));
-    } else {
-      p = GetDefaultAllocator().Malloc(sizeof(T));
-    }
-    return static_cast<T*>(p);
-  }
-
-  template <typename T, typename... Args>
-  RE_INLINE static T* DefaultNew(Args&&... args) {
-    void* p = GetDefaultAllocator().Malloc(sizeof(T));
-    return new (p) T(std::forward<Args>(args)...);
-  }
-
-  RE_INLINE static void DefaultDelete(void* p) { GetDefaultAllocator().Free(p); }
-
- private:
-  RE_PIMPL
-
-  static AllocateType sDefaultType;
+  static void Free(void* p, AllocType type);
 };
 
 }  // namespace RE::Core

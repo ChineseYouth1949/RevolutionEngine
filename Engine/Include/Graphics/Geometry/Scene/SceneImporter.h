@@ -1,11 +1,17 @@
 #pragma once
 
-#include <memory>
-#include <string>
-
 #include "Base/Base.h"
+#include "Memory/Memory.h"
 
 #include "Scene.h"
+
+#include <string>
+#include <mutex>
+#include <shared_mutex>
+
+#include <assimp/postprocess.h>
+#include <assimp/scene.h>
+#include <assimp/Importer.hpp>
 
 namespace RE::Core {
 
@@ -14,16 +20,13 @@ class RE_API SceneImporter {
   SceneImporter();
   ~SceneImporter();
 
-  bool IsUseable() const;
+  bool LoadScene(std::string fileName, unsigned int flags);
 
-  bool LoadScene(const std::string& file, unsigned int flags);
-  bool LoadSceneAsync(const std::string& file, unsigned int flags);
+  GUniquePtr<Scene> GetLastScene();
+  std::vector<GUniquePtr<Scene>> GetAllScene();
 
-  std::shared_ptr<Scene> GetScene();
-  void WaitAsyncComplete();
-
-  bool LoadSuccess();
-  std::string ErrorString() const;
+  bool LastLoadSuccess() const;
+  std::string LastLoadErrorString() const;
 
  private:
   SceneImporter(SceneImporter&&) noexcept = default;
@@ -32,10 +35,11 @@ class RE_API SceneImporter {
   SceneImporter(const SceneImporter&) = delete;
   SceneImporter& operator=(const SceneImporter&) = delete;
 
-  struct Impl;
-  Impl* m_impl;
+  Assimp::Importer m_assimpImporter;
+  std::vector<GUniquePtr<Scene>> m_scenes;
 
-  static void LoadSceneToImporter(SceneImporter* pSceneImporter, const std::string& file, unsigned int flags, bool async);
+  bool m_lastSuccess;
+  std::string m_lastErrorString;
 };
 
 }  // namespace RE::Core

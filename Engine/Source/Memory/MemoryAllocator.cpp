@@ -2,37 +2,23 @@
 
 #include <cstdlib>
 #include <memory>
-#include <unordered_map>
 
 #include <mimalloc.h>
 
 namespace RE::Core {
 
-struct MemoryAllocator::Impl {
-  AllocateType type;
-};
-
-MemoryAllocator::MemoryAllocator(AllocateType type) : m_impl(new Impl()) {
-  m_impl->type = type;
-}
-
-MemoryAllocator::~MemoryAllocator() {
-  delete m_impl;
-  m_impl = nullptr;
-}
-
-void* MemoryAllocator::Malloc(size_t size) {
+void* MemoryAllocator::Malloc(size_t size, AllocType type) {
   if (size == 0) {
     return nullptr;
   }
 
   void* res = nullptr;
 
-  switch (m_impl->type) {
-    case AllocateType::STD:
+  switch (type) {
+    case AllocType::STD:
       res = std::malloc(size);
       break;
-    case AllocateType::Mimalloc:
+    case AllocType::MIMALLOC:
       res = mi_malloc(size);
     default:
       break;
@@ -41,19 +27,19 @@ void* MemoryAllocator::Malloc(size_t size) {
   return res;
 }
 
-void* MemoryAllocator::Zalloc(size_t size) {
+void* MemoryAllocator::Zalloc(size_t size, AllocType type) {
   if (size == 0) {
     return nullptr;
   }
 
   void* res = nullptr;
 
-  switch (m_impl->type) {
-    case AllocateType::STD:
+  switch (type) {
+    case AllocType::STD:
       res = std::malloc(size);
       memset(res, 0, size);
       break;
-    case AllocateType::Mimalloc:
+    case AllocType::MIMALLOC:
       res = mi_zalloc(size);
     default:
       break;
@@ -62,22 +48,22 @@ void* MemoryAllocator::Zalloc(size_t size) {
   return res;
 }
 
-void* MemoryAllocator::Calloc(size_t size, size_t count) {
-  return Zalloc(size * count);
+void* MemoryAllocator::Calloc(size_t size, size_t count, AllocType type) {
+  return Zalloc(size * count, type);
 }
 
-void* MemoryAllocator::Recalloc(void* p, size_t newSize) {
+void* MemoryAllocator::Recalloc(void* p, size_t newSize, AllocType type) {
   if (!p) {
-    return Malloc(newSize);
+    return Malloc(newSize, type);
   }
 
   void* res = nullptr;
 
-  switch (m_impl->type) {
-    case AllocateType::STD:
+  switch (type) {
+    case AllocType::STD:
       res = std::realloc(p, newSize);
       break;
-    case AllocateType::Mimalloc:
+    case AllocType::MIMALLOC:
       res = mi_realloc(res, newSize);
     default:
       break;
@@ -86,21 +72,21 @@ void* MemoryAllocator::Recalloc(void* p, size_t newSize) {
   return res;
 }
 
-void* MemoryAllocator::Recalloc(void* p, size_t newSize, size_t count) {
-  return Recalloc(p, newSize * count);
+void* MemoryAllocator::Recalloc(void* p, size_t newSize, size_t count, AllocType type) {
+  return Recalloc(p, newSize * count, type);
 }
 
-bool MemoryAllocator::Expand(void* p, size_t newSize) {
+bool MemoryAllocator::Expand(void* p, size_t newSize, AllocType type) {
   if (!p) {
     return false;
   }
 
   void* res = nullptr;
 
-  switch (m_impl->type) {
-    case AllocateType::STD:
+  switch (type) {
+    case AllocType::STD:
       break;
-    case AllocateType::Mimalloc:
+    case AllocType::MIMALLOC:
       res = mi_expand(p, newSize);
     default:
       break;
@@ -119,18 +105,18 @@ RE_INLINE void* AlignedAlloc(size_t align, size_t size) {
 #endif
 }
 
-void* MemoryAllocator::MallocAligned(size_t size, size_t alignment) {
+void* MemoryAllocator::MallocAligned(size_t size, size_t alignment, AllocType type) {
   if (alignment == 0) {
     alignment = alignof(std::max_align_t);
   }
 
   void* res = nullptr;
 
-  switch (m_impl->type) {
-    case AllocateType::STD:
+  switch (type) {
+    case AllocType::STD:
       res = AlignedAlloc(alignment, size);
       break;
-    case AllocateType::Mimalloc:
+    case AllocType::MIMALLOC:
       res = mi_malloc_aligned(size, alignment);
     default:
       break;
@@ -139,19 +125,19 @@ void* MemoryAllocator::MallocAligned(size_t size, size_t alignment) {
   return res;
 }
 
-void* MemoryAllocator::ZallocAligned(size_t size, size_t alignment) {
+void* MemoryAllocator::ZallocAligned(size_t size, size_t alignment, AllocType type) {
   if (alignment == 0) {
     alignment = alignof(std::max_align_t);
   }
 
   void* res = nullptr;
 
-  switch (m_impl->type) {
-    case AllocateType::STD:
+  switch (type) {
+    case AllocType::STD:
       res = AlignedAlloc(alignment, size);
       memset(res, 0, size);
       break;
-    case AllocateType::Mimalloc:
+    case AllocType::MIMALLOC:
       res = mi_zalloc_aligned(size, alignment);
     default:
       break;
@@ -160,19 +146,19 @@ void* MemoryAllocator::ZallocAligned(size_t size, size_t alignment) {
   return res;
 }
 
-void* MemoryAllocator::CallocAligned(size_t size, size_t count, size_t alignment) {
-  return ZallocAligned(size * count, alignment);
+void* MemoryAllocator::CallocAligned(size_t size, size_t count, size_t alignment, AllocType type) {
+  return ZallocAligned(size * count, alignment, type);
 }
 
-void* MemoryAllocator::ReallocAligned(void* p, size_t newsize, size_t alignment) {
+void* MemoryAllocator::ReallocAligned(void* p, size_t newsize, size_t alignment, AllocType type) {
   if (p) {
-    Free(p);
+    Free(p, type);
   }
 
-  return MallocAligned(newsize, alignment);
+  return MallocAligned(newsize, alignment, type);
 }
 
-void* MemoryAllocator::MallocAlignedAt(size_t size, size_t alignment, size_t offset) {
+void* MemoryAllocator::MallocAlignedAt(size_t size, size_t alignment, size_t offset, AllocType type) {
   if (offset >= alignment) {
     return nullptr;
   }
@@ -180,14 +166,14 @@ void* MemoryAllocator::MallocAlignedAt(size_t size, size_t alignment, size_t off
   void* res = nullptr;
   uintptr_t aligned_ptr;
 
-  switch (m_impl->type) {
-    case AllocateType::STD:
-      res = MallocAligned(size + alignment, alignment);
+  switch (type) {
+    case AllocType::STD:
+      res = MallocAligned(size + alignment, alignment, type);
       aligned_ptr = reinterpret_cast<uintptr_t>(res);
       aligned_ptr = (aligned_ptr + offset + alignment - 1) & ~(alignment - 1);
       res = reinterpret_cast<void*>(aligned_ptr);
       break;
-    case AllocateType::Mimalloc:
+    case AllocType::MIMALLOC:
       res = mi_malloc_aligned_at(size, alignment, offset);
     default:
       break;
@@ -196,7 +182,7 @@ void* MemoryAllocator::MallocAlignedAt(size_t size, size_t alignment, size_t off
   return res;
 }
 
-void* MemoryAllocator::ZallocAlignedAt(size_t size, size_t alignment, size_t offset) {
+void* MemoryAllocator::ZallocAlignedAt(size_t size, size_t alignment, size_t offset, AllocType type) {
   if (offset >= alignment) {
     return nullptr;
   }
@@ -204,14 +190,14 @@ void* MemoryAllocator::ZallocAlignedAt(size_t size, size_t alignment, size_t off
   void* res = nullptr;
   uintptr_t aligned_ptr;
 
-  switch (m_impl->type) {
-    case AllocateType::STD:
-      res = ZallocAligned(size + alignment, alignment);
+  switch (type) {
+    case AllocType::STD:
+      res = ZallocAligned(size + alignment, alignment, type);
       aligned_ptr = reinterpret_cast<uintptr_t>(res);
       aligned_ptr = (aligned_ptr + offset + alignment - 1) & ~(alignment - 1);
       res = reinterpret_cast<void*>(aligned_ptr);
       break;
-    case AllocateType::Mimalloc:
+    case AllocType::MIMALLOC:
       res = mi_malloc_aligned_at(size, alignment, offset);
     default:
       break;
@@ -220,32 +206,30 @@ void* MemoryAllocator::ZallocAlignedAt(size_t size, size_t alignment, size_t off
   return res;
 }
 
-void* MemoryAllocator::CallocAlignedAt(size_t size, size_t count, size_t alignment, size_t offset) {
-  return ZallocAlignedAt(size * count, alignment, offset);
+void* MemoryAllocator::CallocAlignedAt(size_t size, size_t count, size_t alignment, size_t offset, AllocType type) {
+  return ZallocAlignedAt(size * count, alignment, offset, type);
 }
 
-void* MemoryAllocator::ReallocAlignedAt(void* p, size_t newsize, size_t alignment, size_t offset) {
+void* MemoryAllocator::ReallocAlignedAt(void* p, size_t newsize, size_t alignment, size_t offset, AllocType type) {
   if (p) {
-    Free(p);
+    Free(p, type);
   }
 
-  return MallocAlignedAt(newsize, alignment, offset);
+  return MallocAlignedAt(newsize, alignment, offset, type);
 }
 
-void MemoryAllocator::Free(void* p) {
+void MemoryAllocator::Free(void* p, AllocType type) {
   if (p) {
-    switch (m_impl->type) {
-      case AllocateType::STD:
+    switch (type) {
+      case AllocType::STD:
         free(p);
         break;
-      case AllocateType::Mimalloc:
+      case AllocType::MIMALLOC:
         mi_free(p);
       default:
         break;
     }
   }
 }
-
-AllocateType MemoryAllocator::sDefaultType = AllocateType::STD;
 
 }  // namespace RE::Core

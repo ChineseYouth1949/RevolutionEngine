@@ -2,6 +2,9 @@
 #include "CompileDefine.h"
 #include "ClassDefine.h"
 
-// Base type
+// base type
 #include "Error.h"
 #include "Result.h"
+
+// other headers
+#include "WindowsHeader.h"

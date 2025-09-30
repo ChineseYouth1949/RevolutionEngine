@@ -2,11 +2,6 @@
 
 #include <stdexcept>
 
-#if defined(_WIN32)
-#define NOMINMAX
-#include <Windows.h>
-#endif
-
 #include "CompileDefine.h"
 #include "Result.h"
 
