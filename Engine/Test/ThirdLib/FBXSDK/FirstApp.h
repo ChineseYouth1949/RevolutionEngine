@@ -1,7 +1,13 @@
+#pragma once
+
 #include <fbxsdk.h>
 
 #include <string>
 #include <iostream>
+
+namespace FirstApp {
+
+const char* gLoadFilename = "./Assets/Model/mech-drone/source/Drone.FBX";
 
 int numTabs = 0;
 void PrintTabs();
@@ -10,9 +16,7 @@ FbxString GetAttributeTypeName(FbxNodeAttribute::EType type);
 void PrintAttribute(FbxNodeAttribute* pAttribute);
 void PrintNode(FbxNode* pNode);
 
-int FirstApp() {
-  const char* lFileName = "./Assets/Model/mech-drone/source/Drone.FBX";
-
+int RunExample() {
   FbxManager* lSdkManager = FbxManager::Create();
 
   FbxIOSettings* ios = FbxIOSettings::Create(lSdkManager, IOSROOT);
@@ -20,7 +24,7 @@ int FirstApp() {
 
   FbxImporter* lImporter = FbxImporter::Create(lSdkManager, "");
 
-  if (!lImporter->Initialize(lFileName, -1, lSdkManager->GetIOSettings())) {
+  if (!lImporter->Initialize(gLoadFilename, -1, lSdkManager->GetIOSettings())) {
     std::cout << "Call to FbxImporter::Initialize() failed." << std::endl;
     std::cout << "Error returned: " << lImporter->GetStatus().GetErrorString() << std::endl;
     exit(-1);
@@ -71,6 +75,17 @@ void PrintTabs() {
   }
 }
 
+void PrintAttribute(FbxNodeAttribute* pAttribute) {
+  if (!pAttribute)
+    return;
+
+  FbxString typeName = GetAttributeTypeName(pAttribute->GetAttributeType());
+  FbxString attrName = pAttribute->GetName();
+  PrintTabs();
+
+  printf("<attribute type='%s' name='%s'/>\n", typeName.Buffer(), attrName.Buffer());
+}
+
 FbxString GetAttributeTypeName(FbxNodeAttribute::EType type) {
   switch (type) {
     case FbxNodeAttribute::eUnknown:
@@ -118,13 +133,4 @@ FbxString GetAttributeTypeName(FbxNodeAttribute::EType type) {
   }
 }
 
-void PrintAttribute(FbxNodeAttribute* pAttribute) {
-  if (!pAttribute)
-    return;
-
-  FbxString typeName = GetAttributeTypeName(pAttribute->GetAttributeType());
-  FbxString attrName = pAttribute->GetName();
-  PrintTabs();
-
-  printf("<attribute type='%s' name='%s'/>\n", typeName.Buffer(), attrName.Buffer());
-}
+}  // namespace FirstApp

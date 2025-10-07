@@ -6,8 +6,11 @@ project(Engine_Test_FBXSDK VERSION 1.0)
 set(CMAKE_CXX_STANDARD 20)
 set(CMAKE_CXX_STANDARD_REQUIRED ON)
 
+file(GLOB_RECURSE HDRS "${CMAKE_CURRENT_SOURCE_DIR}/*.h")
+file(GLOB_RECURSE SRCS "${CMAKE_CURRENT_SOURCE_DIR}/*.cpp")
+
 # 定义运行目标
-add_executable(${PROJECT_NAME} main.cpp)
+add_executable(${PROJECT_NAME} ${HDRS} ${SRCS})
 
 # 设置输出路径
 SET_TARGET_OUTPUT_DIRS(${PROJECT_NAME})
