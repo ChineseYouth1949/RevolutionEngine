@@ -41,5 +41,3 @@ target_link_libraries(${PROJECT_NAME} PUBLIC
     d3dcompiler.lib
     dxguid.lib
 )
-
-add_subdirectory(Test)
