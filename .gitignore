@@ -1,7 +1,9 @@
+# User config
 .vscode/*
+CMakePresets.json
 
+# Build file
 Build/*
 
-**/lib/*
-
-CMakePresets.json
+# Enternal file
+Engine/External/
