@@ -1,11 +1,7 @@
-#include <fbxsdk.h>
-
-#include <string>
+#include "FirstApp.h"
 
 int main() {
-  const char* lFileName = "file.fbx";
-
-  FbxManager* lSdkManager = FbxManager::Create();
+  FirstApp();
 
   return 0;
 }
