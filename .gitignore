@@ -6,4 +6,4 @@ CMakePresets.json
 Build/*
 
 # Enternal file
-Engine/External/
+External/

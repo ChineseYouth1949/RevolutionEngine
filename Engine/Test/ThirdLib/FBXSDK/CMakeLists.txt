@@ -17,6 +17,8 @@ if(CMAKE_BUILD_TYPE STREQUAL "Debug")
     target_compile_definitions(${PROJECT_NAME} PUBLIC _DEBUG)
 endif()
 
+LINK_ENGINE_SDK(${PROJECT_NAME})
+
 # 拷贝Assets
 add_custom_command(TARGET ${PROJECT_NAME} POST_BUILD
     COMMAND ${CMAKE_COMMAND} -E make_directory $<TARGET_FILE_DIR:${PROJECT_NAME}>/Assets
