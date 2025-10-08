@@ -1,9 +1,13 @@
 #include "Example.h"
 #include "UI.h"
 
+#include <iostream>
+
 namespace SceneTreeView {
 
 int RunExample(HINSTANCE hInstance, HINSTANCE hPrevInstance, LPTSTR lpCmdLine, int nCmdShow) {
+  std::cout << "------RunExample : SceneTreeView------" << std::endl;
+
   // 注册窗口类
   UIRegisterClass(hInstance);
 
@@ -18,6 +22,8 @@ int RunExample(HINSTANCE hInstance, HINSTANCE hPrevInstance, LPTSTR lpCmdLine, i
     TranslateMessage(&msg);
     DispatchMessage(&msg);
   }
+
+  std::cout << "------Example End------" << std::endl << std::endl;
 
   return (int)msg.wParam;
 }

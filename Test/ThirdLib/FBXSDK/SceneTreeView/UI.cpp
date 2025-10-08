@@ -59,6 +59,7 @@ BOOL InitWindow(HINSTANCE hInstance, int nCmdShow) {
   return TRUE;
 }
 
+// 窗口过程所需函数
 void CreateUIControls(HWND hWndParent);
 void GetInputFileName(HWND hWndParent);
 void Fill_TreeView(const HWND mainHwnd);
@@ -82,10 +83,9 @@ LRESULT CALLBACK WndProc(HWND hWnd, UINT message, WPARAM wParam, LPARAM lParam) 
       wmId = LOWORD(wParam);
       wmEvent = HIWORD(wParam);
 
-      // 点击导入按钮时
       switch (wmId) {
         case READ_FROM_BUTTON:
-          // 获取选择文件，更新场景树
+          // 点击导入按钮时：获取选择文件，更新场景树
           GetInputFileName(hWnd);
           Fill_TreeView(hWnd);
           break;
@@ -106,6 +106,7 @@ LRESULT CALLBACK WndProc(HWND hWnd, UINT message, WPARAM wParam, LPARAM lParam) 
   return 0;
 }
 
+// 创建UI布局
 void CreateUIControls(HWND hWndParent) {
   DWORD dwStyle = WS_CHILD | WS_VISIBLE;
 
@@ -156,7 +157,7 @@ void CreateUIControls(HWND hWndParent) {
                         "Arial"               // typeface name
   );
 
-  // 设置READ_FROM_EDITBOX的字体
+  // 设置READ_FROM_EDITBOX的字体为小字体hf
   SendMessage(GetDlgItem(hWndParent, READ_FROM_EDITBOX), WM_SETFONT, (WPARAM)hf, (LPARAM) false);
 
   // 创建FBX_TREEVIEW控件
@@ -179,7 +180,7 @@ void CreateUIControls(HWND hWndParent) {
 
 char gszInputFile[_MAX_PATH];  // File name to import
 
-// show the <Open file> dialog
+// 显示<打开文件>对话框
 void GetInputFileName(HWND hWndParent) {
   OPENFILENAME ofn;
   ZeroMemory(&ofn, sizeof(ofn));
@@ -199,106 +200,111 @@ void GetInputFileName(HWND hWndParent) {
   ofn.lpstrTitle = "Select the file to read ... (use the file type filter)";
   ofn.Flags = OFN_PATHMUSTEXIST | OFN_FILEMUSTEXIST;
 
-  // get a description of all readers registered in the FBX SDK
+  // 获取FBX SDK中注册的所有读取器的描述
   const char* filter = FbxUtil::Instance().GetReaderOFNFilters();
   ofn.lpstrFilter = filter;
 
-  // Display the Open dialog box.
+  //// 显示打开对话框。
   if (GetOpenFileName(&ofn) == false) {
-    // user cancel
+    // 用户取消
     delete filter;
     return;
   }
 
   delete filter;
 
-  // show the file name selected
+  // 显示所选的文件名
   SetWindowText(GetDlgItem(hWndParent, READ_FROM_EDITBOX), szFile);
 
-  // Keep a copy of the file name
+  // 保留文件名的副本
   FBXSDK_strcpy(gszInputFile, _MAX_PATH, szFile);
 }
 
+// 更新场景图所需函数
 void DisplayHierarchy(const HWND hTv);
 void DisplayHierarchy_Recurse(const FbxNode* pNode, const HWND hTv, HTREEITEM htiParent);
-
 void Expand_All();
 void Expand_All_Recurse(HWND htv, HTREEITEM htvi);
 
-// fill the treeview with the FBX scene content
+// 使用FBX场景内容填充树视图
 void Fill_TreeView(const HWND mainHwnd) {
+  // 检查导入文件路径不为空
   if (strlen(gszInputFile) == 0)
     return;
 
-  // get the handle of the treeview
+  // 获取树视图的句柄
   HWND htv = GetDlgItem(mainHwnd, FBX_TREEVIEW);
   if (htv == NULL)
     return;
 
-  // clear the treeview content
+  // 清除树视图内容
   TreeView_DeleteAllItems(htv);
 
-  // show a wait cursor
+  // 显示等待光标
   HCURSOR oldCursor = SetCursor(LoadCursor(NULL, IDC_WAIT));
 
-  // load the FBX scene
+  // 加载 FBX 场景
   if (FbxUtil::Instance().LoadFBXScene(gszInputFile) == false) {
-    // reset to default cursor
+    // 重置为默认光标
     SetCursor(oldCursor);
 
     return;
   }
 
-  // display scene hierarchy
+  // 显示场景层次
   DisplayHierarchy(htv);
 
-  // expand all items of the treeview
+  // 展开树视图的所有项目
   Expand_All();
 
-  // force the root node visible
+  // 强制根节点可见
   TreeView_SelectSetFirstVisible(htv, TreeView_GetRoot(htv));
 
-  // reset to default cursor
+  // 重置为默认光标
   SetCursor(oldCursor);
 }
 
+// 显示场景层次
 void DisplayHierarchy(const HWND hTv) {
+  // 获取FBX场景根节点，插入根节点名称
   const FbxNode* rootNode = FbxUtil::Instance().GetRootNode();
   HTREEITEM htvi = InsertTreeViewItem(hTv, rootNode->GetName(), TVI_ROOT);
 
+  // 递归显示
   for (int i = 0; i < rootNode->GetChildCount(); i++) {
     DisplayHierarchy_Recurse(rootNode->GetChild(i), hTv, htvi);
   }
 }
 
-// used to recursively add children nodes
+// 递归添显示子节点
 void DisplayHierarchy_Recurse(const FbxNode* pNode, const HWND hTv, HTREEITEM htiParent) {
-  // create a new Treeview item with node name and Attribute type name
+  // 使用节点名称和属性类型名称创建一个新的Treeview项
   HTREEITEM htvi = InsertTreeViewItem(hTv, FbxUtil::GetNodeNameAndAttributeTypeName(pNode).Buffer(), htiParent);
 
-  // show some FbxNode parameters
+  // 显示一些FbxNode参数（如Translation和Visibility）
   Add_TreeViewItem_KFbxNode_Parameters(pNode, hTv, htvi);
 
   for (int i = 0; i < pNode->GetChildCount(); i++) {
-    // recursively call this
+    // 递归调用
     DisplayHierarchy_Recurse(pNode->GetChild(i), hTv, htvi);
   }
 }
 
-// used to expand all treeview nodes
+// 用于展开所有树视图节点
 void Expand_All() {
-  // get the handle of the treeview
+  // 获取树视图的句柄
   HWND htv = GetDlgItem(ghWnd, FBX_TREEVIEW);
   if (htv == NULL)
     return;
 
+  // 递归展开
   Expand_All_Recurse(htv, TreeView_GetRoot(htv));
 
-  // force the root node visible on expand
+  // 强制根节点在展开时可见
   TreeView_SelectSetFirstVisible(htv, TreeView_GetRoot(htv));
 }
 
-// used to expand all treeview items recursively
+// 递归展开
 void Expand_All_Recurse(HWND htv, HTREEITEM htvi) {
   if (htvi == NULL)
     return;
@@ -306,11 +312,11 @@ void Expand_All_Recurse(HWND htv, HTREEITEM htvi) {
   TreeView_Expand(htv, htvi, TVE_EXPAND);
 
   while (htvi) {
-    // expand all children
+    // 展开所有子项
     htvi = TreeView_GetChild(htv, htvi);
     Expand_All_Recurse(htv, htvi);
 
-    // expand all siblings
+    // 展开所有兄弟
     while (htvi) {
       htvi = TreeView_GetNextSibling(htv, htvi);
       Expand_All_Recurse(htv, htvi);
