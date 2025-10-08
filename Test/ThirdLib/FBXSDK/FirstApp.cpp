@@ -39,8 +39,8 @@ void PrintNode(FbxNode* pNode) {
   FbxDouble3 rotation = pNode->LclRotation.Get();
   FbxDouble3 scaling = pNode->LclScaling.Get();
 
-  printf("<node name='%s' translation='(%f, %f, %f)' rotation='(%f, %f, %f)' scaling='(%f, %f, %f)'>\n", nodeName, translation[0], translation[1],
-         translation[2], rotation[0], rotation[1], rotation[2], scaling[0], scaling[1], scaling[2]);
+  printf("<node name='%s'\n\t translation = '(%f, %f, %f)' \n\t rotation = '(%f, %f, %f)' \n\t scaling = '(%f, %f, %f)' >\n ", nodeName,
+         translation[0], translation[1], translation[2], rotation[0], rotation[1], rotation[2], scaling[0], scaling[1], scaling[2]);
 
   for (size_t i = 0; i < pNode->GetNodeAttributeCount(); i++) {
     PrintAttribute(pNode->GetNodeAttributeByIndex(i));
