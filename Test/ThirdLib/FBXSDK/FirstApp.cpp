@@ -1,6 +1,18 @@
 #include "FirstApp.h"
 
+#include <fbxsdk.h>
+
+#include <string>
+#include <iostream>
+
 namespace FirstApp {
+
+int numTabs = 0;
+void PrintTabs();
+
+FbxString GetAttributeTypeName(FbxNodeAttribute::EType type);
+void PrintAttribute(FbxNodeAttribute* pAttribute);
+void PrintNode(FbxNode* pNode);
 
 int RunExample() {
   std::cout << "------RunExample : FirstApp------" << std::endl;

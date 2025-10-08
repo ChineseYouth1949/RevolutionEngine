@@ -1,6 +1,14 @@
 #include "LoadSceneExport.h"
 
+#include <fbxsdk.h>
+
+#include <string>
+#include <iostream>
+
 namespace LoadSceneExport {
+
+extern bool LoadScene(FbxManager* pSdkManager, FbxScene* pScene, const char* pFilename);
+extern bool SaveScene(FbxManager* pSdkManager, FbxScene* pScene, const char* pFilename, int pFileFormat, bool pEmbedMedia);
 
 int RunExample() {
   std::cout << "------RunExample : LoadSceneExport------" << std::endl;
