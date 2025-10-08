@@ -1,7 +1,7 @@
-// #pragma once
+#pragma once
 
-// namespace SceneTreeView {
+namespace SceneTreeView {
 
-// int RunExample();
+int RunExample();
 
-// }
+}
