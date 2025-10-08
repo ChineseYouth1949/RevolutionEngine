@@ -14,7 +14,7 @@ FbxString GetAttributeTypeName(FbxNodeAttribute::EType type);
 void PrintAttribute(FbxNodeAttribute* pAttribute);
 void PrintNode(FbxNode* pNode);
 
-int RunExample() {
+int RunExample(HINSTANCE hInstance, HINSTANCE hPrevInstance, LPTSTR lpCmdLine, int nCmdShow) {
   std::cout << "------RunExample : FirstApp------" << std::endl;
 
   FbxManager* lSdkManager = FbxManager::Create();

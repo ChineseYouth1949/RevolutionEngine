@@ -10,7 +10,7 @@ namespace LoadSceneExport {
 extern bool LoadScene(FbxManager* pSdkManager, FbxScene* pScene, const char* pFilename);
 extern bool SaveScene(FbxManager* pSdkManager, FbxScene* pScene, const char* pFilename, int pFileFormat, bool pEmbedMedia);
 
-int RunExample() {
+int RunExample(HINSTANCE hInstance, HINSTANCE hPrevInstance, LPTSTR lpCmdLine, int nCmdShow) {
   std::cout << "------RunExample : LoadSceneExport------" << std::endl;
 
   FbxManager* lSdkManager = FbxManager::Create();
