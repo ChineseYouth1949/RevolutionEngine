@@ -3,9 +3,9 @@
 #include <assert.h>
 #define CheckResult(x) assert(x == 0)
 
-#include "FirstApp.h"
-#include "LoadSceneExport.h"
-#include "SceneTreeView.h"
+#include "FirstApp/Example.h"
+#include "LoadSceneExport/Example.h"
+#include "SceneTreeView/Example.h"
 
 int APIENTRY WinMain(HINSTANCE hInstance, HINSTANCE hPrevInstance, LPTSTR lpCmdLine, int nCmdShow) {
   CheckResult(FirstApp::RunExample(hInstance, hPrevInstance, lpCmdLine, nCmdShow));
