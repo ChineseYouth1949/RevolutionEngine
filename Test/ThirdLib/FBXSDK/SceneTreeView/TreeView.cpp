@@ -25,7 +25,13 @@ void Add_TreeViewItem_KFbxNode_Parameters(const FbxNode* pNode, HWND hTv, HTREEI
     return;
 
   // show node default translation
-  InsertTreeViewItem(hTv, FbxUtil::GetDefaultTranslationInfo(pNode).Buffer(), htiParent);
+  InsertTreeViewItem(hTv, FbxUtil::GetDefTranslationInfo(pNode).Buffer(), htiParent);
+
+  // show node default rotation
+  InsertTreeViewItem(hTv, FbxUtil::GetDefRotationInfo(pNode).Buffer(), htiParent);
+
+  // show node default scale
+  InsertTreeViewItem(hTv, FbxUtil::GetDefScaleInfo(pNode).Buffer(), htiParent);
 
   // show node visibility
   InsertTreeViewItem(hTv, FbxUtil::GetNodeVisibility(pNode).Buffer(), htiParent);

@@ -142,11 +142,23 @@ FbxString FbxUtil::GetNodeNameAndAttributeTypeName(const FbxNode* pNode) {
 }
 
 // to get a string from the node default translation values
-FbxString FbxUtil::GetDefaultTranslationInfo(const FbxNode* pNode) {
+FbxString FbxUtil::GetDefTranslationInfo(const FbxNode* pNode) {
   FbxVector4 v4;
   v4 = ((FbxNode*)pNode)->LclTranslation.Get();
 
   return FbxString("Translation (X,Y,Z): ") + FbxString(v4[0]) + ", " + FbxString(v4[1]) + ", " + FbxString(v4[2]);
+}
+FbxString FbxUtil::GetDefRotationInfo(const FbxNode* pNode) {
+  FbxVector4 v4;
+  v4 = ((FbxNode*)pNode)->LclRotation.Get();
+
+  return FbxString("Rotation (X,Y,Z): ") + FbxString(v4[0]) + ", " + FbxString(v4[1]) + ", " + FbxString(v4[2]);
+}
+FbxString FbxUtil::GetDefScaleInfo(const FbxNode* pNode) {
+  FbxVector4 v4;
+  v4 = ((FbxNode*)pNode)->LclScaling.Get();
+
+  return FbxString("Scale (X,Y,Z): ") + FbxString(v4[0]) + ", " + FbxString(v4[1]) + ", " + FbxString(v4[2]);
 }
 
 // to get a string from the node visibility value

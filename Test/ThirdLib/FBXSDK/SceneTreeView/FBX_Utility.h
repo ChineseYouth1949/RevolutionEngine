@@ -17,7 +17,9 @@ class FbxUtil {
   const char* GetRootNodeName();
 
   static FbxString GetNodeNameAndAttributeTypeName(const FbxNode* pNode);
-  static FbxString GetDefaultTranslationInfo(const FbxNode* pNode);
+  static FbxString GetDefTranslationInfo(const FbxNode* pNode);
+  static FbxString GetDefRotationInfo(const FbxNode* pNode);
+  static FbxString GetDefScaleInfo(const FbxNode* pNode);
   static FbxString GetNodeVisibility(const FbxNode* pNode);
 
  protected:
