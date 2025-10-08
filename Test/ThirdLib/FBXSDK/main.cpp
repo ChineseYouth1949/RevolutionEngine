@@ -1,13 +1,12 @@
-#include <assert.h>
-
 #include "FirstApp.h"
-#include "LoadAndSave.h"
+#include "LoadSceneExport.h"
 
+#include <assert.h>
 #define CheckResult(x) assert(x == 0)
 
 int main() {
   CheckResult(FirstApp::RunExample());
-  CheckResult(LoadAndSave::RunExample());
+  CheckResult(LoadSceneExport::RunExample());
 
   return 0;
 }
