@@ -3,6 +3,8 @@
 namespace LoadSceneExport {
 
 int RunExample() {
+  std::cout << "------RunExample : LoadSceneExport------" << std::endl;
+
   FbxManager* lSdkManager = FbxManager::Create();
 
   FbxIOSettings* ios = FbxIOSettings::Create(lSdkManager, IOSROOT);
@@ -22,6 +24,8 @@ int RunExample() {
   lScene->Destroy();
   lSdkManager->Destroy();
 
+  std::cout << "------Example End------" << std::endl << std::endl;
+
   return 0;
 }
 
@@ -40,38 +44,38 @@ bool LoadScene(FbxManager* pSdkManager, FbxScene* pScene, const char* pFilename)
     FbxString error = lImporter->GetStatus().GetErrorString();
 
     if (lImporter->GetStatus().GetCode() == FbxStatus::eInvalidFileVersion) {
-      printf("FBX version number for this FBX SDK is %d.%d.%d", lSDKMajor, lSDKMinor, lSDKRevision);
-      printf("FBX version number for file %s is %d.%d.%d", pFilename, lFileMajor, lFileMinor, lFileRevision);
+      printf("FBX version number for this FBX SDK is %d.%d.%d \n", lSDKMajor, lSDKMinor, lSDKRevision);
+      printf("FBX version number for file %s is %d.%d.%d \n", pFilename, lFileMajor, lFileMinor, lFileRevision);
     }
 
     return false;
   }
 
-  printf("FBX version number for this FBX SDK is %d.%d.%d", lSDKMajor, lSDKMinor, lSDKRevision);
+  printf("FBX version number for this FBX SDK is %d.%d.%d \n", lSDKMajor, lSDKMinor, lSDKRevision);
 
   if (lImporter->IsFBX()) {
-    printf("FBX version number for file %s is %d.%d.%d", pFilename, lFileMajor, lFileMinor, lFileRevision);
+    printf("FBX version number for file %s is %d.%d.%d \n", pFilename, lFileMajor, lFileMinor, lFileRevision);
 
-    printf("Animation Stack Information");
+    printf("Animation Stack Information \n");
     int lAnimStackCount = lImporter->GetAnimStackCount();
 
-    printf("    Number of animation stacks: %d", lAnimStackCount);
-    printf("    Active animation stack: \"%s\"", lImporter->GetActiveAnimStackName().Buffer());
+    printf("    Number of animation stacks: %d \n", lAnimStackCount);
+    printf("    Active animation stack: \"%s\" \n", lImporter->GetActiveAnimStackName().Buffer());
 
     for (int i = 0; i < lAnimStackCount; i++) {
       FbxTakeInfo* lTakeInfo = lImporter->GetTakeInfo(i);
 
-      printf("    Animation Stack %d", i);
-      printf("         Name: \"%s\"", lTakeInfo->mName.Buffer());
-      printf("         Description: \"%s\"", lTakeInfo->mDescription.Buffer());
+      printf("    Animation Stack %d \n", i);
+      printf("         Name: \"%s\" \n", lTakeInfo->mName.Buffer());
+      printf("         Description: \"%s\" \n", lTakeInfo->mDescription.Buffer());
 
       // Change the value of the import name if the animation stack should
       // be imported under a different name.
-      printf("         Import Name: \"%s\"", lTakeInfo->mImportName.Buffer());
+      printf("         Import Name: \"%s\" \n", lTakeInfo->mImportName.Buffer());
 
       // Set the value of the import state to false
       // if the animation stack should be not be imported.
-      printf("         Import State: %s", lTakeInfo->mSelect ? "true" : "false");
+      printf("         Import State: %s \n", lTakeInfo->mSelect ? "true" : "false");
     }
 
     FbxIOSettings* manager_ios = pSdkManager->GetIOSettings();
@@ -99,7 +103,7 @@ bool LoadScene(FbxManager* pSdkManager, FbxScene* pScene, const char* pFilename)
     lStatus = lImporter->Import(pScene);
 
     if (lStatus == false && lImporter->GetStatus().GetCode() == FbxStatus::ePasswordError) {
-      printf("Incorrect password: file not imported.");
+      printf("Incorrect password: file not imported. \n");
     }
   }
 
@@ -135,7 +139,7 @@ bool SaveScene(FbxManager* pSdkManager, FbxScene* pScene, const char* pFilename,
 
   // Initialize the exporter by providing a Filename.
   if (lExporter->Initialize(pFilename, pFileFormat, pSdkManager->GetIOSettings()) == false) {
-    printf("Call to FbxExporter::Initialize() failed.");
+    printf("Call to FbxExporter::Initialize() failed. \n");
     printf("Error returned: %s", lExporter->GetStatus().GetErrorString());
     return false;
   }
@@ -144,7 +148,7 @@ bool SaveScene(FbxManager* pSdkManager, FbxScene* pScene, const char* pFilename,
   bool lStatus = true;
 
   FbxManager::GetFileFormatVersion(lMajor, lMinor, lRevision);
-  printf("FBX version number for this FBX SDK is %d.%d.%d", lMajor, lMinor, lRevision);
+  printf("FBX version number for this FBX SDK is %d.%d.%d \n", lMajor, lMinor, lRevision);
 
   if (pSdkManager->GetIOPluginRegistry()->WriterIsFBX(pFileFormat)) {
     // Export options determine what kind of data is to be imported.

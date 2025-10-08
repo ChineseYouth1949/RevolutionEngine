@@ -3,6 +3,8 @@
 namespace FirstApp {
 
 int RunExample() {
+  std::cout << "------RunExample : FirstApp------" << std::endl;
+
   FbxManager* lSdkManager = FbxManager::Create();
 
   FbxIOSettings* ios = FbxIOSettings::Create(lSdkManager, IOSROOT);
@@ -28,6 +30,8 @@ int RunExample() {
   }
 
   lSdkManager->Destroy();
+
+  std::cout << "------Example End------" << std::endl << std::endl;
 
   return 0;
 }
