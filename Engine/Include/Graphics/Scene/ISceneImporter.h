@@ -10,8 +10,9 @@ namespace RE::Core {
 
 class Scene;
 
-enum struct SceneLoadOption {
+enum struct SceneLoadOption : int {
   None = 0,
+  UseDirect12 = 1 << 0,
 };
 
 struct SceneLoadError {

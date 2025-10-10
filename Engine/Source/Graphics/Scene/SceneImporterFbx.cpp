@@ -95,7 +95,43 @@ bool SceneImporterFBX::LoadScene(std::string fileName, Flag64 flags) {
                   (m_fbxImporter->GetStatus().GetCode() != FbxStatus::eSuccess);
 
     if (notify) {
-      if (details.GetCount()) {}
+      std::string errorString;
+
+      if (details.GetCount()) {
+        errorString = "Scene integrity verification failed with the following errors:\n";
+
+        for (int i = 0; i < details.GetCount(); i++) {
+          errorString += std::string(details[i]->Buffer());
+          errorString += "\n";
+        }
+      }
+
+      if (m_fbxImporter->GetStatus().GetCode() != FbxStatus::eSuccess) {
+        errorString += "WARNING:\n";
+        errorString += "   The importer was able to read the file but with errors.\n";
+        errorString += "   Loaded scene may be incomplete.\n\n";
+        errorString += "   Last error message:'%s'\n";
+        errorString += std::string(m_fbxImporter->GetStatus().GetErrorString());
+      }
+
+      SceneLoadError error;
+      error.filename = fileName;
+      error.info = std::move(errorString);
+
+      m_loadErrors.push_back(std::move(error));
+      return false;
+    }
+
+    FbxAxisSystem sceneAxisSystem = fbxScene->GetGlobalSettings().GetAxisSystem();
+    FbxAxisSystem targetAxisSystem(FbxAxisSystem::eYAxis, FbxAxisSystem::eParityOdd, FbxAxisSystem::eRightHanded);
+
+    bool useLeftHanded = CheckFlag(flags, long(SceneLoadOption::UseDirect12));
+    if (useLeftHanded) {
+      targetAxisSystem = FbxAxisSystem(FbxAxisSystem::eYAxis, FbxAxisSystem::eParityOdd, FbxAxisSystem::eLeftHanded);
+    }
+
+    if (sceneAxisSystem != targetAxisSystem) {
+      targetAxisSystem.ConvertScene(fbxScene);
     }
 
     return true;
@@ -107,7 +143,7 @@ bool SceneImporterFBX::LoadScene(std::string fileName, Flag64 flags) {
 
     SceneLoadError error;
     error.filename = fileName;
-    error.info = errorString;
+    error.info = std::move(errorString);
 
     m_loadErrors.push_back(std::move(error));
     return false;
