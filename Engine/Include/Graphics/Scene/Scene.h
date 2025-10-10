@@ -9,6 +9,8 @@ namespace RE::Core {
 
 struct RE_API Scene {
 
+  void Destroy();
+
   std::vector<Mesh> m_meshs;
 };
 

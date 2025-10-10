@@ -12,8 +12,8 @@ class RE_API MemoryAllocator {
   static void* Zalloc(size_t size, AllocType type);
   static void* Calloc(size_t size, size_t count, AllocType type);
 
-  static void* Recalloc(void* p, size_t newSize, AllocType type);
-  static void* Recalloc(void* p, size_t newSize, size_t count, AllocType type);
+  static void* Realloc(void* p, size_t newSize, AllocType type);
+  static void* ReallocN(void* p, size_t newSize, size_t count, AllocType type);
   static bool Expand(void* p, size_t newSize, AllocType type);
 
   static void* MallocAligned(size_t size, size_t alignment, AllocType type);

@@ -7,6 +7,22 @@ namespace RE::Core {
 
 const AllocType globalAllocType = AllocType::STD;
 
+RE_INLINE void* GMalloc(size_t size) {
+  return MemoryAllocator::Malloc(size, globalAllocType);
+}
+
+RE_INLINE void* GCalloc(size_t count, size_t size) {
+  return MemoryAllocator::Calloc(size, count, globalAllocType);
+}
+
+RE_INLINE void* GRealloc(void* p, size_t size) {
+  return MemoryAllocator::Realloc(p, size, globalAllocType);
+}
+
+RE_INLINE void GFree(void* p) {
+  MemoryAllocator::Free(p, globalAllocType);
+}
+
 template <typename T>
 RE_INLINE T* GAllocate() {
   return Allocate<T>(globalAllocType);

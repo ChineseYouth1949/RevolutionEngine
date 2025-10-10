@@ -52,7 +52,7 @@ void* MemoryAllocator::Calloc(size_t size, size_t count, AllocType type) {
   return Zalloc(size * count, type);
 }
 
-void* MemoryAllocator::Recalloc(void* p, size_t newSize, AllocType type) {
+void* MemoryAllocator::Realloc(void* p, size_t newSize, AllocType type) {
   if (!p) {
     return Malloc(newSize, type);
   }
@@ -72,8 +72,8 @@ void* MemoryAllocator::Recalloc(void* p, size_t newSize, AllocType type) {
   return res;
 }
 
-void* MemoryAllocator::Recalloc(void* p, size_t newSize, size_t count, AllocType type) {
-  return Recalloc(p, newSize * count, type);
+void* MemoryAllocator::ReallocN(void* p, size_t newSize, size_t count, AllocType type) {
+  return Realloc(p, newSize * count, type);
 }
 
 bool MemoryAllocator::Expand(void* p, size_t newSize, AllocType type) {
