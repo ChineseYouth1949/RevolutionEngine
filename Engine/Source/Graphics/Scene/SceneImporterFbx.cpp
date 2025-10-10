@@ -1,8 +1,9 @@
 #include "SceneImporterFbx.h"
 
-#include "Graphics/Scene/Scene.h"
-
+#include "Base/Assert.h"
 #include "Memory/Memory.h"
+
+#include "Graphics/Scene/Scene.h"
 
 namespace RE::Core {
 
@@ -23,6 +24,14 @@ SceneImporterFBX::SceneImporterFBX() {
   InitFbxSdk();
 
   m_fbxSdkManager = FbxManager::Create();
+  if (!m_fbxSdkManager) {
+    AssertInfo(false, "Error: Unable to create FBX Manager!")
+  }
+
+  static int sImporterIndex = 0;
+  std::string importerName = "Importer " + std::to_string(sImporterIndex++);
+
+  m_fbxImporter = FbxImporter::Create(m_fbxSdkManager, importerName.c_str());
 
   FbxIOSettings* fbx_ios = FbxIOSettings::Create(m_fbxSdkManager, IOSROOT);
   m_fbxSdkManager->SetIOSettings(fbx_ios);
@@ -32,6 +41,7 @@ void SceneImporterFBX::Destroy() {
   if (m_fbxSdkManager) {
     m_fbxSdkManager->Destroy();
     m_fbxSdkManager = nullptr;
+    m_fbxImporter = nullptr;
   }
 
   for (auto scene : m_scenes) {
@@ -66,8 +76,25 @@ SceneImporterFBX& SceneImporterFBX::operator=(SceneImporterFBX&& other) noexcept
 }
 
 bool SceneImporterFBX::LoadScene(std::string fileName, Flag64 flags) {
+  AssertInfo(m_fbxSdkManager != nullptr, "m_fbxSdkManager is nullptr");
 
-  return false;
+  int fileFormat = -1;
+  if (m_fbxSdkManager->GetIOPluginRegistry()->DetectReaderFileFormat(fileName.c_str(), fileFormat)) {
+    fileFormat = m_fbxSdkManager->GetIOPluginRegistry()->FindReaderIDByDescription("FBX binary (*.fbx)");
+  }
+
+  if (m_fbxImporter->Initialize(fileName.c_str(), fileFormat) == true) {
+
+    return true;
+  } else {
+    std::string errorString = "Unable to open file ";
+    errorString += fileName;
+    errorString += "\nError reported: ";
+    errorString += std::string(m_fbxImporter->GetStatus().GetErrorString());
+
+    m_errorStrings.push_back(errorString);
+    return false;
+  }
 }
 
 std::vector<std::string> SceneImporterFBX::GetErrorString() const {

@@ -30,6 +30,8 @@ class RE_API SceneImporterFBX : public ISceneImporter {
 
  private:
   FbxManager* m_fbxSdkManager;
+  FbxImporter* m_fbxImporter;
+
   std::vector<Scene*> m_scenes;
   std::vector<std::string> m_errorStrings;
 };
