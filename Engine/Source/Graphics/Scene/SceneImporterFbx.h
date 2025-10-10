@@ -19,12 +19,14 @@ class RE_API SceneImporterFBX : public ISceneImporter {
   SceneImporterFBX(const SceneImporterFBX&) = delete;
   SceneImporterFBX& operator=(const SceneImporterFBX&) = delete;
 
-  bool LoadScene(std::string fileName, Flag64 flags);
-  std::vector<std::string> GetErrorString() const;
+  bool LoadScene(std::string fileName, Flag64 flags = 0) override;
 
-  int GetSceneNum() const;
-  Scene* GetSceneIndex(int index);
-  std::vector<Scene*> GetAllScene();
+  int GetSceneNum() const override;
+  Scene* GetSceneIndex(int index, bool remove = true) override;
+  std::vector<Scene*> GetAllScene(bool remove = true) override;
+
+  const std::vector<SceneLoadError>& GetLoadErrors() const override;
+  void ClearLoadErrors() override;
 
  protected:
   static void InitFbxSdk();
@@ -38,7 +40,7 @@ class RE_API SceneImporterFBX : public ISceneImporter {
   static std::atomic<int> sSceneIndex;
 
   std::vector<Scene*> m_scenes;
-  std::vector<std::string> m_errorStrings;
+  std::vector<SceneLoadError> m_loadErrors;
 };
 
 }  // namespace RE::Core

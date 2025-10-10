@@ -88,6 +88,16 @@ bool SceneImporterFBX::LoadScene(std::string fileName, Flag64 flags) {
     std::string sceneName = "Scene-" + std::to_string(sSceneIndex++);
     FbxScene* fbxScene = FbxScene::Create(m_fbxSdkManager, sceneName.c_str());
 
+    FbxStatus status;
+    FbxArray<FbxString*> details;
+    FbxSceneCheckUtility sceneCheck(FbxCast<FbxScene>(fbxScene), &status, &details);
+    bool notify = (!sceneCheck.Validate(FbxSceneCheckUtility::eCkeckData) && details.GetCount() > 0) ||
+                  (m_fbxImporter->GetStatus().GetCode() != FbxStatus::eSuccess);
+
+    if (notify) {
+      if (details.GetCount()) {}
+    }
+
     return true;
   } else {
     std::string errorString = "Unable to open file ";
@@ -95,27 +105,43 @@ bool SceneImporterFBX::LoadScene(std::string fileName, Flag64 flags) {
     errorString += "\nError reported: ";
     errorString += std::string(m_fbxImporter->GetStatus().GetErrorString());
 
-    m_errorStrings.push_back(errorString);
+    SceneLoadError error;
+    error.filename = fileName;
+    error.info = errorString;
+
+    m_loadErrors.push_back(std::move(error));
     return false;
   }
-}
-
-std::vector<std::string> SceneImporterFBX::GetErrorString() const {
-  return m_errorStrings;
 }
 
 int SceneImporterFBX::GetSceneNum() const {
   return m_scenes.size();
 }
 
-Scene* SceneImporterFBX::GetSceneIndex(int index) {
+Scene* SceneImporterFBX::GetSceneIndex(int index, bool remove) {
   Scene* res_scene = m_scenes[index];
-  m_scenes.erase(m_scenes.begin() + index);
+
+  if (remove) {
+    m_scenes.erase(m_scenes.begin() + index);
+  }
+
   return res_scene;
 }
 
-std::vector<Scene*> SceneImporterFBX::GetAllScene() {
-  return std::move(m_scenes);
+std::vector<Scene*> SceneImporterFBX::GetAllScene(bool remove) {
+  if (remove) {
+    return std::move(m_scenes);
+  } else {
+    return m_scenes;
+  }
+}
+
+const std::vector<SceneLoadError>& SceneImporterFBX::GetLoadErrors() const {
+  return m_loadErrors;
+}
+
+void SceneImporterFBX::ClearLoadErrors() {
+  m_loadErrors.clear();
 }
 
 }  // namespace RE::Core

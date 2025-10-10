@@ -10,8 +10,13 @@ namespace RE::Core {
 
 class Scene;
 
-enum struct SceneImporterOption {
+enum struct SceneLoadOption {
   None = 0,
+};
+
+struct SceneLoadError {
+  std::string filename;
+  std::string info;
 };
 
 class RE_API ISceneImporter {
@@ -25,12 +30,14 @@ class RE_API ISceneImporter {
   ISceneImporter(const ISceneImporter&) = delete;
   ISceneImporter& operator=(const ISceneImporter&) = delete;
 
-  virtual bool LoadScene(std::string fileName, Flag64 flags) = 0;
-  virtual std::vector<std::string> GetErrorString() const = 0;
+  virtual bool LoadScene(std::string fileName, Flag64 flags = 0) = 0;
 
   virtual int GetSceneNum() const = 0;
-  virtual Scene* GetSceneIndex(int index) = 0;
-  virtual std::vector<Scene*> GetAllScene() = 0;
+  virtual Scene* GetSceneIndex(int index, bool remove = true) = 0;
+  virtual std::vector<Scene*> GetAllScene(bool remove = true) = 0;
+
+  virtual const std::vector<SceneLoadError>& GetLoadErrors() const = 0;
+  virtual void ClearLoadErrors() = 0;
 };
 
 }  // namespace RE::Core
