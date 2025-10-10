@@ -134,6 +134,11 @@ bool SceneImporterFBX::LoadScene(std::string fileName, Flag64 flags) {
       targetAxisSystem.ConvertScene(fbxScene);
     }
 
+    FbxSystemUnit sceneSystemUnit = fbxScene->GetGlobalSettings().GetSystemUnit();
+    if (sceneSystemUnit.GetScaleFactor() != 1.0) {
+      FbxSystemUnit::cm.ConvertScene(fbxScene);
+    }
+
     return true;
   } else {
     std::string errorString = "Unable to open file ";
