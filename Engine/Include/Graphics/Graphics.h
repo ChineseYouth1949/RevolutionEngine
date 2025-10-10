@@ -1,3 +1,3 @@
 #include "GraphicsEngine.h"
 
-#include "Geometry/Scene/SceneImporter.h"
+#include "Scene/SceneImporter.h"

@@ -1,4 +1,4 @@
-#include "Graphics/Geometry/Scene/SceneImporter.h"
+#include "Graphics/Scene/SceneImporter.h"
 
 #include <vector>
 #include <future>
