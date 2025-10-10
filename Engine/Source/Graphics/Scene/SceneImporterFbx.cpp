@@ -7,6 +7,9 @@
 
 namespace RE::Core {
 
+std::atomic<int> SceneImporterFBX::sImporterIndex = 0;
+std::atomic<int> SceneImporterFBX::sSceneIndex = 0;
+
 void SceneImporterFBX::InitFbxSdk() {
   static bool sInited = false;
 
@@ -28,9 +31,7 @@ SceneImporterFBX::SceneImporterFBX() {
     AssertInfo(false, "Error: Unable to create FBX Manager!")
   }
 
-  static int sImporterIndex = 0;
-  std::string importerName = "Importer " + std::to_string(sImporterIndex++);
-
+  std::string importerName = "Importer-" + std::to_string(sImporterIndex++);
   m_fbxImporter = FbxImporter::Create(m_fbxSdkManager, importerName.c_str());
 
   FbxIOSettings* fbx_ios = FbxIOSettings::Create(m_fbxSdkManager, IOSROOT);
@@ -84,6 +85,8 @@ bool SceneImporterFBX::LoadScene(std::string fileName, Flag64 flags) {
   }
 
   if (m_fbxImporter->Initialize(fileName.c_str(), fileFormat) == true) {
+    std::string sceneName = "Scene-" + std::to_string(sSceneIndex++);
+    FbxScene* fbxScene = FbxScene::Create(m_fbxSdkManager, sceneName.c_str());
 
     return true;
   } else {
