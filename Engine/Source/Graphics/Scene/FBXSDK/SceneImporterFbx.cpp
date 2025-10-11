@@ -83,7 +83,7 @@ bool SceneImporterFBX::LoadScene(std::string fileName, Flag64 flags) {
 
     SceneLoadError error;
     error.filename = fileName;
-    error.info = std::move(errorString);
+    error.infos.push_back(std::move(errorString));
     m_loadErrors.push_back(std::move(error));
     return false;
   }
@@ -100,19 +100,19 @@ bool SceneImporterFBX::LoadScene(std::string fileName, Flag64 flags) {
 
     SceneLoadError error;
     error.filename = fileName;
-    error.info = std::move(errorString);
+    error.infos.push_back(std::move(errorString));
     m_loadErrors.push_back(std::move(error));
     return false;
   }
 
   Scene* importScene = nullptr;
-  std::string errorInfo;
-  success = TransformFbxScene(m_fbxSdkManager, m_fbxImporter, fbxScene, flags, importScene, errorInfo);
+  std::vector<std::string> errorInfos;
+  success = TransformFbxScene(m_fbxSdkManager, m_fbxImporter, fbxScene, flags, importScene, errorInfos);
 
   if (!success) {
     SceneLoadError error;
     error.filename = fileName;
-    error.info = std::move(errorInfo);
+    error.infos = std::move(errorInfos);
     m_loadErrors.push_back(std::move(error));
     return false;
   }

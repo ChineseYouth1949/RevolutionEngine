@@ -4,6 +4,7 @@
 #include "Math/Math.h"
 
 #include "Mesh.h"
+#include "Texture.h"
 
 namespace RE::Core {
 
@@ -11,6 +12,7 @@ struct RE_API Scene {
 
   void Destroy();
 
+  std::vector<Texture> m_textures;
   std::vector<Mesh> m_meshs;
 };
 

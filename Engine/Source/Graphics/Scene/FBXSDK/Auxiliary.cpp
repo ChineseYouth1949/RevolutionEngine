@@ -1,4 +1,5 @@
 #include <mutex>
+#include <filesystem>
 
 #include "Auxiliary.h"
 
@@ -27,8 +28,26 @@ void FbxSdkInit() {
   }
 }
 
+bool FileExit(std::string filename) {
+  return std::filesystem::exists(filename);
+}
+
+void LoadCacheRecursive(FbxScene* pScene, FbxAnimLayer* pAnimLayer, const char* pFbxFileName) {
+  const int textureCount = pScene->GetTextureCount();
+  for (size_t i = 0; i < textureCount; i++) {
+    FbxTexture* texture = pScene->GetTexture(i);
+    FbxFileTexture* fileTexture = FbxCast<FbxFileTexture>(texture);
+
+    if (fileTexture && !fileTexture->GetUserDataPtr()) {
+      const FbxString fileName = fileTexture->GetFileName();
+    }
+  }
+}
+
+void LoadTexture(FbxScene* pScene, const char* pFbxFileName, std::vector<Texture> texture) {}
+
 bool TransformFbxScene(FbxManager* fbxSdkManager, FbxImporter* fbxImporter, FbxScene* fbxScene, Flag64 flags, Scene*& resScene,
-                       std::string& resInfo) {
+                       std::vector<std::string>& resErrorInfos) {
   FbxStatus status;
   FbxArray<FbxString*> details;
   FbxSceneCheckUtility sceneCheck(FbxCast<FbxScene>(fbxScene), &status, &details);
@@ -36,25 +55,24 @@ bool TransformFbxScene(FbxManager* fbxSdkManager, FbxImporter* fbxImporter, FbxS
                 (fbxImporter->GetStatus().GetCode() != FbxStatus::eSuccess);
 
   if (notify) {
-    std::string errorString;
-
     if (details.GetCount()) {
-      errorString = "Scene integrity verification failed with the following errors:\n";
+      std::string errorString = "Scene integrity verification failed with the following errors:\n";
       for (int i = 0; i < details.GetCount(); i++) {
         errorString += std::string(details[i]->Buffer());
         errorString += "\n";
       }
+      resErrorInfos.push_back(std::move(errorString));
     }
 
     if (fbxImporter->GetStatus().GetCode() != FbxStatus::eSuccess) {
-      errorString += "WARNING:\n";
+      std::string errorString = "WARNING:\n";
       errorString += "   The importer was able to read the file but with errors.\n";
       errorString += "   Loaded scene may be incomplete.\n\n";
       errorString += "   Last error message:'%s'\n";
       errorString += std::string(fbxImporter->GetStatus().GetErrorString());
+      resErrorInfos.push_back(std::move(errorString));
     }
 
-    resInfo = std::move(errorString);
     return false;
   }
 
@@ -81,13 +99,15 @@ bool TransformFbxScene(FbxManager* fbxSdkManager, FbxImporter* fbxImporter, FbxS
   FbxArray<FbxNode*> cameraArray;
   FillCameraArray(fbxScene, cameraArray);
 
-  FbxArray<FbxPose*> poseArray;
+  std::vector<Texture> textureArray;
+
+  // FbxArray<FbxPose*> poseArray;
 
   FbxGeometryConverter geomConverter(fbxSdkManager);
   try {
     geomConverter.Triangulate(fbxScene, /*replace*/ true);
   } catch (std::runtime_error) {
-    resInfo = "Scene integrity verification failed.";
+    resErrorInfos.push_back(std::string("Scene integrity verification failed."));
     return false;
   }
 

@@ -17,7 +17,7 @@ enum struct SceneLoadOption : int {
 
 struct SceneLoadError {
   std::string filename;
-  std::string info;
+  std::vector<std::string> infos;
 };
 
 class RE_API ISceneImporter {
