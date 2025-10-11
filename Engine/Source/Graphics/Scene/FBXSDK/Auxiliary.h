@@ -14,5 +14,4 @@ void FbxSdkInit();
 bool TransformFbxScene(FbxManager* fbxSdkManager, FbxImporter* fbxImporter, FbxScene* fbxScene, Flag64 falgs, Scene*& resScene,
                        std::vector<std::string>& resErrorInfos);
 
-void FillCameraArray(FbxScene* fbxScene, FbxArray<FbxNode*>& resCameraArray);
 }  // namespace RE::Core

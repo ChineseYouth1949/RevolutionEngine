@@ -12,8 +12,8 @@ struct RE_API Scene {
 
   void Destroy();
 
-  std::vector<Texture> m_textures;
-  std::vector<Mesh> m_meshs;
+  std::vector<Texture*> m_textures;
+  std::vector<Mesh*> m_meshs;
 };
 
 }  // namespace RE::Core

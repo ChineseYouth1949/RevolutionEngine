@@ -28,23 +28,11 @@ void FbxSdkInit() {
   }
 }
 
-bool FileExit(std::string filename) {
-  return std::filesystem::exists(filename);
-}
+void FillCameraArray(FbxScene* fbxScene, FbxArray<FbxNode*>& resCameraArray);
+void FillCameraArrayRecursive(FbxNode* fbxNode, FbxArray<FbxNode*>& resCameraArray);
 
-void LoadCacheRecursive(FbxScene* pScene, FbxAnimLayer* pAnimLayer, const char* pFbxFileName) {
-  const int textureCount = pScene->GetTextureCount();
-  for (size_t i = 0; i < textureCount; i++) {
-    FbxTexture* texture = pScene->GetTexture(i);
-    FbxFileTexture* fileTexture = FbxCast<FbxFileTexture>(texture);
-
-    if (fileTexture && !fileTexture->GetUserDataPtr()) {
-      const FbxString fileName = fileTexture->GetFileName();
-    }
-  }
-}
-
-void LoadTexture(FbxScene* pScene, const char* pFbxFileName, std::vector<Texture> texture) {}
+bool FileExit(std::string filename);
+void LoadTexture(FbxScene* pScene, const char* pFbxFileName, std::vector<Texture>& resTextures);
 
 bool TransformFbxScene(FbxManager* fbxSdkManager, FbxImporter* fbxImporter, FbxScene* fbxScene, Flag64 flags, Scene*& resScene,
                        std::vector<std::string>& resErrorInfos) {
@@ -114,6 +102,10 @@ bool TransformFbxScene(FbxManager* fbxSdkManager, FbxImporter* fbxImporter, FbxS
   return true;
 }
 
+void FillCameraArray(FbxScene* fbxScene, FbxArray<FbxNode*>& resCameraArray) {
+  resCameraArray.Clear();
+  FillCameraArrayRecursive(fbxScene->GetRootNode(), resCameraArray);
+}
 void FillCameraArrayRecursive(FbxNode* fbxNode, FbxArray<FbxNode*>& resCameraArray) {
   if (fbxNode) {
     if (fbxNode->GetNodeAttribute()) {
@@ -129,10 +121,19 @@ void FillCameraArrayRecursive(FbxNode* fbxNode, FbxArray<FbxNode*>& resCameraArr
   }
 }
 
-void FillCameraArray(FbxScene* fbxScene, FbxArray<FbxNode*>& resCameraArray) {
-  resCameraArray.Clear();
+bool FileExit(std::string filename) {
+  return std::filesystem::exists(filename);
+}
+void LoadCacheRecursive(FbxScene* pScene, FbxAnimLayer* pAnimLayer, const char* pFbxFileName, std::vector<std::string>& resErrorInfos) {
+  const int textureCount = pScene->GetTextureCount();
+  for (size_t i = 0; i < textureCount; i++) {
+    FbxTexture* texture = pScene->GetTexture(i);
+    FbxFileTexture* fileTexture = FbxCast<FbxFileTexture>(texture);
 
-  FillCameraArrayRecursive(fbxScene->GetRootNode(), resCameraArray);
+    if (fileTexture && !fileTexture->GetUserDataPtr()) {
+      const FbxString fileName = fileTexture->GetFileName();
+    }
+  }
 }
 
 }  // namespace RE::Core
