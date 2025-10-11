@@ -22,22 +22,21 @@ class RE_API SceneImporterFBX : public ISceneImporter {
   bool LoadScene(std::string fileName, Flag64 flags = 0) override;
 
   int GetSceneNum() const override;
-  Scene* GetSceneIndex(int index, bool remove = true) override;
-  std::vector<Scene*> GetAllScene(bool remove = true) override;
+  Scene* GetSceneIndex(int index, bool remove = false) override;
+  std::vector<Scene*> GetAllScene(bool remove = false) override;
 
   const std::vector<SceneLoadError>& GetLoadErrors() const override;
   void ClearLoadErrors() override;
 
  protected:
-  static void InitFbxSdk();
+  static std::atomic<int> sImporterIndex;
+  static std::atomic<int> sSceneIndex;
+
   void Destroy();
 
  private:
   FbxManager* m_fbxSdkManager;
   FbxImporter* m_fbxImporter;
-
-  static std::atomic<int> sImporterIndex;
-  static std::atomic<int> sSceneIndex;
 
   std::vector<Scene*> m_scenes;
   std::vector<SceneLoadError> m_loadErrors;

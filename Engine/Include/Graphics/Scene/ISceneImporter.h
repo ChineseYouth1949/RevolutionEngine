@@ -34,8 +34,8 @@ class RE_API ISceneImporter {
   virtual bool LoadScene(std::string fileName, Flag64 flags = 0) = 0;
 
   virtual int GetSceneNum() const = 0;
-  virtual Scene* GetSceneIndex(int index, bool remove = true) = 0;
-  virtual std::vector<Scene*> GetAllScene(bool remove = true) = 0;
+  virtual Scene* GetSceneIndex(int index, bool remove = false) = 0;
+  virtual std::vector<Scene*> GetAllScene(bool remove = false) = 0;
 
   virtual const std::vector<SceneLoadError>& GetLoadErrors() const = 0;
   virtual void ClearLoadErrors() = 0;

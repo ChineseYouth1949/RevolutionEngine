@@ -10,7 +10,7 @@ set(CMAKE_CXX_STANDARD_REQUIRED ON)
 set(RE_HEADER_DIR "${CMAKE_CURRENT_SOURCE_DIR}/Include")
 
 # 源代码目录
-file(GLOB_RECURSE LIB_SRCS 
+file(GLOB_RECURSE LIB_SRCS
     "${CMAKE_CURRENT_SOURCE_DIR}/Include/*.h"
     "${CMAKE_CURRENT_SOURCE_DIR}/Source/*.h"
     "${CMAKE_CURRENT_SOURCE_DIR}/Source/*.cpp")
@@ -24,6 +24,7 @@ set_target_properties(${PROJECT_NAME} PROPERTIES DEBUG_POSTFIX "_d")
 
 # 添加导出和调试宏定义
 target_compile_definitions(${PROJECT_NAME} PRIVATE RE_EXPORT)
+
 if(CMAKE_BUILD_TYPE STREQUAL "Debug")
     target_compile_definitions(${PROJECT_NAME} PUBLIC RE_DEBUG)
 endif()

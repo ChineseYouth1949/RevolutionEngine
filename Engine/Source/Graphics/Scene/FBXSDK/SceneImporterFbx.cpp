@@ -5,26 +5,15 @@
 
 #include "Graphics/Scene/Scene.h"
 
+#include "Auxiliary.h"
+
 namespace RE::Core {
 
 std::atomic<int> SceneImporterFBX::sImporterIndex = 0;
 std::atomic<int> SceneImporterFBX::sSceneIndex = 0;
 
-void SceneImporterFBX::InitFbxSdk() {
-  static bool sInited = false;
-
-  if (!sInited) {
-    FbxSetMallocHandler(GMalloc);
-    FbxSetCallocHandler(GCalloc);
-    FbxSetReallocHandler(GRealloc);
-    FbxSetFreeHandler(GFree);
-
-    sInited = true;
-  }
-}
-
 SceneImporterFBX::SceneImporterFBX() {
-  InitFbxSdk();
+  FbxSdkInit();
 
   m_fbxSdkManager = FbxManager::Create();
   if (!m_fbxSdkManager) {
@@ -84,63 +73,9 @@ bool SceneImporterFBX::LoadScene(std::string fileName, Flag64 flags) {
     fileFormat = m_fbxSdkManager->GetIOPluginRegistry()->FindReaderIDByDescription("FBX binary (*.fbx)");
   }
 
-  if (m_fbxImporter->Initialize(fileName.c_str(), fileFormat) == true) {
-    std::string sceneName = "Scene-" + std::to_string(sSceneIndex++);
-    FbxScene* fbxScene = FbxScene::Create(m_fbxSdkManager, sceneName.c_str());
+  bool success = m_fbxImporter->Initialize(fileName.c_str(), fileFormat);
 
-    FbxStatus status;
-    FbxArray<FbxString*> details;
-    FbxSceneCheckUtility sceneCheck(FbxCast<FbxScene>(fbxScene), &status, &details);
-    bool notify = (!sceneCheck.Validate(FbxSceneCheckUtility::eCkeckData) && details.GetCount() > 0) ||
-                  (m_fbxImporter->GetStatus().GetCode() != FbxStatus::eSuccess);
-
-    if (notify) {
-      std::string errorString;
-
-      if (details.GetCount()) {
-        errorString = "Scene integrity verification failed with the following errors:\n";
-
-        for (int i = 0; i < details.GetCount(); i++) {
-          errorString += std::string(details[i]->Buffer());
-          errorString += "\n";
-        }
-      }
-
-      if (m_fbxImporter->GetStatus().GetCode() != FbxStatus::eSuccess) {
-        errorString += "WARNING:\n";
-        errorString += "   The importer was able to read the file but with errors.\n";
-        errorString += "   Loaded scene may be incomplete.\n\n";
-        errorString += "   Last error message:'%s'\n";
-        errorString += std::string(m_fbxImporter->GetStatus().GetErrorString());
-      }
-
-      SceneLoadError error;
-      error.filename = fileName;
-      error.info = std::move(errorString);
-
-      m_loadErrors.push_back(std::move(error));
-      return false;
-    }
-
-    FbxAxisSystem sceneAxisSystem = fbxScene->GetGlobalSettings().GetAxisSystem();
-    FbxAxisSystem targetAxisSystem(FbxAxisSystem::eYAxis, FbxAxisSystem::eParityOdd, FbxAxisSystem::eRightHanded);
-
-    bool useLeftHanded = CheckFlag(flags, long(SceneLoadOption::UseDirect12));
-    if (useLeftHanded) {
-      targetAxisSystem = FbxAxisSystem(FbxAxisSystem::eYAxis, FbxAxisSystem::eParityOdd, FbxAxisSystem::eLeftHanded);
-    }
-
-    if (sceneAxisSystem != targetAxisSystem) {
-      targetAxisSystem.ConvertScene(fbxScene);
-    }
-
-    FbxSystemUnit sceneSystemUnit = fbxScene->GetGlobalSettings().GetSystemUnit();
-    if (sceneSystemUnit.GetScaleFactor() != 1.0) {
-      FbxSystemUnit::cm.ConvertScene(fbxScene);
-    }
-
-    return true;
-  } else {
+  if (!success) {
     std::string errorString = "Unable to open file ";
     errorString += fileName;
     errorString += "\nError reported: ";
@@ -149,10 +84,41 @@ bool SceneImporterFBX::LoadScene(std::string fileName, Flag64 flags) {
     SceneLoadError error;
     error.filename = fileName;
     error.info = std::move(errorString);
-
     m_loadErrors.push_back(std::move(error));
     return false;
   }
+
+  std::string sceneName = "Scene-" + std::to_string(sSceneIndex++);
+  FbxScene* fbxScene = FbxScene::Create(m_fbxSdkManager, sceneName.c_str());
+
+  success = m_fbxImporter->Import(fbxScene);
+  if (!success) {
+    std::string errorString = "Unable to open file ";
+    errorString += fileName;
+    errorString += "\nError reported: ";
+    errorString += std::string(m_fbxImporter->GetStatus().GetErrorString());
+
+    SceneLoadError error;
+    error.filename = fileName;
+    error.info = std::move(errorString);
+    m_loadErrors.push_back(std::move(error));
+    return false;
+  }
+
+  Scene* importScene = nullptr;
+  std::string errorInfo;
+  success = TransformFbxScene(m_fbxSdkManager, m_fbxImporter, fbxScene, flags, importScene, errorInfo);
+
+  if (!success) {
+    SceneLoadError error;
+    error.filename = fileName;
+    error.info = std::move(errorInfo);
+    m_loadErrors.push_back(std::move(error));
+    return false;
+  }
+
+  m_scenes.push_back(importScene);
+  return true;
 }
 
 int SceneImporterFBX::GetSceneNum() const {
