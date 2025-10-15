@@ -31,7 +31,7 @@ void FillCameraArray(FbxScene* fbxScene, FbxArray<FbxNode*>& resCameraArray);
 void FillCameraArrayRecursive(FbxNode* fbxNode, FbxArray<FbxNode*>& resCameraArray);
 
 bool FileExist(std::string filename);
-void LoadTexture(FbxScene* pScene, const char* pFbxFileName, std::vector<Texture>& resTextures);
+void LoadTexture(FbxScene* fbxScene, const char* pFbxFileName, std::vector<Texture>& resTextures);
 
 bool FBXSceneTransform(FbxManager* fbxSdkManager, FbxImporter* fbxImporter, FbxScene* fbxScene, Flag64 flags, Scene*& resScene,
                        std::vector<std::string>& resErrorInfos) {
@@ -86,10 +86,6 @@ bool FBXSceneTransform(FbxManager* fbxSdkManager, FbxImporter* fbxImporter, FbxS
   FbxArray<FbxNode*> cameraArray;
   FillCameraArray(fbxScene, cameraArray);
 
-  std::vector<Texture> textureArray;
-
-  // FbxArray<FbxPose*> poseArray;
-
   FbxGeometryConverter geomConverter(fbxSdkManager);
   try {
     geomConverter.Triangulate(fbxScene, /*replace*/ true);
@@ -97,6 +93,10 @@ bool FBXSceneTransform(FbxManager* fbxSdkManager, FbxImporter* fbxImporter, FbxS
     resErrorInfos.push_back(std::string("Scene integrity verification failed."));
     return false;
   }
+
+  std::vector<Texture> textureArray;
+
+  // FbxArray<FbxPose*> poseArray;
 
   return true;
 }
@@ -120,17 +120,60 @@ void FillCameraArrayRecursive(FbxNode* fbxNode, FbxArray<FbxNode*>& resCameraArr
   }
 }
 
-bool FileIsExist(std::string filename) {
+bool FileIsExist(const std::string& filename) {
   return std::filesystem::exists(filename);
 }
-void LoadCacheRecursive(FbxScene* pScene, FbxAnimLayer* pAnimLayer, const char* pFbxFileName, std::vector<std::string>& resErrorInfos) {
-  const int textureCount = pScene->GetTextureCount();
-  for (size_t i = 0; i < textureCount; i++) {
-    FbxTexture* texture = pScene->GetTexture(i);
-    FbxFileTexture* fileTexture = FbxCast<FbxFileTexture>(texture);
 
-    if (fileTexture && !fileTexture->GetUserDataPtr()) {
-      const FbxString fileName = fileTexture->GetFileName();
+bool ReadTexture(FbxFileTexture* pFileTexture, const char* pFbxFileName, std::string& pResTextureFile, std::string& pResErrorInfo) {
+  const FbxString lFileName = pFileTexture->GetFileName();
+
+  bool lStatus = FileIsExist(lFileName.Buffer());
+  if (lStatus) {
+    pResTextureFile = std::string(lFileName.Buffer());
+    return true;
+  }
+
+  const FbxString lAbsFbxFileName = FbxPathUtils::Resolve(pFbxFileName);
+  const FbxString lAbsFolderName = FbxPathUtils::GetFolderName(lAbsFbxFileName);
+
+  const FbxString lResolvedFileName = FbxPathUtils::Bind(lAbsFolderName, pFileTexture->GetRelativeFileName());
+  lStatus = FileIsExist(lResolvedFileName.Buffer());
+  if (lStatus) {
+    pResTextureFile = std::string(lResolvedFileName.Buffer());
+    return true;
+  }
+
+  const FbxString lTextureFileName = FbxPathUtils::GetFileName(lFileName);
+  const FbxString lResolvedFileName2 = FbxPathUtils::Bind(lAbsFolderName, lTextureFileName);
+  lStatus = FileIsExist(lResolvedFileName2.Buffer());
+  if (lStatus) {
+    pResTextureFile = std::string(lResolvedFileName2.Buffer());
+    return true;
+  }
+
+  pResErrorInfo = std::string("Failed to load texture file: ") + std::string(lFileName.Buffer());
+  return false;
+}
+
+void LoadTexture(FbxScene* pFbxScene, const char* pFbxFileName, std::vector<Texture>& pResTextures, std::vector<std::string>& pResErrorInfos) {
+  const int lTextureCount = pFbxScene->GetTextureCount();
+
+  std::string lResTextureFileName;
+  std::string lResErrorInfo;
+
+  for (int lTextureIndex = 0; lTextureIndex < lTextureCount; lTextureIndex++) {
+    FbxTexture* lTexture = pFbxScene->GetTexture(lTextureIndex);
+    FbxFileTexture* lFileTexture = FbxCast<FbxFileTexture>(lTexture);
+
+    if (lFileTexture && !lFileTexture->GetUserDataPtr()) {
+      bool exist = ReadTexture(lFileTexture, pFbxFileName, lResTextureFileName, lResErrorInfo);
+      if (exist) {
+        pResTextures.push_back(Texture(lResTextureFileName));
+      } else {
+        pResErrorInfos.push_back(std::move(lResErrorInfo));
+      }
+
+      lFileTexture->SetUserDataPtr(pFbxScene);
     }
   }
 }

@@ -6,9 +6,11 @@ namespace RE::Core {
 
 class Texture {
  public:
-  private:
-  std::string m_filename;
+  Texture();
+  Texture(const std::string& fileName);
+
   std::string m_name;
+  std::string m_fileName;
 };
 
 }  // namespace RE::Core
