@@ -1,10 +1,9 @@
+#include "Auxiliary.h"
+
 #include <mutex>
 #include <filesystem>
 
-#include "Auxiliary.h"
-
-#include "Base/FlagType.h"
-
+#include "Base/Base.h"
 #include "Memory/Memory.h"
 
 #include "Scene/SceneObj.h"

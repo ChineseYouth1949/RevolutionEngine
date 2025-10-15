@@ -3,6 +3,7 @@
 #include "Base/FlagType.h"
 
 #include <string>
+#include <vector>
 
 #include <fbxsdk.h>
 
