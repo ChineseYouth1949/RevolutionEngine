@@ -28,9 +28,7 @@ void FBXSdkInit() {
 }
 
 void FillCameraArray(FbxScene* fbxScene, FbxArray<FbxNode*>& resCameraArray);
-void FillCameraArrayRecursive(FbxNode* fbxNode, FbxArray<FbxNode*>& resCameraArray);
 
-bool FileExist(std::string filename);
 void LoadTexture(FbxScene* fbxScene, const char* pFbxFileName, std::vector<Texture>& resTextures);
 
 bool FBXSceneTransform(FbxManager* fbxSdkManager, FbxImporter* fbxImporter, FbxScene* fbxScene, Flag64 flags, Scene*& resScene,
@@ -101,10 +99,13 @@ bool FBXSceneTransform(FbxManager* fbxSdkManager, FbxImporter* fbxImporter, FbxS
   return true;
 }
 
+void FillCameraArrayRecursive(FbxNode* fbxNode, FbxArray<FbxNode*>& resCameraArray);
+
 void FillCameraArray(FbxScene* fbxScene, FbxArray<FbxNode*>& resCameraArray) {
   resCameraArray.Clear();
   FillCameraArrayRecursive(fbxScene->GetRootNode(), resCameraArray);
 }
+
 void FillCameraArrayRecursive(FbxNode* fbxNode, FbxArray<FbxNode*>& resCameraArray) {
   if (fbxNode) {
     if (fbxNode->GetNodeAttribute()) {
@@ -120,10 +121,35 @@ void FillCameraArrayRecursive(FbxNode* fbxNode, FbxArray<FbxNode*>& resCameraArr
   }
 }
 
+bool FileExist(std::string filename);
+bool ReadTexture(FbxFileTexture* pFileTexture, const char* pFbxFileName, std::string& pResTextureFile, std::string& pResErrorInfo);
+
+void LoadTexture(FbxScene* pFbxScene, const char* pFbxFileName, std::vector<Texture>& pResTextures, std::vector<std::string>& pResErrorInfos) {
+  const int lTextureCount = pFbxScene->GetTextureCount();
+
+  std::string lResTextureFileName;
+  std::string lResErrorInfo;
+
+  for (int lTextureIndex = 0; lTextureIndex < lTextureCount; lTextureIndex++) {
+    FbxTexture* lTexture = pFbxScene->GetTexture(lTextureIndex);
+    FbxFileTexture* lFileTexture = FbxCast<FbxFileTexture>(lTexture);
+
+    if (lFileTexture && !lFileTexture->GetUserDataPtr()) {
+      bool exist = ReadTexture(lFileTexture, pFbxFileName, lResTextureFileName, lResErrorInfo);
+      if (exist) {
+        pResTextures.push_back(Texture(lResTextureFileName));
+      } else {
+        pResErrorInfos.push_back(std::move(lResErrorInfo));
+      }
+
+      lFileTexture->SetUserDataPtr(pFbxScene);
+    }
+  }
+}
+
 bool FileIsExist(const std::string& filename) {
   return std::filesystem::exists(filename);
 }
-
 bool ReadTexture(FbxFileTexture* pFileTexture, const char* pFbxFileName, std::string& pResTextureFile, std::string& pResErrorInfo) {
   const FbxString lFileName = pFileTexture->GetFileName();
 
@@ -153,29 +179,6 @@ bool ReadTexture(FbxFileTexture* pFileTexture, const char* pFbxFileName, std::st
 
   pResErrorInfo = std::string("Failed to load texture file: ") + std::string(lFileName.Buffer());
   return false;
-}
-
-void LoadTexture(FbxScene* pFbxScene, const char* pFbxFileName, std::vector<Texture>& pResTextures, std::vector<std::string>& pResErrorInfos) {
-  const int lTextureCount = pFbxScene->GetTextureCount();
-
-  std::string lResTextureFileName;
-  std::string lResErrorInfo;
-
-  for (int lTextureIndex = 0; lTextureIndex < lTextureCount; lTextureIndex++) {
-    FbxTexture* lTexture = pFbxScene->GetTexture(lTextureIndex);
-    FbxFileTexture* lFileTexture = FbxCast<FbxFileTexture>(lTexture);
-
-    if (lFileTexture && !lFileTexture->GetUserDataPtr()) {
-      bool exist = ReadTexture(lFileTexture, pFbxFileName, lResTextureFileName, lResErrorInfo);
-      if (exist) {
-        pResTextures.push_back(Texture(lResTextureFileName));
-      } else {
-        pResErrorInfos.push_back(std::move(lResErrorInfo));
-      }
-
-      lFileTexture->SetUserDataPtr(pFbxScene);
-    }
-  }
 }
 
 }  // namespace RE::Core
