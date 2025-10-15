@@ -14,11 +14,11 @@ namespace RE::Core {
 
 void FBXSdkInit() {
   static std::mutex sMutex;
-  static std::atomic<bool> sInited = false;
+  static bool sInited = false;
+
+  std::lock_guard lock(sMutex);
 
   if (!sInited) {
-    std::lock_guard lock(sMutex);
-
     FbxSetMallocHandler(GMalloc);
     FbxSetCallocHandler(GCalloc);
     FbxSetReallocHandler(GRealloc);
@@ -31,7 +31,7 @@ void FBXSdkInit() {
 void FillCameraArray(FbxScene* fbxScene, FbxArray<FbxNode*>& resCameraArray);
 void FillCameraArrayRecursive(FbxNode* fbxNode, FbxArray<FbxNode*>& resCameraArray);
 
-bool FileExit(std::string filename);
+bool FileIsExit(std::string filename);
 void LoadTexture(FbxScene* pScene, const char* pFbxFileName, std::vector<Texture>& resTextures);
 
 bool FBXSceneTransform(FbxManager* fbxSdkManager, FbxImporter* fbxImporter, FbxScene* fbxScene, Flag64 flags, Scene*& resScene,
@@ -121,7 +121,7 @@ void FillCameraArrayRecursive(FbxNode* fbxNode, FbxArray<FbxNode*>& resCameraArr
   }
 }
 
-bool FileExit(std::string filename) {
+bool FileIsExit(std::string filename) {
   return std::filesystem::exists(filename);
 }
 void LoadCacheRecursive(FbxScene* pScene, FbxAnimLayer* pAnimLayer, const char* pFbxFileName, std::vector<std::string>& resErrorInfos) {
