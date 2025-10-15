@@ -1,7 +1,7 @@
 #pragma once
 
 #include "MemoryAllocator.h"
-#include "AuxiliaryFunction.h"
+#include "Auxiliary.h"
 
 namespace RE::Core {
 
