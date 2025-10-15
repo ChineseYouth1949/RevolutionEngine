@@ -30,7 +30,7 @@ void FBXSdkInit() {
 void FillCameraArray(FbxScene* fbxScene, FbxArray<FbxNode*>& resCameraArray);
 void FillCameraArrayRecursive(FbxNode* fbxNode, FbxArray<FbxNode*>& resCameraArray);
 
-bool FileIsExit(std::string filename);
+bool FileExist(std::string filename);
 void LoadTexture(FbxScene* pScene, const char* pFbxFileName, std::vector<Texture>& resTextures);
 
 bool FBXSceneTransform(FbxManager* fbxSdkManager, FbxImporter* fbxImporter, FbxScene* fbxScene, Flag64 flags, Scene*& resScene,
@@ -66,7 +66,7 @@ bool FBXSceneTransform(FbxManager* fbxSdkManager, FbxImporter* fbxImporter, FbxS
   FbxAxisSystem sceneAxisSystem = fbxScene->GetGlobalSettings().GetAxisSystem();
   FbxAxisSystem targetAxisSystem(FbxAxisSystem::eYAxis, FbxAxisSystem::eParityOdd, FbxAxisSystem::eRightHanded);
 
-  bool useLeftHanded = CheckFlag(flags, long(SceneLoadOption::UseDirect12));
+  bool useLeftHanded = CheckFlagExist(flags, long(SceneLoadOption::UseDirect12));
   if (useLeftHanded) {
     targetAxisSystem = FbxAxisSystem(FbxAxisSystem::eYAxis, FbxAxisSystem::eParityOdd, FbxAxisSystem::eLeftHanded);
   }
@@ -120,7 +120,7 @@ void FillCameraArrayRecursive(FbxNode* fbxNode, FbxArray<FbxNode*>& resCameraArr
   }
 }
 
-bool FileIsExit(std::string filename) {
+bool FileIsExist(std::string filename) {
   return std::filesystem::exists(filename);
 }
 void LoadCacheRecursive(FbxScene* pScene, FbxAnimLayer* pAnimLayer, const char* pFbxFileName, std::vector<std::string>& resErrorInfos) {

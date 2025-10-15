@@ -84,6 +84,7 @@ bool SceneImporterFBX::LoadScene(std::string fileName, Flag64 flags) {
     SceneLoadError error;
     error.filename = fileName;
     error.infos.push_back(std::move(errorString));
+
     m_loadErrors.push_back(std::move(error));
     return false;
   }
@@ -101,6 +102,7 @@ bool SceneImporterFBX::LoadScene(std::string fileName, Flag64 flags) {
     SceneLoadError error;
     error.filename = fileName;
     error.infos.push_back(std::move(errorString));
+
     m_loadErrors.push_back(std::move(error));
     return false;
   }
@@ -113,6 +115,7 @@ bool SceneImporterFBX::LoadScene(std::string fileName, Flag64 flags) {
     SceneLoadError error;
     error.filename = fileName;
     error.infos = std::move(errorInfos);
+
     m_loadErrors.push_back(std::move(error));
     return false;
   }
