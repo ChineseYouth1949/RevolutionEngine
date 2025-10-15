@@ -77,7 +77,7 @@ bool FBXSceneTransform(FbxManager* fbxSdkManager, FbxImporter* fbxImporter, FbxS
 
   FbxSystemUnit sceneSystemUnit = fbxScene->GetGlobalSettings().GetSystemUnit();
   if (sceneSystemUnit.GetScaleFactor() != 1.0) {
-    FbxSystemUnit::cm.ConvertScene(fbxScene);
+    FbxSystemUnit::m.ConvertScene(fbxScene);
   }
 
   FbxArray<FbxString*> animStackNameArray;
