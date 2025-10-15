@@ -9,9 +9,9 @@
 namespace RE::Core {
 class Scene;
 
-void FbxSdkInit();
+void FBXSdkInit();
 
-bool TransformFbxScene(FbxManager* fbxSdkManager, FbxImporter* fbxImporter, FbxScene* fbxScene, Flag64 falgs, Scene*& resScene,
+bool FBXSceneTransform(FbxManager* fbxSdkManager, FbxImporter* fbxImporter, FbxScene* fbxScene, Flag64 falgs, Scene*& resScene,
                        std::vector<std::string>& resErrorInfos);
 
 }  // namespace RE::Core

@@ -12,7 +12,7 @@
 
 namespace RE::Core {
 
-void FbxSdkInit() {
+void FBXSdkInit() {
   static std::mutex sMutex;
   static std::atomic<bool> sInited = false;
 
@@ -34,7 +34,7 @@ void FillCameraArrayRecursive(FbxNode* fbxNode, FbxArray<FbxNode*>& resCameraArr
 bool FileExit(std::string filename);
 void LoadTexture(FbxScene* pScene, const char* pFbxFileName, std::vector<Texture>& resTextures);
 
-bool TransformFbxScene(FbxManager* fbxSdkManager, FbxImporter* fbxImporter, FbxScene* fbxScene, Flag64 flags, Scene*& resScene,
+bool FBXSceneTransform(FbxManager* fbxSdkManager, FbxImporter* fbxImporter, FbxScene* fbxScene, Flag64 flags, Scene*& resScene,
                        std::vector<std::string>& resErrorInfos) {
   FbxStatus status;
   FbxArray<FbxString*> details;

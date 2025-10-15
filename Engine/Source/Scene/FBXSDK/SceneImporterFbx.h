@@ -1,10 +1,9 @@
 #pragma once
 
-#include "Scene/ISceneImporter.h"
-
 #include <atomic>
-
 #include <fbxsdk.h>
+
+#include "Scene/ISceneImporter.h"
 
 namespace RE::Core {
 
