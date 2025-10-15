@@ -53,7 +53,7 @@ void* MemoryAllocator::Calloc(size_t size, size_t count, AllocType type) {
 }
 
 void* MemoryAllocator::Realloc(void* p, size_t newSize, AllocType type) {
-  if (!p) {
+  if (p == nullptr) {
     return Malloc(newSize, type);
   }
 
@@ -95,7 +95,7 @@ bool MemoryAllocator::Expand(void* p, size_t newSize, AllocType type) {
   return res == p;
 }
 
-RE_INLINE void* AlignedAlloc(size_t align, size_t size) {
+RE_INLINE void* AlignedAlloc(size_t size, size_t align) {
 #if defined(_WIN32)
   return _aligned_malloc(size, align);
 #elif defined(__linux__)
@@ -114,7 +114,7 @@ void* MemoryAllocator::MallocAligned(size_t size, size_t alignment, AllocType ty
 
   switch (type) {
     case AllocType::STD:
-      res = AlignedAlloc(alignment, size);
+      res = AlignedAlloc(size, alignment);
       break;
     case AllocType::MIMALLOC:
       res = mi_malloc_aligned(size, alignment);
@@ -134,7 +134,7 @@ void* MemoryAllocator::ZallocAligned(size_t size, size_t alignment, AllocType ty
 
   switch (type) {
     case AllocType::STD:
-      res = AlignedAlloc(alignment, size);
+      res = AlignedAlloc(size, alignment);
       memset(res, 0, size);
       break;
     case AllocType::MIMALLOC:

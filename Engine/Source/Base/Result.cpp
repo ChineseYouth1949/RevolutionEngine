@@ -1,4 +1,6 @@
-#include "Base/Base.h"
+#include "Base/Result.h"
+#include "Base/WindowsHeader.h"
+#include "Base/Error.h"
 
 namespace RE::Core {
 
@@ -21,7 +23,7 @@ bool Result::Success() const {
   return false;
 }
 bool Result::Failed() const {
-  return Success() == false;
+  return !Success();
 }
 
 void Result::ThrowIfFailed(const std::string& errInfo) const {

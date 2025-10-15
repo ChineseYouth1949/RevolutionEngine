@@ -1,10 +1,10 @@
-// complie and class define
+// Define
 #include "CompileDefine.h"
-#include "ClassDefine.h"
 
-// base type
-#include "Error.h"
+// Type
 #include "Result.h"
+#include "Error.h"
 
-// other headers
+// Auxiliary
+#include "Assert.h"
 #include "WindowsHeader.h"

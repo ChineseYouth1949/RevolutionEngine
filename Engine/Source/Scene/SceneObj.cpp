@@ -1,4 +1,4 @@
-#include "Graphics/Scene/Scene.h"
+#include "Scene/SceneObj.h"
 
 namespace RE::Core {
 void Scene::Destroy() {}

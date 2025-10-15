@@ -1,6 +1,8 @@
 #pragma once
 
-#include "Base/Base.h"
+#include <cinttypes>
+
+#include "Base/CompileDefine.h"
 
 namespace RE::Core {
 

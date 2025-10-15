@@ -8,19 +8,19 @@ TaskSystem& TaskSystem::Instance() {
   return instance;
 }
 
-TaskSystem::TaskSystem() : m_executor(GAllocateConstr<tf::Executor>()) {}
+TaskSystem::TaskSystem() : m_executor(GAllocateConstructor<tf::Executor>()) {}
 
 TaskSystem::~TaskSystem() {
   WaitAllTask();
-  GDele<tf::Executor>(m_executor);
+  GDestry<tf::Executor>(m_executor);
 }
 
 void TaskSystem::SetThreadNum(size_t num) {
   WaitAllTask();
   std::unique_lock lock(m_mutex);
 
-  GDele<tf::Executor>(m_executor);
-  m_executor = GAllocateConstr<tf::Executor>();
+  GDestry<tf::Executor>(m_executor);
+  m_executor = GAllocateConstructor<tf::Executor>(num);
 }
 
 void TaskSystem::WaitAllTask() {

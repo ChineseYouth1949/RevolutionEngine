@@ -3,7 +3,7 @@
 #include "Base/Assert.h"
 #include "Memory/Memory.h"
 
-#include "Graphics/Scene/Scene.h"
+#include "Scene/SceneObj.h"
 
 #include "Auxiliary.h"
 

@@ -1,6 +1,6 @@
 #pragma once
 
-#include "Graphics/Scene/ISceneImporter.h"
+#include "Scene/ISceneImporter.h"
 
 #include <atomic>
 

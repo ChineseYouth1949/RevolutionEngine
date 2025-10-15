@@ -18,7 +18,6 @@ class RE_API GraphicsEngine {
   Result Build();
 
  private:
-  RE_PIMPL_MEMBER
 };
 
 }  // namespace RE::Core

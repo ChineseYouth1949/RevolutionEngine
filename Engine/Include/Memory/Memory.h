@@ -1,3 +1,3 @@
 #include "MemoryAllocator.h"
-#include "AuxiliaryFun.h"
+#include "AuxiliaryFunction.h"
 #include "GlobalAllocator.h"

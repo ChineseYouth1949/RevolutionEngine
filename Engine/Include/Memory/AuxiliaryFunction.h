@@ -1,5 +1,7 @@
 #pragma once
 
+#include <memory>
+
 #include "MemoryAllocator.h"
 
 namespace RE::Core {
@@ -24,21 +26,21 @@ RE_INLINE void Free(T* ptr, AllocType type) {
   MemoryAllocator::Free(p, type);
 }
 
+template <typename T, typename... Args>
+RE_INLINE T* AllocateConstructor(AllocType type, Args&&... args) {
+  void* p = MemoryAllocator::Malloc(sizeof(T), type);
+  return new (p) T(std::forward<Args>(args)...);
+}
+
 template <typename T>
-RE_INLINE void Dele(T* ptr, AllocType type) {
+RE_INLINE void Destry(T* ptr, AllocType type) {
   ptr->~T();
   void* p = static_cast<void*>(ptr);
   MemoryAllocator::Free(p, type);
 }
 
-template <typename T, typename... Args>
-RE_INLINE T* AllocateConstr(AllocType type, Args&&... args) {
-  void* p = MemoryAllocator::Malloc(sizeof(T), type);
-  return new (p) T(std::forward<Args>(args)...);
-}
-
 template <typename T, AllocType type>
-struct MDeleter {
+struct Deleter {
   void operator()(T* p) const noexcept {
     if (p) {
       p->~T();
@@ -48,6 +50,6 @@ struct MDeleter {
 };
 
 template <typename T, AllocType type>
-using MUniquePtr = std::unique_ptr<T, MDeleter<T, type>>;
+using UniquePtr = std::unique_ptr<T, Deleter<T, type>>;
 
 }  // namespace RE::Core

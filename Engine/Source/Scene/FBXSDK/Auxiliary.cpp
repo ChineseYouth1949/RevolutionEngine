@@ -7,8 +7,8 @@
 
 #include "Memory/Memory.h"
 
-#include "Graphics/Scene/Scene.h"
-#include "Graphics/Scene/ISceneImporter.h"
+#include "Scene/SceneObj.h"
+#include "Scene/ISceneImporter.h"
 
 namespace RE::Core {
 

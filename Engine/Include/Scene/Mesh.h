@@ -1,10 +1,10 @@
 #pragma once
 
-#include "Base/Base.h"
-#include "Math/Math.h"
-
 #include <string>
 #include <vector>
+
+#include "Base/Base.h"
+#include "Math/Math.h"
 
 namespace RE::Core {
 

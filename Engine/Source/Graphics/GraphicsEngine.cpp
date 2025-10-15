@@ -1,10 +1,10 @@
-#include "Graphics/GraphicsEngine.h"
+// #include "Graphics/GraphicsEngine.h"
 
-namespace RE::Core {
+// namespace RE::Core {
 
-struct GraphicsEngine::Impl {};
+// struct GraphicsEngine::Impl {};
 
-GraphicsEngine::GraphicsEngine() {}
-GraphicsEngine::~GraphicsEngine() {}
+// GraphicsEngine::GraphicsEngine() {}
+// GraphicsEngine::~GraphicsEngine() {}
 
-}  // namespace RE::Core
+// }  // namespace RE::Core

@@ -1,7 +1,7 @@
 #pragma once
 
 #include "MemoryAllocator.h"
-#include "AuxiliaryFun.h"
+#include "AuxiliaryFunction.h"
 
 namespace RE::Core {
 
@@ -10,11 +10,9 @@ const AllocType globalAllocType = AllocType::STD;
 RE_INLINE void* GMalloc(size_t size) {
   return MemoryAllocator::Malloc(size, globalAllocType);
 }
-
 RE_INLINE void* GCalloc(size_t count, size_t size) {
   return MemoryAllocator::Calloc(size, count, globalAllocType);
 }
-
 RE_INLINE void* GRealloc(void* p, size_t size) {
   return MemoryAllocator::Realloc(p, size, globalAllocType);
 }
@@ -38,26 +36,20 @@ RE_INLINE void GFree(T* ptr) {
   Free<T>(ptr, globalAllocType);
 }
 
-template <typename T>
-RE_INLINE void GDele(T* ptr) {
-  Dele<T>(ptr, globalAllocType);
-}
-
 template <typename T, typename... Args>
-RE_INLINE T* GAllocateConstr(Args&&... args) {
-  return AllocateConstr<T>(globalAllocType, std::forward<Args>(args)...);
+RE_INLINE T* GAllocateConstructor(Args&&... args) {
+  return AllocateConstructor<T>(globalAllocType, std::forward<Args>(args)...);
 }
 
 template <typename T>
-using GDeleter = MDeleter<T, globalAllocType>;
+RE_INLINE void GDestry(T* ptr) {
+  Destry<T>(ptr, globalAllocType);
+}
 
 template <typename T>
-using GUniquePtr = MUniquePtr<T, globalAllocType>;
+using GDeleter = Deleter<T, globalAllocType>;
 
-template <typename T, typename... Args>
-RE_INLINE GUniquePtr<T> GAllocateConstrUnique(Args&&... args) {
-  GUniquePtr<T> res = GUniquePtr<T>(AllocateConstr<T>(globalAllocType, std::forward<Args>(args)...));
-  return std::move(res);
-}
+template <typename T>
+using GUniquePtr = UniquePtr<T, globalAllocType>;
 
 }  // namespace RE::Core
