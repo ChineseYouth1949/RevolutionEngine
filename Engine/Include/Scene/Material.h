@@ -1,7 +1,7 @@
 #pragma once
 
 #include <string>
-#include <unordered_map>
+#include <vector>
 
 #include "Base/Base.h"
 #include "Math/Math.h"
@@ -21,15 +21,17 @@ class RE_API Material {
   bool HaveProperty(const std::string& pPropName);
   PropertyType GetPropertyType(const std::string& pPropName);
 
-  const Vector4f* GetVector4f(const std::string& pPropName) const;
-  const Texture* GetTexture(const std::string& pPropName) const;
+  bool SetProperty(const std::string& pPropName, const Vector4f& value);
+  bool SetProperty(const std::string& pPropName, Texture* value);
 
-  void SetProperty(const std::string& pPropName, const Vector4f& value);
-  void SetProperty(const std::string& pPropName, const Texture* value);
+  bool GetProperty(const std::string& pPropName, Vector4f& pVlaueRes);
+  bool GetProperty(const std::string& pPropName, Texture*& pValueRes);
 
  private:
-  std::vector<std::pair<std::string, Vector3f>> m_valueVector3f;
-  std::vector<std::pair<std::string, Texture*>> m_valueTexture;
+  std::vector<std::pair<std::string, PropertyType>> mPropertyType;
+
+  std::vector<std::pair<std::string, Vector4f>> mProperVector4f;
+  std::vector<std::pair<std::string, Texture*>> mProperTexture;
 };
 
 }  // namespace RE::Core
