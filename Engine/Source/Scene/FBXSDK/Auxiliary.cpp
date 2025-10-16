@@ -9,6 +9,7 @@
 #include "Scene/SceneObj.h"
 #include "Scene/Texture.h"
 #include "Scene/Material.h"
+#include "Scene/MaterialPropMap.h"
 
 #include "Scene/ISceneImporter.h"
 
@@ -272,15 +273,59 @@ std::vector<Material*> FbxSceneConverter::FindMaterial(FbxScene* pFbxScene) {
 void FbxSceneConverter::FindMaterialImpl(FbxNode* pFbxNode, std::vector<Material*>& pResMaterials) {
   const int lMaterialCount = pFbxNode->GetMaterialCount();
 
+  Vector3f lResVector3f;
+  Texture* lResTexture;
+
   for (int lMaterialIndex = 0; lMaterialIndex < lMaterialCount; ++lMaterialIndex) {
     FbxSurfaceMaterial* lMaterial = pFbxNode->GetMaterial(lMaterialIndex);
 
     if (lMaterial && !lMaterial->GetUserDataPtr()) {
-      Material* lCacheMaterial = new Material();
-
-      lMaterial->SetUserDataPtr(lCacheMaterial);
+      if (ReadMaterialPropertyVector3f(lMaterial, MaterialPropertyMap::sEmissive, MaterialPropertyMap::sEmissiveFactor, lResVector3f, lResTexture)) {
+        Material* lLoadMaterial = new Material();
+        lLoadMaterial->SetProperty(MaterialPropertyMap::sEmissiveFactor, lResVector3f);
+        if (lResTexture != nullptr) {
+          lLoadMaterial->SetProperty(MaterialPropertyMap::sEmissiveFactor + "-Texture", lResTexture);
+        }
+        lMaterial->SetUserDataPtr(lLoadMaterial);
+      } else {
+        lMaterial->SetUserDataPtr(sInvalidUserPtr);
+      }
     }
   }
+}
+bool FbxSceneConverter::ReadMaterialPropertyVector3f(const FbxSurfaceMaterial* pMaterial, std::string pPropertyName, std::string pFactorPropertyName,
+                                                     Vector3f& pResVector3f, Texture*& pResTexture) {
+  bool lRes = false;
+  pResTexture = nullptr;
+
+  FbxDouble3 lResult(0, 0, 0);
+  const FbxProperty lProperty = pMaterial->FindProperty(pPropertyName.c_str());
+  const FbxProperty lFactorProperty = pMaterial->FindProperty(pFactorPropertyName.c_str());
+
+  if (lProperty.IsValid() && lFactorProperty.IsValid()) {
+    lResult = lProperty.Get<FbxDouble3>();
+    double lFactor = lFactorProperty.Get<FbxDouble>();
+    if (lFactor != 1) {
+      lResult[0] *= lFactor;
+      lResult[1] *= lFactor;
+      lResult[2] *= lFactor;
+    }
+    pResVector3f = Vector3f(lResult[0], lResult[1], lResult[2]);
+    lRes = true;
+  }
+
+  if (lProperty.IsValid()) {
+    const int lTextureCount = lProperty.GetSrcObjectCount<FbxFileTexture>();
+    if (lTextureCount) {
+      const FbxFileTexture* lTexture = lProperty.GetSrcObject<FbxFileTexture>();
+      if (lTexture && lTexture->GetUserDataPtr()) {
+        Texture* lTextuerPtr = static_cast<Texture*>(lTexture->GetUserDataPtr());
+        pResTexture = lTextuerPtr;
+      }
+    }
+  }
+
+  return lRes;
 }
 
 }  // namespace RE::Core

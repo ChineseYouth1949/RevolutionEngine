@@ -8,6 +8,7 @@
 #include <fbxsdk.h>
 
 namespace RE::Core {
+class Vector3f;
 class Scene;
 class Texture;
 class Material;
@@ -45,6 +46,8 @@ class FbxSceneConverter {
 
   static std::vector<Material*> FindMaterial(FbxScene* pFbxScene);
   static void FindMaterialImpl(FbxNode* pFbxNode, std::vector<Material*>& pResMaterials);
+  static bool ReadMaterialPropertyVector3f(const FbxSurfaceMaterial* pMaterial, std::string pPropertyName, std::string pFactorPropertyName,
+                                           Vector3f& pResVector3f, Texture*& pResTexture);
 
  private:
   std::string mFbxFileName;

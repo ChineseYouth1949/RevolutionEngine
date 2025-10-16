@@ -1,8 +1,10 @@
 #include "Scene/MaterialPropMap.h"
 
+#include <fbxsdk.h>
+
 namespace RE::Core {
 
-#define DefineMaterialProperty(x) const std::string MaterialPropertyMap::x = #x
+#define DefineMaterialProperty(x) const std::string MaterialPropertyMap::x = FbxSurfaceMaterial::x
 
 DefineMaterialProperty(sShadingModel);
 DefineMaterialProperty(sMultiLayer);
