@@ -81,7 +81,13 @@ bool FbxSceneConverter::Transform(FbxManager* pFbxSdkManager, FbxImporter* pFbxI
 
   // Convert axis and unit
   ConvertAxisAndUnit();
-  ConvertPolygonToTriangle();
+
+  if (!ConvertPolygonToTriangle()) {
+    return false;
+  }
+
+  // allocate scene obj
+  mScene = GAllocateConstructor<Scene>();
 
   LoadAnimation();
   LoadCamera();
@@ -157,6 +163,10 @@ bool FbxSceneConverter::ConvertPolygonToTriangle() {
 void FbxSceneConverter::LoadAnimation() {
   FbxArray<FbxString*> lAnimStackNameArray;
   mFbxScene->FillAnimStackNameArray(lAnimStackNameArray);
+
+  for (size_t i = 0; i < lAnimStackNameArray.Size(); i++) {
+    mScene->mAnimStackNames.push_back(lAnimStackNameArray[i]->Buffer());
+  }
 }
 
 void FbxSceneConverter::LoadCamera() {
@@ -189,7 +199,7 @@ void FbxSceneConverter::LoadTexture() {
   }
 }
 
-void LoadMaterial() {}
+void FbxSceneConverter::LoadMaterial() {}
 
 FbxArray<FbxNode*> FbxSceneConverter::FillCameraArray(FbxScene* pFbxScene) {
   FbxArray<FbxNode*> lResCameraArray;
@@ -244,5 +254,12 @@ bool FbxSceneConverter::FindTexture(FbxFileTexture* pFileTexture, const std::str
 bool FbxSceneConverter::FileExist(const std::string& pFilename) {
   return std::filesystem::exists(pFilename);
 }
+
+std::vector<Material*> FbxSceneConverter::FindMaterial(FbxScene* pFbxScene) {
+  std::vector<Material*> lResMaterials;
+
+  return lResMaterials;
+}
+void FbxSceneConverter::FindMaterialImpl(FbxNode* pFbxNode, std::vector<Material>& pResMaterials) {}
 
 }  // namespace RE::Core

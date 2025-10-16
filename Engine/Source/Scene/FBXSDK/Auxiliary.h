@@ -10,6 +10,7 @@
 namespace RE::Core {
 class Scene;
 class Texture;
+class Material;
 
 void FBXSDKInit();
 
@@ -39,6 +40,9 @@ class FbxSceneConverter {
 
   static bool FindTexture(FbxFileTexture* pFileTexture, const std::string& pFbxFileName, std::string& pResTextureFile);
   static bool FileExist(const std::string& pFilename);
+
+  static std::vector<Material*> FindMaterial(FbxScene* pFbxScene);
+  static void FindMaterialImpl(FbxNode* pFbxNode, std::vector<Material>& pResMaterials);
 
  private:
   std::string mFbxFileName;
