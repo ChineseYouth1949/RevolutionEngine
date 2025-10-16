@@ -35,6 +35,8 @@ class FbxSceneConverter {
   void LoadTexture();
   void LoadMaterial();
 
+  static void* sInvalidUserPtr;
+
   static FbxArray<FbxNode*> FillCameraArray(FbxScene* pFbxScene);
   static void FillCameraArrayImpl(FbxNode* pFbxNode, FbxArray<FbxNode*>& pResCameraArray);
 
@@ -42,7 +44,7 @@ class FbxSceneConverter {
   static bool FileExist(const std::string& pFilename);
 
   static std::vector<Material*> FindMaterial(FbxScene* pFbxScene);
-  static void FindMaterialImpl(FbxNode* pFbxNode, std::vector<Material>& pResMaterials);
+  static void FindMaterialImpl(FbxNode* pFbxNode, std::vector<Material*>& pResMaterials);
 
  private:
   std::string mFbxFileName;

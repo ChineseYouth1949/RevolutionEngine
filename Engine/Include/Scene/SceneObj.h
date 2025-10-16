@@ -13,8 +13,8 @@ struct RE_API Scene {
   void Destroy();
 
   std::vector<std::string> mAnimStackNames;
-  std::vector<Texture*> m_textures;
-  std::vector<Mesh*> m_meshs;
+  std::vector<Texture*> mTextures;
+  std::vector<Mesh*> mMeshs;
 };
 
 }  // namespace RE::Core

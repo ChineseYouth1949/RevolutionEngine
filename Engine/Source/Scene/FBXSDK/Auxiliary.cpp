@@ -8,6 +8,8 @@
 
 #include "Scene/SceneObj.h"
 #include "Scene/Texture.h"
+#include "Scene/Material.h"
+
 #include "Scene/ISceneImporter.h"
 
 namespace RE::Core {
@@ -27,6 +29,8 @@ void FBXSDKInit() {
     sInited = true;
   }
 }
+
+void* FbxSceneConverter::sInvalidUserPtr = reinterpret_cast<void*>(-1);
 
 FbxSceneConverter::FbxSceneConverter() {}
 FbxSceneConverter::~FbxSceneConverter() {
@@ -179,7 +183,7 @@ void FbxSceneConverter::LoadTexture() {
   std::string lResTextureFileName;
   std::string lResErrorInfo;
 
-  std::vector<Texture> lTextures;
+  std::vector<Texture*> lTextures;
 
   for (int lTextureIndex = 0; lTextureIndex < lTextureCount; lTextureIndex++) {
     FbxTexture* lTexture = mFbxScene->GetTexture(lTextureIndex);
@@ -188,15 +192,18 @@ void FbxSceneConverter::LoadTexture() {
     if (lFileTexture && !lFileTexture->GetUserDataPtr()) {
       bool exist = FindTexture(lFileTexture, mFbxFileName.c_str(), lResTextureFileName);
       if (exist) {
-        lTextures.push_back(Texture(lResTextureFileName));
+        Texture* lNewTexture = new Texture(lResTextureFileName);
+        lTextures.push_back(lNewTexture);
+        lFileTexture->SetUserDataPtr(lNewTexture);
       } else {
         std::string lErrorInfo = std::string("Not found texture : ") + lResTextureFileName;
         mErrorInfos.push_back(std::move(lErrorInfo));
+        lFileTexture->SetUserDataPtr(sInvalidUserPtr);
       }
-
-      lFileTexture->SetUserDataPtr(mFbxScene);
     }
   }
+
+  mScene->mTextures = std::move(lTextures);
 }
 
 void FbxSceneConverter::LoadMaterial() {}
@@ -258,8 +265,22 @@ bool FbxSceneConverter::FileExist(const std::string& pFilename) {
 std::vector<Material*> FbxSceneConverter::FindMaterial(FbxScene* pFbxScene) {
   std::vector<Material*> lResMaterials;
 
+  FindMaterialImpl(pFbxScene->GetRootNode(), lResMaterials);
+
   return lResMaterials;
 }
-void FbxSceneConverter::FindMaterialImpl(FbxNode* pFbxNode, std::vector<Material>& pResMaterials) {}
+void FbxSceneConverter::FindMaterialImpl(FbxNode* pFbxNode, std::vector<Material*>& pResMaterials) {
+  const int lMaterialCount = pFbxNode->GetMaterialCount();
+
+  for (int lMaterialIndex = 0; lMaterialIndex < lMaterialCount; ++lMaterialIndex) {
+    FbxSurfaceMaterial* lMaterial = pFbxNode->GetMaterial(lMaterialIndex);
+
+    if (lMaterial && !lMaterial->GetUserDataPtr()) {
+      Material* lCacheMaterial = new Material();
+
+      lMaterial->SetUserDataPtr(lCacheMaterial);
+    }
+  }
+}
 
 }  // namespace RE::Core
