@@ -7,11 +7,12 @@
 #include "Memory/Memory.h"
 
 #include "Scene/SceneObj.h"
+#include "Scene/Texture.h"
 #include "Scene/ISceneImporter.h"
 
 namespace RE::Core {
 
-void FBXSdkInit() {
+void FBXSDKInit() {
   static std::mutex sMutex;
   static bool sInited = false;
 
@@ -27,143 +28,203 @@ void FBXSdkInit() {
   }
 }
 
-void FillCameraArray(FbxScene* fbxScene, FbxArray<FbxNode*>& resCameraArray);
+FbxSceneConverter::FbxSceneConverter() {}
+FbxSceneConverter::~FbxSceneConverter() {
+  Reset();
+}
 
-void LoadTexture(FbxScene* fbxScene, const char* pFbxFileName, std::vector<Texture>& resTextures);
+void FbxSceneConverter::Reset() {
+  mErrorInfos.clear();
 
-bool FBXSceneTransform(FbxManager* fbxSdkManager, FbxImporter* fbxImporter, FbxScene* fbxScene, Flag64 flags, Scene*& resScene,
-                       std::vector<std::string>& resErrorInfos) {
-  FbxStatus status;
-  FbxArray<FbxString*> details;
-  FbxSceneCheckUtility sceneCheck(FbxCast<FbxScene>(fbxScene), &status, &details);
-  bool notify = (!sceneCheck.Validate(FbxSceneCheckUtility::eCkeckData) && details.GetCount() > 0) ||
-                (fbxImporter->GetStatus().GetCode() != FbxStatus::eSuccess);
+  if (mScene) {
+    mScene->Destroy();
+    delete mScene;
+    mScene = nullptr;
+  }
+}
 
-  if (notify) {
-    if (details.GetCount()) {
-      std::string errorString = "Scene integrity verification failed with the following errors:\n";
-      for (int i = 0; i < details.GetCount(); i++) {
-        errorString += std::string(details[i]->Buffer());
-        errorString += "\n";
-      }
-      resErrorInfos.push_back(std::move(errorString));
+Scene* FbxSceneConverter::GetScene(bool pRemove) {
+  Scene* lResScene = nullptr;
+
+  if (mScene) {
+    lResScene = mScene;
+
+    if (pRemove) {
+      mScene = nullptr;
     }
+  }
 
-    if (fbxImporter->GetStatus().GetCode() != FbxStatus::eSuccess) {
-      std::string errorString = "WARNING:\n";
-      errorString += "   The importer was able to read the file but with errors.\n";
-      errorString += "   Loaded scene may be incomplete.\n\n";
-      errorString += "   Last error message:'%s'\n";
-      errorString += std::string(fbxImporter->GetStatus().GetErrorString());
-      resErrorInfos.push_back(std::move(errorString));
-    }
+  return lResScene;
+}
 
+std::vector<std::string>& FbxSceneConverter::GetErrorInfos() {
+  return mErrorInfos;
+}
+
+bool FbxSceneConverter::Transform(FbxManager* pFbxSdkManager, FbxImporter* pFbxImporter, std::string pFbxFileName, FbxScene* pFbxScene,
+                                  Flag64 pFalgs) {
+  // init obj data
+  {
+    Reset();
+
+    mFbxFileName = pFbxFileName;
+    mFbxSdkManager = pFbxSdkManager;
+    mFbxImporter = pFbxImporter;
+    mFbxScene = pFbxScene;
+    mFalgs = pFalgs;
+  }
+
+  // Check scene
+  if (!CheckScene()) {
     return false;
   }
 
-  FbxAxisSystem sceneAxisSystem = fbxScene->GetGlobalSettings().GetAxisSystem();
-  FbxAxisSystem targetAxisSystem(FbxAxisSystem::eYAxis, FbxAxisSystem::eParityOdd, FbxAxisSystem::eRightHanded);
+  // Convert axis and unit
+  ConvertAxisAndUnit();
+  ConvertPolygonToTriangle();
 
-  bool useLeftHanded = CheckFlagExist(flags, long(SceneLoadOption::UseDirect12));
-  if (useLeftHanded) {
-    targetAxisSystem = FbxAxisSystem(FbxAxisSystem::eYAxis, FbxAxisSystem::eParityOdd, FbxAxisSystem::eLeftHanded);
-  }
-
-  if (sceneAxisSystem != targetAxisSystem) {
-    targetAxisSystem.ConvertScene(fbxScene);
-  }
-
-  FbxSystemUnit sceneSystemUnit = fbxScene->GetGlobalSettings().GetSystemUnit();
-  if (sceneSystemUnit.GetScaleFactor() != 1.0) {
-    FbxSystemUnit::m.ConvertScene(fbxScene);
-  }
-
-  FbxArray<FbxString*> animStackNameArray;
-  fbxScene->FillAnimStackNameArray(animStackNameArray);
-
-  FbxArray<FbxNode*> cameraArray;
-  FillCameraArray(fbxScene, cameraArray);
-
-  FbxGeometryConverter geomConverter(fbxSdkManager);
-  try {
-    geomConverter.Triangulate(fbxScene, /*replace*/ true);
-  } catch (std::runtime_error) {
-    resErrorInfos.push_back(std::string("Scene integrity verification failed."));
-    return false;
-  }
-
-  std::vector<Texture> textureArray;
-
-  // FbxArray<FbxPose*> poseArray;
+  LoadAnimation();
+  LoadCamera();
+  LoadTexture();
+  LoadMaterial();
 
   return true;
 }
 
-void FillCameraArrayRecursive(FbxNode* fbxNode, FbxArray<FbxNode*>& resCameraArray);
+bool FbxSceneConverter::CheckScene() {
+  FbxStatus lStatus;
+  FbxArray<FbxString*> lDetails;
+  FbxSceneCheckUtility lSceneCheck(FbxCast<FbxScene>(mFbxScene), &lStatus, &lDetails);
+  bool lNotify = (!lSceneCheck.Validate(FbxSceneCheckUtility::eCkeckData) && lDetails.GetCount() > 0) ||
+                 (mFbxImporter->GetStatus().GetCode() != FbxStatus::eSuccess);
 
-void FillCameraArray(FbxScene* fbxScene, FbxArray<FbxNode*>& resCameraArray) {
-  resCameraArray.Clear();
-  FillCameraArrayRecursive(fbxScene->GetRootNode(), resCameraArray);
+  if (lNotify) {
+    if (lDetails.GetCount()) {
+      std::string lErrorString = "Scene integrity verification failed with the following errors:\n";
+      for (int i = 0; i < lDetails.GetCount(); i++) {
+        lErrorString += std::string(lDetails[i]->Buffer());
+        lErrorString += "\n";
+      }
+      mErrorInfos.push_back(std::move(lErrorString));
+    }
+
+    if (mFbxImporter->GetStatus().GetCode() != FbxStatus::eSuccess) {
+      std::string lErrorString = "WARNING:\n";
+      lErrorString += "   The importer was able to read the file but with errors.\n";
+      lErrorString += "   Loaded scene may be incomplete.\n\n";
+      lErrorString += "   Last error message:'%s'\n";
+      lErrorString += std::string(mFbxImporter->GetStatus().GetErrorString());
+      mErrorInfos.push_back(std::move(lErrorString));
+    }
+
+    return false;
+  }
+
+  return true;
 }
 
-void FillCameraArrayRecursive(FbxNode* fbxNode, FbxArray<FbxNode*>& resCameraArray) {
-  if (fbxNode) {
-    if (fbxNode->GetNodeAttribute()) {
-      if (fbxNode->GetNodeAttribute()->GetAttributeType() == FbxNodeAttribute::eCamera) {
-        resCameraArray.Add(fbxNode);
-      }
-    }
+void FbxSceneConverter::ConvertAxisAndUnit() {
+  FbxAxisSystem lSceneAxisSystem = mFbxScene->GetGlobalSettings().GetAxisSystem();
+  FbxAxisSystem lTargetAxisSystem(FbxAxisSystem::eYAxis, FbxAxisSystem::eParityOdd, FbxAxisSystem::eRightHanded);
 
-    const int lCount = fbxNode->GetChildCount();
-    for (int i = 0; i < lCount; i++) {
-      FillCameraArrayRecursive(fbxNode->GetChild(i), resCameraArray);
-    }
+  bool lUseLeftHanded = CheckFlagExist(mFalgs, long(SceneLoadOption::UseDirect12));
+  if (lUseLeftHanded) {
+    lTargetAxisSystem = FbxAxisSystem(FbxAxisSystem::eYAxis, FbxAxisSystem::eParityOdd, FbxAxisSystem::eLeftHanded);
+  }
+
+  if (lSceneAxisSystem != lTargetAxisSystem) {
+    lTargetAxisSystem.ConvertScene(mFbxScene);
+  }
+
+  FbxSystemUnit lSceneSystemUnit = mFbxScene->GetGlobalSettings().GetSystemUnit();
+  if (lSceneSystemUnit.GetScaleFactor() != 1.0) {
+    FbxSystemUnit::m.ConvertScene(mFbxScene);
   }
 }
 
-bool FileExist(std::string filename);
-bool ReadTexture(FbxFileTexture* pFileTexture, const char* pFbxFileName, std::string& pResTextureFile, std::string& pResErrorInfo);
+bool FbxSceneConverter::ConvertPolygonToTriangle() {
+  FbxGeometryConverter lGeomConverter(mFbxSdkManager);
+  try {
+    lGeomConverter.Triangulate(mFbxScene, /*replace*/ true);
+  } catch (std::runtime_error) {
+    mErrorInfos.push_back(std::string("Scene integrity verification failed."));
+    return false;
+  }
 
-void LoadTexture(FbxScene* pFbxScene, const char* pFbxFileName, std::vector<Texture>& pResTextures, std::vector<std::string>& pResErrorInfos) {
-  const int lTextureCount = pFbxScene->GetTextureCount();
+  return true;
+}
+
+void FbxSceneConverter::LoadAnimation() {
+  FbxArray<FbxString*> lAnimStackNameArray;
+  mFbxScene->FillAnimStackNameArray(lAnimStackNameArray);
+}
+
+void FbxSceneConverter::LoadCamera() {
+  FbxArray<FbxNode*> lFbxCameraArray = FillCameraArray(mFbxScene);
+}
+
+void FbxSceneConverter::LoadTexture() {
+  const int lTextureCount = mFbxScene->GetTextureCount();
 
   std::string lResTextureFileName;
   std::string lResErrorInfo;
 
+  std::vector<Texture> lTextures;
+
   for (int lTextureIndex = 0; lTextureIndex < lTextureCount; lTextureIndex++) {
-    FbxTexture* lTexture = pFbxScene->GetTexture(lTextureIndex);
+    FbxTexture* lTexture = mFbxScene->GetTexture(lTextureIndex);
     FbxFileTexture* lFileTexture = FbxCast<FbxFileTexture>(lTexture);
 
     if (lFileTexture && !lFileTexture->GetUserDataPtr()) {
-      bool exist = ReadTexture(lFileTexture, pFbxFileName, lResTextureFileName, lResErrorInfo);
+      bool exist = FindTexture(lFileTexture, mFbxFileName.c_str(), lResTextureFileName);
       if (exist) {
-        pResTextures.push_back(Texture(lResTextureFileName));
+        lTextures.push_back(Texture(lResTextureFileName));
       } else {
-        pResErrorInfos.push_back(std::move(lResErrorInfo));
+        std::string lErrorInfo = std::string("Not found texture : ") + lResTextureFileName;
+        mErrorInfos.push_back(std::move(lErrorInfo));
       }
 
-      lFileTexture->SetUserDataPtr(pFbxScene);
+      lFileTexture->SetUserDataPtr(mFbxScene);
     }
   }
 }
 
-bool FileIsExist(const std::string& filename) {
-  return std::filesystem::exists(filename);
+void LoadMaterial() {}
+
+FbxArray<FbxNode*> FbxSceneConverter::FillCameraArray(FbxScene* pFbxScene) {
+  FbxArray<FbxNode*> lResCameraArray;
+  FillCameraArrayImpl(pFbxScene->GetRootNode(), lResCameraArray);
+  return lResCameraArray;
 }
-bool ReadTexture(FbxFileTexture* pFileTexture, const char* pFbxFileName, std::string& pResTextureFile, std::string& pResErrorInfo) {
+void FbxSceneConverter::FillCameraArrayImpl(FbxNode* pFbxNode, FbxArray<FbxNode*>& pResCameraArray) {
+  if (pFbxNode) {
+    if (pFbxNode->GetNodeAttribute()) {
+      if (pFbxNode->GetNodeAttribute()->GetAttributeType() == FbxNodeAttribute::eCamera) {
+        pResCameraArray.Add(pFbxNode);
+      }
+    }
+
+    const int lCount = pFbxNode->GetChildCount();
+    for (int i = 0; i < lCount; i++) {
+      FillCameraArrayImpl(pFbxNode->GetChild(i), pResCameraArray);
+    }
+  }
+}
+
+bool FbxSceneConverter::FindTexture(FbxFileTexture* pFileTexture, const std::string& pFbxFileName, std::string& pResTextureFile) {
   const FbxString lFileName = pFileTexture->GetFileName();
 
-  bool lStatus = FileIsExist(lFileName.Buffer());
+  bool lStatus = FileExist(lFileName.Buffer());
   if (lStatus) {
     pResTextureFile = std::string(lFileName.Buffer());
     return true;
   }
 
-  const FbxString lAbsFbxFileName = FbxPathUtils::Resolve(pFbxFileName);
+  const FbxString lAbsFbxFileName = FbxPathUtils::Resolve(pFbxFileName.c_str());
   const FbxString lAbsFolderName = FbxPathUtils::GetFolderName(lAbsFbxFileName);
 
   const FbxString lResolvedFileName = FbxPathUtils::Bind(lAbsFolderName, pFileTexture->GetRelativeFileName());
-  lStatus = FileIsExist(lResolvedFileName.Buffer());
+  lStatus = FileExist(lResolvedFileName.Buffer());
   if (lStatus) {
     pResTextureFile = std::string(lResolvedFileName.Buffer());
     return true;
@@ -171,14 +232,17 @@ bool ReadTexture(FbxFileTexture* pFileTexture, const char* pFbxFileName, std::st
 
   const FbxString lTextureFileName = FbxPathUtils::GetFileName(lFileName);
   const FbxString lResolvedFileName2 = FbxPathUtils::Bind(lAbsFolderName, lTextureFileName);
-  lStatus = FileIsExist(lResolvedFileName2.Buffer());
+  lStatus = FileExist(lResolvedFileName2.Buffer());
   if (lStatus) {
     pResTextureFile = std::string(lResolvedFileName2.Buffer());
     return true;
   }
 
-  pResErrorInfo = std::string("Failed to load texture file: ") + std::string(lFileName.Buffer());
+  pResTextureFile = std::string(lFileName.Buffer());
   return false;
+}
+bool FbxSceneConverter::FileExist(const std::string& pFilename) {
+  return std::filesystem::exists(pFilename);
 }
 
 }  // namespace RE::Core

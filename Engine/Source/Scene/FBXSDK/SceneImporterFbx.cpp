@@ -13,7 +13,7 @@ std::atomic<int> SceneImporterFBX::sImporterIndex = 0;
 std::atomic<int> SceneImporterFBX::sSceneIndex = 0;
 
 SceneImporterFBX::SceneImporterFBX() {
-  FBXSdkInit();
+  FBXSDKInit();
 
   m_fbxSdkManager = FbxManager::Create();
   if (!m_fbxSdkManager) {
@@ -107,20 +107,19 @@ bool SceneImporterFBX::LoadScene(std::string fileName, Flag64 flags) {
     return false;
   }
 
-  Scene* importScene = nullptr;
-  std::vector<std::string> errorInfos;
-  success = FBXSceneTransform(m_fbxSdkManager, m_fbxImporter, fbxScene, flags, importScene, errorInfos);
+  FbxSceneConverter lSceneConverter;
+  success = lSceneConverter.Transform(m_fbxSdkManager, m_fbxImporter, fileName, fbxScene, flags);
 
   if (!success) {
     SceneLoadError error;
     error.filename = fileName;
-    error.infos = std::move(errorInfos);
+    error.infos = std::move(lSceneConverter.GetErrorInfos());
 
     m_loadErrors.push_back(std::move(error));
     return false;
   }
 
-  m_scenes.push_back(importScene);
+  m_scenes.push_back(lSceneConverter.GetScene());
   return true;
 }
 

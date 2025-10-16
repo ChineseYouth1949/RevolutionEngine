@@ -9,10 +9,46 @@
 
 namespace RE::Core {
 class Scene;
+class Texture;
 
-void FBXSdkInit();
+void FBXSDKInit();
 
-bool FBXSceneTransform(FbxManager* fbxSdkManager, FbxImporter* fbxImporter, FbxScene* fbxScene, Flag64 falgs, Scene*& resScene,
-                       std::vector<std::string>& resErrorInfos);
+class FbxSceneConverter {
+ public:
+  FbxSceneConverter();
+  ~FbxSceneConverter();
+
+  bool Transform(FbxManager* pFbxSdkManager, FbxImporter* pFbxImporter, std::string pFbxFileName, FbxScene* pFbxScene, Flag64 pFalgs);
+  Scene* GetScene(bool pRemove = true);
+  std::vector<std::string>& GetErrorInfos();
+
+ protected:
+  void Reset();
+
+  bool CheckScene();
+  void ConvertAxisAndUnit();
+  bool ConvertPolygonToTriangle();
+
+  void LoadAnimation();
+  void LoadCamera();
+  void LoadTexture();
+  void LoadMaterial();
+
+  static FbxArray<FbxNode*> FillCameraArray(FbxScene* pFbxScene);
+  static void FillCameraArrayImpl(FbxNode* pFbxNode, FbxArray<FbxNode*>& pResCameraArray);
+
+  static bool FindTexture(FbxFileTexture* pFileTexture, const std::string& pFbxFileName, std::string& pResTextureFile);
+  static bool FileExist(const std::string& pFilename);
+
+ private:
+  std::string mFbxFileName;
+  FbxManager* mFbxSdkManager{nullptr};
+  FbxImporter* mFbxImporter{nullptr};
+  FbxScene* mFbxScene{nullptr};
+  Flag64 mFalgs;
+
+  Scene* mScene{nullptr};
+  std::vector<std::string> mErrorInfos;
+};
 
 }  // namespace RE::Core
