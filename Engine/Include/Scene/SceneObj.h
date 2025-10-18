@@ -5,6 +5,7 @@
 
 #include "Mesh.h"
 #include "Texture.h"
+#include "Material.h"
 
 namespace RE::Core {
 
@@ -14,6 +15,8 @@ struct RE_API Scene {
 
   std::vector<std::string> mAnimStackNames;
   std::vector<Texture*> mTextures;
+  std::vector<Material*> mMaterials;
+
   std::vector<Mesh*> mMeshs;
 };
 

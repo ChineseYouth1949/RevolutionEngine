@@ -35,6 +35,8 @@ class FbxSceneConverter {
   void LoadCamera();
   void LoadTexture();
   void LoadMaterial();
+  void LoadMesh();
+  void LoadLight();
 
   static void* sInvalidUserPtr;
 

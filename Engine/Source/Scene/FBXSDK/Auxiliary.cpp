@@ -98,6 +98,8 @@ bool FbxSceneConverter::Transform(FbxManager* pFbxSdkManager, FbxImporter* pFbxI
   LoadCamera();
   LoadTexture();
   LoadMaterial();
+  LoadMesh();
+  LoadLight();
 
   return true;
 }
@@ -207,7 +209,14 @@ void FbxSceneConverter::LoadTexture() {
   mScene->mTextures = std::move(lTextures);
 }
 
-void FbxSceneConverter::LoadMaterial() {}
+void FbxSceneConverter::LoadMaterial() {
+  std::vector<Material*> lResMaterials = FindMaterial(mFbxScene);
+  mScene->mMaterials = std::move(lResMaterials);
+}
+
+void FbxSceneConverter::LoadMesh() {}
+
+void FbxSceneConverter::LoadLight() {}
 
 FbxArray<FbxNode*> FbxSceneConverter::FillCameraArray(FbxScene* pFbxScene) {
   FbxArray<FbxNode*> lResCameraArray;
