@@ -6,7 +6,7 @@
 #include "Base/Base.h"
 #include "Math/Math.h"
 
-namespace RE::Core {
+namespace RE::Engine {
 
 struct RE_API Mesh {
   std::string m_name;
@@ -19,4 +19,4 @@ struct RE_API Mesh {
   std::vector<uint32_t> m_indices;
 };
 
-}  // namespace RE::Core
+}  // namespace RE::Engine

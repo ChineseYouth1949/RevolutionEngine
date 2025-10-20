@@ -2,7 +2,7 @@
 
 #include "Base/Base.h"
 
-namespace RE::Core {
+namespace RE::Engine {
 
 struct RE_API Vector3f {
   constexpr Vector3f() : x(0), y(0), z(0) {}
@@ -18,4 +18,4 @@ struct RE_API Vector3f {
   };
 };
 
-}  // namespace RE::Core
+}  // namespace RE::Engine

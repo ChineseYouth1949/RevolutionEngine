@@ -6,7 +6,7 @@
 // #include <assimp/scene.h>
 // #include <assimp/Importer.hpp>
 
-// namespace RE::Core {
+// namespace RE::Engine {
 
 // class Scene;
 
@@ -37,4 +37,4 @@
 //   std::string m_lastErrorString;
 // };
 
-// }  // namespace RE::Core
+// }  // namespace RE::Engine

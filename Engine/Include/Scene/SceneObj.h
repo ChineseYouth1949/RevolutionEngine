@@ -7,7 +7,7 @@
 #include "Texture.h"
 #include "Material.h"
 
-namespace RE::Core {
+namespace RE::Engine {
 
 struct RE_API Scene {
 
@@ -20,4 +20,4 @@ struct RE_API Scene {
   std::vector<Mesh*> mMeshs;
 };
 
-}  // namespace RE::Core
+}  // namespace RE::Engine

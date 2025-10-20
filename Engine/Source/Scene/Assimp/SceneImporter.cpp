@@ -7,7 +7,7 @@
 // #include "Utils/TaskSystem.h"
 // #include "Memory/Memory.h"
 
-// namespace RE::Core {
+// namespace RE::Engine {
 
 // SceneImporter::SceneImporter() : m_lastSuccess(false) {}
 
@@ -55,4 +55,4 @@
 //   return m_lastErrorString;
 // }
 
-// }  // namespace RE::Core
+// }  // namespace RE::Engine

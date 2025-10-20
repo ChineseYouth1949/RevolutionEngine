@@ -3,7 +3,7 @@
 #include "MemoryAllocator.h"
 #include "Auxiliary.h"
 
-namespace RE::Core {
+namespace RE::Engine {
 
 const AllocType globalAllocType = AllocType::STD;
 
@@ -52,4 +52,4 @@ using GDeleter = Deleter<T, globalAllocType>;
 template <typename T>
 using GUniquePtr = UniquePtr<T, globalAllocType>;
 
-}  // namespace RE::Core
+}  // namespace RE::Engine

@@ -7,7 +7,7 @@
 
 #include "Auxiliary.h"
 
-namespace RE::Core {
+namespace RE::Engine {
 
 std::atomic<int> SceneImporterFBX::sImporterIndex = 0;
 std::atomic<int> SceneImporterFBX::sSceneIndex = 0;
@@ -153,4 +153,4 @@ void SceneImporterFBX::ClearLoadErrors() {
   m_loadErrors.clear();
 }
 
-}  // namespace RE::Core
+}  // namespace RE::Engine

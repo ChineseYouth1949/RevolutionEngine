@@ -13,7 +13,7 @@
 
 #include "Scene/ISceneImporter.h"
 
-namespace RE::Core {
+namespace RE::Engine {
 
 void FBXSDKInit() {
   static std::mutex sMutex;
@@ -358,4 +358,4 @@ void FbxSceneConverter::FindMeshRecursive(FbxNode* pFbxNode, std::vector<Mesh*>&
   }
 }
 
-}  // namespace RE::Core
+}  // namespace RE::Engine

@@ -4,7 +4,7 @@
 
 #include "MemoryAllocator.h"
 
-namespace RE::Core {
+namespace RE::Engine {
 
 template <typename T>
 RE_INLINE T* Allocate(AllocType type) {
@@ -52,4 +52,4 @@ struct Deleter {
 template <typename T, AllocType type>
 using UniquePtr = std::unique_ptr<T, Deleter<T, type>>;
 
-}  // namespace RE::Core
+}  // namespace RE::Engine

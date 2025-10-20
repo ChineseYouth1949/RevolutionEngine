@@ -2,7 +2,7 @@
 
 #include <string>
 
-namespace RE::Core {
+namespace RE::Engine {
 
 class Texture {
  public:
@@ -13,4 +13,4 @@ class Texture {
   std::string m_fileName;
 };
 
-}  // namespace RE::Core
+}  // namespace RE::Engine

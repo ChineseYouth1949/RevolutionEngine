@@ -4,7 +4,7 @@
 
 #include "CompileDefine.h"
 
-namespace RE::Core {
+namespace RE::Engine {
 
 enum struct ResultType : uint32_t {
   None = 0,
@@ -38,4 +38,4 @@ class RE_API Result {
 #define ThrowIfFailed_RE(code) RESULT_RE(code).ThrowIfFailed()
 #define ThrowIfFailed_WIN_RESULT(code) RESULT_WIN_RESULT(code).ThrowIfFailed()
 
-}  // namespace RE::Core
+}  // namespace RE::Engine

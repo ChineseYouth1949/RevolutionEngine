@@ -7,7 +7,7 @@
 
 #include <taskflow/taskflow.hpp>
 
-namespace RE::Core {
+namespace RE::Engine {
 
 class RE_API TaskSystem {
  public:
@@ -40,4 +40,4 @@ class RE_API TaskSystem {
   mutable std::shared_mutex m_mutex;
 };
 
-}  // namespace RE::Core
+}  // namespace RE::Engine

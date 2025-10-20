@@ -4,7 +4,7 @@
 
 #include "Vector2f.h"
 
-namespace RE::Core {
+namespace RE::Engine {
 
 struct RE_API AABB {
   AABB() : m_min(MaxVector2f()), m_max(NevMaxVector2f()) {}
@@ -13,4 +13,4 @@ struct RE_API AABB {
   Vector2f m_max;
 };
 
-}  // namespace RE::Core
+}  // namespace RE::Engine

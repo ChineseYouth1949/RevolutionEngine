@@ -1,7 +1,7 @@
 #include "Utils/TaskSystem.h"
 #include "Memory/Memory.h"
 
-namespace RE::Core {
+namespace RE::Engine {
 
 TaskSystem& TaskSystem::Instance() {
   static TaskSystem instance;
@@ -37,4 +37,4 @@ size_t TaskSystem::GetWorkNum() const {
   return m_executor->num_topologies();
 }
 
-}  // namespace RE::Core
+}  // namespace RE::Engine

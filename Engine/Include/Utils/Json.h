@@ -7,7 +7,7 @@
 #include <rapidjson/writer.h>
 #include <rapidjson/stringbuffer.h>
 
-namespace RE::Core {
+namespace RE::Engine {
 
 class JsonDoc {
  public:
@@ -36,4 +36,4 @@ class JsonDoc {
   rapidjson::Document m_doc;
 };
 
-}  // namespace RE::Core
+}  // namespace RE::Engine

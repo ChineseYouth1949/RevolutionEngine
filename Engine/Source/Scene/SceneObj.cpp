@@ -1,6 +1,6 @@
 #include "Scene/SceneObj.h"
 
-namespace RE::Core {
+namespace RE::Engine {
 void Scene::Destroy() {}
 
-}  // namespace RE::Core
+}  // namespace RE::Engine

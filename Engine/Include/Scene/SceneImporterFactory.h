@@ -2,7 +2,7 @@
 
 #include "ISceneImporter.h"
 
-namespace RE::Core {
+namespace RE::Engine {
 
 enum struct SceneImporterType { None = 0, FBX_SDK, Assimp };
 
@@ -11,4 +11,4 @@ class SceneImporterFactory {
   static ISceneImporter* Create();
 };
 
-}  // namespace RE::Core
+}  // namespace RE::Engine

@@ -5,7 +5,7 @@
 #include <chrono>
 #include <assert.h>
 
-#include "RE.h"
+#include <REngine.h>
 
 int main() {
   std::cout << "Hello RevolutionEngine" << std::endl;
@@ -17,17 +17,17 @@ int main() {
 
   // // async
   // {
-  //   int task_system_thread_num = RE::Core::TaskSystem::Instance().GetThreadNum();
+  //   int task_system_thread_num = RE::Engine::TaskSystem::Instance().GetThreadNum();
 
   //   unsigned int num_threads = std::thread::hardware_concurrency();
   //   unsigned int importer_num = std::min<int>(num_threads, count);
 
-  //   std::vector<RE::Core::SceneImporter> sceneImporters(importer_num);
+  //   std::vector<RE::Engine::SceneImporter> sceneImporters(importer_num);
 
   //   auto start = std::chrono::high_resolution_clock::now();
 
   //   for (size_t i = 0; i < count; i++) {
-  //     RE::Core::SceneImporter* import = nullptr;
+  //     RE::Engine::SceneImporter* import = nullptr;
 
   //     auto it = sceneImporters.begin();
   //     while (1) {
@@ -62,7 +62,7 @@ int main() {
   // {
   //   auto start = std::chrono::high_resolution_clock::now();
 
-  //   RE::Core::SceneImporter sceneImporter;
+  //   RE::Engine::SceneImporter sceneImporter;
 
   //   for (size_t i = 0; i < count; i++) {
   //     assert(sceneImporter.LoadScene(file, 0));

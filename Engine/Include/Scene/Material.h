@@ -9,7 +9,7 @@
 
 #include "Texture.h"
 
-namespace RE::Core {
+namespace RE::Engine {
 
 enum struct PropertyType {
   None = 0,
@@ -39,4 +39,4 @@ class RE_API Material {
   std::vector<std::pair<std::string, Texture*>> mProperTexture;
 };
 
-}  // namespace RE::Core
+}  // namespace RE::Engine

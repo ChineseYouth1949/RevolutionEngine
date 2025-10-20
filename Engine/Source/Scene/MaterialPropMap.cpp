@@ -2,7 +2,7 @@
 
 #include <fbxsdk.h>
 
-namespace RE::Core {
+namespace RE::Engine {
 
 #define DefineMaterialProperty(x) const std::string MaterialPropertyMap::x = FbxSurfaceMaterial::x
 
@@ -38,4 +38,4 @@ DefineMaterialProperty(sDisplacementFactor);
 DefineMaterialProperty(sVectorDisplacementColor);
 DefineMaterialProperty(sVectorDisplacementFactor);
 
-}  // namespace RE::Core
+}  // namespace RE::Engine

@@ -7,7 +7,7 @@
 
 #include <fbxsdk.h>
 
-namespace RE::Core {
+namespace RE::Engine {
 class Vector3f;
 class Scene;
 class Texture;
@@ -66,4 +66,4 @@ class FbxSceneConverter {
   std::vector<std::string> mErrorInfos;
 };
 
-}  // namespace RE::Core
+}  // namespace RE::Engine

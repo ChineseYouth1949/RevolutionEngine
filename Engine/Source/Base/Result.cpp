@@ -2,7 +2,7 @@
 #include "Base/WindowsHeader.h"
 #include "Base/Error.h"
 
-namespace RE::Core {
+namespace RE::Engine {
 
 Result::Result() : m_code(0), m_type(ResultType::None) {}
 Result::Result(ResultType type, long code) : m_code(code), m_type(type) {}
@@ -32,4 +32,4 @@ void Result::ThrowIfFailed(const std::string& errInfo) const {
   }
 }
 
-}  // namespace RE::Core
+}  // namespace RE::Engine

@@ -2,7 +2,7 @@
 
 #include "Base/Base.h"
 
-namespace RE::Core {
+namespace RE::Engine {
 
 class RE_API GraphicsEngine {
  public:
@@ -20,4 +20,4 @@ class RE_API GraphicsEngine {
  private:
 };
 
-}  // namespace RE::Core
+}  // namespace RE::Engine

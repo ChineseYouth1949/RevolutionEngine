@@ -5,7 +5,7 @@
 
 #include <mimalloc.h>
 
-namespace RE::Core {
+namespace RE::Engine {
 
 void* MemoryAllocator::Malloc(size_t size, AllocType type) {
   if (size == 0) {
@@ -232,4 +232,4 @@ void MemoryAllocator::Free(void* p, AllocType type) {
   }
 }
 
-}  // namespace RE::Core
+}  // namespace RE::Engine

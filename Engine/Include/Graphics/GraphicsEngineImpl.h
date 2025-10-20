@@ -4,7 +4,7 @@
 
 // #include "D3D12.h"
 
-// namespace RE::Core {
+// namespace RE::Engine {
 
 // class RE_API GraphicsEngineImpl {
 //  public:
@@ -30,4 +30,4 @@
 //   std::vector<FrameResource> m_frameResouces;
 // };
 
-// }  // namespace RE::Core
+// }  // namespace RE::Engine

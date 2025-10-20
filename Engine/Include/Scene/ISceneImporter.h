@@ -6,7 +6,7 @@
 #include <string>
 #include <vector>
 
-namespace RE::Core {
+namespace RE::Engine {
 
 class Scene;
 
@@ -41,4 +41,4 @@ class RE_API ISceneImporter {
   virtual void ClearLoadErrors() = 0;
 };
 
-}  // namespace RE::Core
+}  // namespace RE::Engine

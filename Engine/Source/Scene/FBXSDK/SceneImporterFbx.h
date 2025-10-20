@@ -5,7 +5,7 @@
 
 #include "Scene/ISceneImporter.h"
 
-namespace RE::Core {
+namespace RE::Engine {
 
 class RE_API SceneImporterFBX : public ISceneImporter {
  public:
@@ -41,4 +41,4 @@ class RE_API SceneImporterFBX : public ISceneImporter {
   std::vector<SceneLoadError> m_loadErrors;
 };
 
-}  // namespace RE::Core
+}  // namespace RE::Engine

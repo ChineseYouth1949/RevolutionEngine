@@ -4,7 +4,7 @@
 
 #include "Base/CompileDefine.h"
 
-namespace RE::Core {
+namespace RE::Engine {
 
 enum struct AllocType : uint8_t { STD = 0, MIMALLOC };
 
@@ -31,4 +31,4 @@ class RE_API MemoryAllocator {
   static void Free(void* p, AllocType type);
 };
 
-}  // namespace RE::Core
+}  // namespace RE::Engine

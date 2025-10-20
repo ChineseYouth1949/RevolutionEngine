@@ -1,6 +1,6 @@
 #pragma once
 
-namespace RE::Core {
+namespace RE::Engine {
 
 using Flag64 = long long;
 

@@ -4,7 +4,7 @@
 
 #include "Base/Base.h"
 
-namespace RE::Core {
+namespace RE::Engine {
 
 struct RE_API Vector2f {
   constexpr Vector2f() noexcept : x(0), y(0) {}
@@ -28,4 +28,4 @@ RE_INLINE constexpr Vector2f NevMaxVector2f() {
   return {-floatMaxValue, -floatMaxValue};
 }
 
-}  // namespace RE::Core
+}  // namespace RE::Engine

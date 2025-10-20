@@ -1,6 +1,6 @@
 #include "Utils/Json.h"
 
-namespace RE::Core {
+namespace RE::Engine {
 
 JsonDoc::JsonDoc() {
   m_doc.SetObject();
@@ -89,4 +89,4 @@ bool JsonDoc::Remove(const std::string& key) {
   return m_doc.RemoveMember(key.c_str());
 }
 
-}  // namespace RE::Core
+}  // namespace RE::Engine

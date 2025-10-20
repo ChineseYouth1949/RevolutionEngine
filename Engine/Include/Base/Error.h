@@ -5,7 +5,7 @@
 #include "CompileDefine.h"
 #include "Result.h"
 
-namespace RE::Core {
+namespace RE::Engine {
 
 class RE_API ResultException : public std::runtime_error {
  public:
@@ -15,4 +15,4 @@ class RE_API ResultException : public std::runtime_error {
  private:
   const Result m_result;
 };
-}  // namespace RE::Core
+}  // namespace RE::Engine

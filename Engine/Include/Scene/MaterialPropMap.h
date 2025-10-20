@@ -2,7 +2,7 @@
 
 #include <string>
 
-namespace RE::Core {
+namespace RE::Engine {
 
 class MaterialPropertyMap {
  public:
@@ -39,4 +39,4 @@ class MaterialPropertyMap {
   static const std::string sVectorDisplacementFactor;
 };
 
-}  // namespace RE::Core
+}  // namespace RE::Engine

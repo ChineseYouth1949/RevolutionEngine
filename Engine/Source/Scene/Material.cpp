@@ -1,6 +1,6 @@
 #include "Scene/Material.h"
 
-namespace RE::Core {
+namespace RE::Engine {
 
 bool Material::HaveProperty(const std::string& pPropName) {
   return GetPropertyType(pPropName) != PropertyType::None;
@@ -111,4 +111,4 @@ bool Material::GetProperty(const std::string& pPropName, Texture*& pValueRes) {
   AssertInfo(0, "Not found property!");
 }
 
-}  // namespace RE::Core
+}  // namespace RE::Engine
