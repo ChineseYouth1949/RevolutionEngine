@@ -11,6 +11,7 @@ namespace RE::Core {
 class Vector3f;
 class Scene;
 class Texture;
+class Mesh;
 class Material;
 
 void FBXSDKInit();
@@ -41,15 +42,18 @@ class FbxSceneConverter {
   static void* sInvalidUserPtr;
 
   static FbxArray<FbxNode*> FillCameraArray(FbxScene* pFbxScene);
-  static void FillCameraArrayImpl(FbxNode* pFbxNode, FbxArray<FbxNode*>& pResCameraArray);
+  static void FillCameraArrayRecursive(FbxNode* pFbxNode, FbxArray<FbxNode*>& pResCameraArray);
 
   static bool FindTexture(FbxFileTexture* pFileTexture, const std::string& pFbxFileName, std::string& pResTextureFile);
   static bool FileExist(const std::string& pFilename);
 
   static std::vector<Material*> FindMaterial(FbxScene* pFbxScene);
-  static void FindMaterialImpl(FbxNode* pFbxNode, std::vector<Material*>& pResMaterials);
-  static bool ReadMaterialPropertyVector3f(const FbxSurfaceMaterial* pMaterial, std::string pPropertyName, std::string pFactorPropertyName,
-                                           Vector3f& pResVector3f, Texture*& pResTexture);
+  static void FindMaterialRecursive(FbxNode* pFbxNode, std::vector<Material*>& pResMaterials);
+  static bool ReadMaterialVector3f(const FbxSurfaceMaterial* pMaterial, std::string pPropertyName, std::string pFactorPropertyName,
+                                   Vector3f& pResVector3f, Texture*& pResTexture);
+
+  static std::vector<Mesh*> FindMesh(FbxScene* pFbxScene);
+  static void FindMeshRecursive(FbxNode* pFbxNode, std::vector<Mesh*>& pResMeshs);
 
  private:
   std::string mFbxFileName;

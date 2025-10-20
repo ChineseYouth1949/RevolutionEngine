@@ -195,7 +195,7 @@ void FbxSceneConverter::LoadTexture() {
     if (lFileTexture && !lFileTexture->GetUserDataPtr()) {
       bool exist = FindTexture(lFileTexture, mFbxFileName.c_str(), lResTextureFileName);
       if (exist) {
-        Texture* lNewTexture = new Texture(lResTextureFileName);
+        Texture* lNewTexture = GAllocateConstructor<Texture>(lResTextureFileName);
         lTextures.push_back(lNewTexture);
         lFileTexture->SetUserDataPtr(lNewTexture);
       } else {
@@ -220,10 +220,10 @@ void FbxSceneConverter::LoadLight() {}
 
 FbxArray<FbxNode*> FbxSceneConverter::FillCameraArray(FbxScene* pFbxScene) {
   FbxArray<FbxNode*> lResCameraArray;
-  FillCameraArrayImpl(pFbxScene->GetRootNode(), lResCameraArray);
+  FillCameraArrayRecursive(pFbxScene->GetRootNode(), lResCameraArray);
   return lResCameraArray;
 }
-void FbxSceneConverter::FillCameraArrayImpl(FbxNode* pFbxNode, FbxArray<FbxNode*>& pResCameraArray) {
+void FbxSceneConverter::FillCameraArrayRecursive(FbxNode* pFbxNode, FbxArray<FbxNode*>& pResCameraArray) {
   if (pFbxNode) {
     if (pFbxNode->GetNodeAttribute()) {
       if (pFbxNode->GetNodeAttribute()->GetAttributeType() == FbxNodeAttribute::eCamera) {
@@ -233,7 +233,7 @@ void FbxSceneConverter::FillCameraArrayImpl(FbxNode* pFbxNode, FbxArray<FbxNode*
 
     const int lCount = pFbxNode->GetChildCount();
     for (int i = 0; i < lCount; i++) {
-      FillCameraArrayImpl(pFbxNode->GetChild(i), pResCameraArray);
+      FillCameraArrayRecursive(pFbxNode->GetChild(i), pResCameraArray);
     }
   }
 }
@@ -275,11 +275,11 @@ bool FbxSceneConverter::FileExist(const std::string& pFilename) {
 std::vector<Material*> FbxSceneConverter::FindMaterial(FbxScene* pFbxScene) {
   std::vector<Material*> lResMaterials;
 
-  FindMaterialImpl(pFbxScene->GetRootNode(), lResMaterials);
+  FindMaterialRecursive(pFbxScene->GetRootNode(), lResMaterials);
 
   return lResMaterials;
 }
-void FbxSceneConverter::FindMaterialImpl(FbxNode* pFbxNode, std::vector<Material*>& pResMaterials) {
+void FbxSceneConverter::FindMaterialRecursive(FbxNode* pFbxNode, std::vector<Material*>& pResMaterials) {
   const int lMaterialCount = pFbxNode->GetMaterialCount();
 
   Vector3f lResVector3f;
@@ -289,8 +289,8 @@ void FbxSceneConverter::FindMaterialImpl(FbxNode* pFbxNode, std::vector<Material
     FbxSurfaceMaterial* lMaterial = pFbxNode->GetMaterial(lMaterialIndex);
 
     if (lMaterial && !lMaterial->GetUserDataPtr()) {
-      if (ReadMaterialPropertyVector3f(lMaterial, MaterialPropertyMap::sEmissive, MaterialPropertyMap::sEmissiveFactor, lResVector3f, lResTexture)) {
-        Material* lLoadMaterial = new Material();
+      if (ReadMaterialVector3f(lMaterial, MaterialPropertyMap::sEmissive, MaterialPropertyMap::sEmissiveFactor, lResVector3f, lResTexture)) {
+        Material* lLoadMaterial = GAllocateConstructor<Material>();
         lLoadMaterial->SetProperty(MaterialPropertyMap::sEmissiveFactor, lResVector3f);
         if (lResTexture != nullptr) {
           lLoadMaterial->SetProperty(MaterialPropertyMap::sEmissiveFactor + "-Texture", lResTexture);
@@ -302,8 +302,8 @@ void FbxSceneConverter::FindMaterialImpl(FbxNode* pFbxNode, std::vector<Material
     }
   }
 }
-bool FbxSceneConverter::ReadMaterialPropertyVector3f(const FbxSurfaceMaterial* pMaterial, std::string pPropertyName, std::string pFactorPropertyName,
-                                                     Vector3f& pResVector3f, Texture*& pResTexture) {
+bool FbxSceneConverter::ReadMaterialVector3f(const FbxSurfaceMaterial* pMaterial, std::string pPropertyName, std::string pFactorPropertyName,
+                                             Vector3f& pResVector3f, Texture*& pResTexture) {
   bool lRes = false;
   pResTexture = nullptr;
 
@@ -335,6 +335,27 @@ bool FbxSceneConverter::ReadMaterialPropertyVector3f(const FbxSurfaceMaterial* p
   }
 
   return lRes;
+}
+
+std::vector<Mesh*> FbxSceneConverter::FindMesh(FbxScene* pFbxScene) {
+  std::vector<Mesh*> lResMeshs;
+  FindMeshRecursive(pFbxScene->GetRootNode(), lResMeshs);
+  return lResMeshs;
+}
+
+void FbxSceneConverter::FindMeshRecursive(FbxNode* pFbxNode, std::vector<Mesh*>& pResMeshs) {
+  FbxNodeAttribute* lNodeAttribute = pFbxNode->GetNodeAttribute();
+
+  if (lNodeAttribute && lNodeAttribute->GetAttributeType() == FbxNodeAttribute::eMesh) {
+    // FbxMesh* lMesh = pNode->GetMesh();
+    // if (lMesh && !lMesh->GetUserDataPtr() && lMesh->GetNode()) {
+    //   Mesh* lNewMesh = GAllocateConstructor<Mesh>();
+
+    //   const int lPolygonCount = pMesh->GetPolygonCount();
+    //   FbxLayerElementArrayTemplate<int>* lMaterialIndice = NULL;
+    //   FbxGeometryElement::EMappingMode lMaterialMappingMode = FbxGeometryElement::eNone;
+    // }
+  }
 }
 
 }  // namespace RE::Core
