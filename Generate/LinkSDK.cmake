@@ -8,32 +8,33 @@ function(LINK_ENGINE_SDK target_name)
     find_package(assimp REQUIRED)
     find_package(mimalloc REQUIRED)
 
-    # 查找External中的依赖
-    set(EXTERNAL_DIR "${CMAKE_SOURCE_DIR}/External/")
-    set(EXTERNAL_HEADER_DIR "${EXTERNAL_DIR}/Include")
+    # 查询FBX SDK
+    set(FBX_SDK_ROOT "${RE_SDK_ROOT}/FBXSDK")
+    set(FBX_SDK_INCLUDE_PATH "${FBX_SDK_ROOT}/include")
+    set(FBX_SDK_LIB_PATH "${FBX_SDK_ROOT}/lib/x64/release")
 
     if(CMAKE_BUILD_TYPE STREQUAL "Debug")
-        set(EXTERNAL_LIB_DIR "${EXTERNAL_DIR}/Debug/Lib")
-        set(EXTERNAL_BIN_DIR "${EXTERNAL_DIR}/Debug/Bin/")
-    else()
-        set(EXTERNAL_LIB_DIR "${EXTERNAL_DIR}/Lib")
-        set(EXTERNAL_BIN_DIR "${EXTERNAL_DIR}/Bin/")
+        set(FBX_SDK_LIB_PATH "${FBX_SDK_ROOT}/lib/x64/debug")
     endif()
 
-    # 包含VCPKG头、External头
+    # 包含VCPKG头、SDK头
     target_include_directories(${target_name}
         PUBLIC
         ${VCPKG_INSTALL_PATH}/include
-        ${EXTERNAL_HEADER_DIR}
+        ${FBX_SDK_INCLUDE_PATH}
     )
 
     # 链接VCOKG库
     target_link_libraries(${target_name} PRIVATE assimp::assimp)
     target_link_libraries(${target_name} PRIVATE mimalloc)
 
-    # 链接External库
+    # 链接SDK库
     file(GLOB_RECURSE EXTERNAL_LIBS 
-        "${EXTERNAL_LIB_DIR}/*.lib"
+        #FBX SDK
+        "${FBX_SDK_LIB_PATH}/alembic-md.lib"
+        "${FBX_SDK_LIB_PATH}/libfbxsdk-md.lib"
+        "${FBX_SDK_LIB_PATH}/libxml2-md.lib"
+        "${FBX_SDK_LIB_PATH}/zlib-md.lib"
     )
 
     if(EXTERNAL_LIBS)

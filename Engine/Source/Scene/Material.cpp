@@ -48,6 +48,7 @@ bool Material::GetProperty(const std::string& pPropName, Vector3f& pVlaueRes) {
   }
 
   AssertInfo(0, "Not found property!");
+  return false;
 }
 
 bool Material::SetProperty(const std::string& pPropName, const Vector4f& value) {
@@ -79,6 +80,7 @@ bool Material::GetProperty(const std::string& pPropName, Vector4f& pVlaueRes) {
   }
 
   AssertInfo(0, "Not found property!");
+  return false;
 }
 
 bool Material::SetProperty(const std::string& pPropName, Texture* value) {
@@ -109,6 +111,7 @@ bool Material::GetProperty(const std::string& pPropName, Texture*& pValueRes) {
   }
 
   AssertInfo(0, "Not found property!");
+  return false;
 }
 
 }  // namespace RE::Engine
