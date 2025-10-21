@@ -1,9 +1,14 @@
 cmake_minimum_required(VERSION 3.19)
 
-project(Editor VERSION 1.0)
+project(Editor VERSION 1.0 LANGUAGES CXX)
 
 set(CMAKE_CXX_STANDARD 20)
 set(CMAKE_CXX_STANDARD_REQUIRED ON)
+
+set(CMAKE_INCLUDE_CURRENT_DIR ON)
+set(CMAKE_AUTOUIC ON)
+set(CMAKE_AUTOMOC ON)
+set(CMAKE_AUTORCC ON)
 
 # 定义运行目标
 add_executable(${PROJECT_NAME} main.cpp)
@@ -23,6 +28,13 @@ set_target_properties(${PROJECT_NAME} PROPERTIES WIN32_EXECUTABLE TRUE)
 target_link_libraries(${PROJECT_NAME} PRIVATE
     RevolutionEngine
 )
+
+set(CMAKE_PREFIX_PATH ${QT_ROOT})
+
+# 链接Qt
+find_package(Qt${QT_VERSION_MAJOR} COMPONENTS Core Widgets REQUIRED)
+
+target_link_libraries(${PROJECT_NAME} PRIVATE Qt${QT_VERSION_MAJOR}::Core)
 
 # 拷贝RevolutionEngine.dll
 add_custom_command(TARGET ${PROJECT_NAME} POST_BUILD
