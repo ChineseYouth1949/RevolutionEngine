@@ -1,7 +1,9 @@
 #include "MainWindow.h"
 
 namespace RE::Editor {
-MainWindow::MainWindow() : QMainWindow(nullptr) {}
+MainWindow::MainWindow() : QMainWindow(nullptr) {
+  showMaximized();
+}
 MainWindow::~MainWindow() {}
 
 void MainWindow::Initialize() {}
