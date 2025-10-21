@@ -15,7 +15,10 @@
                 "CMAKE_BUILD_PARALLEL_LEVEL": "4",
                 "VCPKG_ROOT": "$env{VCPKG_ROOT}",
                 "CMAKE_TOOLCHAIN_FILE": "$env{VCPKG_ROOT}/scripts/buildsystems/vcpkg.cmake",
-                "VCPKG_TARGET_TRIPLET": "x64-windows-static-md"
+                "VCPKG_TARGET_TRIPLET": "x64-windows-static-md",
+                "QT_ROOT": "$env{QT_ROOT}",
+                "QT_VERSION_MAJOR": "6",
+                "RE_SDK_ROOT": "$env{RE_SDK_ROOT}"
             },
             "condition": {
                 "type": "equals",
