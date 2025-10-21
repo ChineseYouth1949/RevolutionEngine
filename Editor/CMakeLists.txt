@@ -2,14 +2,19 @@ cmake_minimum_required(VERSION 3.19)
 
 project(Editor VERSION 1.0 LANGUAGES CXX)
 
-set(CMAKE_AUTOUIC ON)
-set(CMAKE_AUTOMOC ON)
-set(CMAKE_AUTORCC ON)
+set(CMAKE_INCLUDE_CURRENT_DIR ON)
+set(CMAKE_AUTOUIC ON)       # 自动编译 .ui 文件
+set(CMAKE_AUTORCC ON)       # 自动编译 .qrc 文件
+set(CMAKE_AUTOMOC ON)       # 自动编译包含宏 Q_OBJECT 的文件
 set(CMAKE_CXX_STANDARD 20)
 set(CMAKE_CXX_STANDARD_REQUIRED ON)
 
+file(GLOB_RECURSE EDITOR_SRCS
+    "${CMAKE_CURRENT_SOURCE_DIR}/*.h"
+    "${CMAKE_CURRENT_SOURCE_DIR}/*.cpp")
+
 # 定义运行目标
-add_executable(${PROJECT_NAME} main.cpp)
+add_executable(${PROJECT_NAME} ${EDITOR_SRCS})
 
 # 设置输出路径
 SET_TARGET_OUTPUT_DIRS(${PROJECT_NAME})
@@ -22,17 +27,26 @@ endif()
 # WinMain
 set_target_properties(${PROJECT_NAME} PROPERTIES WIN32_EXECUTABLE TRUE)
 
+# 链接Qt
+set(CMAKE_PREFIX_PATH "${QT_BUILD_ROOT}/lib/cmake/Qt${QT_VERSION_MAJOR}")
+
+find_package(Qt${QT_VERSION_MAJOR} COMPONENTS Gui Quick Qml Core Widgets REQUIRED)
+
+target_link_libraries(${PROJECT_NAME} PRIVATE 
+    Qt${QT_VERSION_MAJOR}::Core
+    Qt${QT_VERSION_MAJOR}::Gui
+    Qt${QT_VERSION_MAJOR}::Widgets
+)
+
+# 拷贝Qt dll
+set(QT_DLL_PATH "${QT_BUILD_ROOT}/bin")
+
+copy_qt_dlls(${PROJECT_NAME})
+
 # 链接RevolutionEngine库
 target_link_libraries(${PROJECT_NAME} PRIVATE
     RevolutionEngine
 )
-
-set(CMAKE_PREFIX_PATH ${QT_CMAKE_ROOT})
-
-# 链接Qt
-find_package(Qt${QT_VERSION_MAJOR} COMPONENTS Core Widgets REQUIRED)
-
-target_link_libraries(${PROJECT_NAME} PRIVATE Qt${QT_VERSION_MAJOR}::Core)
 
 # 拷贝RevolutionEngine.dll
 add_custom_command(TARGET ${PROJECT_NAME} POST_BUILD

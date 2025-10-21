@@ -1,6 +1,20 @@
 #include <REngine.h>
 
-int WINAPI WinMain(HINSTANCE hInstance, HINSTANCE, LPSTR, int nCmdShow) {
-  std::cout << "Hello Revolution Engine!" << std::endl;
-  return 0;
+#include <QApplication>
+
+#include "UI/MainWindow.h"
+
+using namespace RE::Editor;
+
+int main(int argc, char* argv[]) {
+  QApplication app(argc, argv);
+
+  app.setApplicationName("Revolution-Editor");
+  app.setApplicationVersion("1.0");
+  app.setOrganizationName("Revolution");
+
+  MainWindow window;
+  window.show();
+
+  return app.exec();
 }

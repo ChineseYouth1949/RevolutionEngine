@@ -7,6 +7,7 @@ message("VCPKG_INSTALL_PATH : ${VCPKG_INSTALL_PATH}")
 
 # 包含辅助函数模块
 include(Generate/LinkSDK.cmake)
+include(Generate/LinkQt.cmake)
 include(Generate/OutputSet.cmake)
 
 add_subdirectory(Engine)
