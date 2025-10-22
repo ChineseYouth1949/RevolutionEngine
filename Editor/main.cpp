@@ -1,7 +1,6 @@
 #include <REngine.h>
 
 #include <QApplication>
-#include <QFile>
 
 #include "UI/MainWindow.h"
 
