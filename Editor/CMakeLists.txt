@@ -49,7 +49,7 @@ target_link_libraries(${PROJECT_NAME} PRIVATE
 # 拷贝Qt dll
 set(QT_DLL_PATH "${QT_BUILD_ROOT}/bin")
 
-copy_qt_dlls(${PROJECT_NAME})
+LinkQt(${PROJECT_NAME})
 
 # 链接REngine库
 target_link_libraries(${PROJECT_NAME} PRIVATE

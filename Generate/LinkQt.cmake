@@ -1,5 +1,5 @@
 # Qt DLL自动拷贝配置
-function(copy_qt_dlls target_name)
+function(LinkQt target_name)
     if(WIN32 AND QT_DLL_PATH)
         # 定义需要拷贝的Qt核心模块
         set(QT_CORE_MODULES 

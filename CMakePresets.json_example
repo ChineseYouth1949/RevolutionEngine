@@ -1,5 +1,5 @@
 {
-    "version": 3,
+    "version": 10,
     "configurePresets": [
         {
             "name": "windows-base",
@@ -16,7 +16,7 @@
                 "VCPKG_ROOT": "$env{VCPKG_ROOT}",
                 "CMAKE_TOOLCHAIN_FILE": "$env{VCPKG_ROOT}/scripts/buildsystems/vcpkg.cmake",
                 "VCPKG_TARGET_TRIPLET": "x64-windows-static-md",
-                "QT_ROOT": "$env{QT_ROOT}",
+                "QT_BUILD_ROOT": "$env{QT_BUILD_ROOT}",
                 "QT_VERSION_MAJOR": "6",
                 "RE_SDK_ROOT": "$env{RE_SDK_ROOT}"
             },
@@ -49,6 +49,22 @@
             "cacheVariables": {
                 "CMAKE_BUILD_TYPE": "Release"
             }
+        }
+    ],
+    "buildPresets": [
+        {
+            "name": "x64-debug",
+            "displayName": "Build x64 Debug",
+            "configurePreset": "x64-debug",
+            "configuration": "Debug",
+            "jobs": 24
+        },
+        {
+            "name": "x64-release",
+            "displayName": "Build x64 Release",
+            "configurePreset": "x64-release",
+            "configuration": "Release",
+            "jobs": 24
         }
     ]
 }
