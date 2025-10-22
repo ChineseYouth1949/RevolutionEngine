@@ -25,7 +25,7 @@ function(copy_qt_dlls target_name)
                 COMMAND ${CMAKE_COMMAND} -E copy_if_different
                     "${src_dll}"
                     "${dst_dir}"
-                COMMENT message(STATUS "拷贝 ${dll_name} 到输出目录")
+                COMMENT "拷贝 ${dll_name} 到输出目录"
                 VERBATIM
             )
         endforeach()
@@ -37,7 +37,7 @@ function(copy_qt_dlls target_name)
             COMMAND ${CMAKE_COMMAND} -E copy_if_different
                 "${QT_DLL_PATH}/../plugins/platforms/qwindows${DLL_SUFFIX}.dll"
                 "$<TARGET_FILE_DIR:${target_name}>/platforms/"
-            COMMENT message(STATUS "拷贝Qt平台插件")
+            COMMENT "拷贝Qt平台插件"
             VERBATIM
         )
     endif()

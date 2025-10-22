@@ -4,7 +4,7 @@
 
 namespace FirstApp {
 
-static const char* gLoadFilename = "./Assets/Model/mech-drone/source/Drone.FBX";
+static const char* gLoadFilename = "./Resource/Model/mech-drone/source/Drone.FBX";
 
 int RunExample(HINSTANCE hInstance, HINSTANCE hPrevInstance, LPTSTR lpCmdLine, int nCmdShow);
 

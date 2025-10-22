@@ -22,12 +22,12 @@ endif()
 
 LINK_ENGINE_SDK(${PROJECT_NAME})
 
-# 拷贝Assets
+# 拷贝Resource
 add_custom_command(TARGET ${PROJECT_NAME} POST_BUILD
-    COMMAND ${CMAKE_COMMAND} -E make_directory $<TARGET_FILE_DIR:${PROJECT_NAME}>/Assets
+    COMMAND ${CMAKE_COMMAND} -E make_directory $<TARGET_FILE_DIR:${PROJECT_NAME}>/Resource
     COMMAND ${CMAKE_COMMAND} -E copy_directory
-        ${CMAKE_SOURCE_DIR}/Assets/Model
-        $<TARGET_FILE_DIR:${PROJECT_NAME}>/Assets/Model
-    COMMENT "Copying Assets/Model directory to output"
+        ${CMAKE_SOURCE_DIR}/Resource/Model
+        $<TARGET_FILE_DIR:${PROJECT_NAME}>/Resource/Model
+    COMMENT "Copying Resource/Model directory to output"
     VERBATIM
 )

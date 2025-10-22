@@ -1,7 +1,12 @@
 #include "MainWindow.h"
 
+#include <QApplication>
+#include <QFile>
+
 namespace RE::Editor {
 MainWindow::MainWindow() : QMainWindow(nullptr) {
+  setMinimumSize(QSize(700, 500));
+
   showMaximized();
 }
 MainWindow::~MainWindow() {}

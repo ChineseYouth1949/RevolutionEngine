@@ -10,7 +10,7 @@
 int main() {
   std::cout << "Hello RevolutionEngine" << std::endl;
 
-  std::string file = "./Assets/Model/sibenik.gltf";
+  std::string file = "./Resource/Model/sibenik.gltf";
 
   bool useAsync = true;
   int count = 1;
