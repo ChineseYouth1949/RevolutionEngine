@@ -1,7 +1,7 @@
-# RevolutionEngine 项目配置（动态库）
+# REngine 项目配置（动态库）
 cmake_minimum_required(VERSION 3.30)
 
-project(RevolutionEngine VERSION 1.0)
+project(REngine VERSION 1.0)
 
 set(CMAKE_CXX_STANDARD 20)
 set(CMAKE_CXX_STANDARD_REQUIRED ON)
@@ -20,7 +20,7 @@ add_library(${PROJECT_NAME} SHARED ${LIB_SRCS})
 
 # 设置输出目录和调试版本后缀
 SET_TARGET_OUTPUT_DIRS(${PROJECT_NAME})
-set_target_properties(${PROJECT_NAME} PROPERTIES DEBUG_POSTFIX "_d")
+set_target_properties(${PROJECT_NAME} PROPERTIES DEBUG_POSTFIX "d")
 
 # 添加导出和调试宏定义
 target_compile_definitions(${PROJECT_NAME} PRIVATE RE_EXPORT)

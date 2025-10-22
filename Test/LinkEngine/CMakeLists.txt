@@ -17,18 +17,18 @@ if(CMAKE_BUILD_TYPE STREQUAL "Debug")
     target_compile_definitions(${PROJECT_NAME} PUBLIC _DEBUG)
 endif()
 
-# 链接RevolutionEngine库
+# 链接REngine库
 target_link_libraries(${PROJECT_NAME} PUBLIC
-    RevolutionEngine
+    REngine
 )
 
-# 拷贝RevolutionEngine.dll
+# 拷贝REngine.dll
 add_custom_command(TARGET ${PROJECT_NAME} POST_BUILD
     COMMAND ${CMAKE_COMMAND} -E make_directory $<TARGET_FILE_DIR:${PROJECT_NAME}>
     COMMAND ${CMAKE_COMMAND} -E copy_if_different
-        "$<TARGET_FILE:RevolutionEngine>"  
+        "$<TARGET_FILE:REngine>"  
         "$<TARGET_FILE_DIR:${PROJECT_NAME}>"
-    COMMENT "Copying RevolutionEngine.dll (config-aware) to output directory"
+    COMMENT "Copying REngine.dll (config-aware) to output directory"
     VERBATIM
 )
 

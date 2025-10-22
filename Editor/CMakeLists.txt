@@ -1,6 +1,6 @@
 cmake_minimum_required(VERSION 3.19)
 
-project(Editor VERSION 1.0 LANGUAGES CXX)
+project(REditor VERSION 1.0 LANGUAGES CXX)
 
 set(CMAKE_INCLUDE_CURRENT_DIR ON)
 set(CMAKE_AUTOUIC ON)       # 自动编译 .ui 文件
@@ -51,18 +51,18 @@ set(QT_DLL_PATH "${QT_BUILD_ROOT}/bin")
 
 copy_qt_dlls(${PROJECT_NAME})
 
-# 链接RevolutionEngine库
+# 链接REngine库
 target_link_libraries(${PROJECT_NAME} PRIVATE
-    RevolutionEngine
+    REngine
 )
 
-# 拷贝RevolutionEngine.dll
+# 拷贝REngine.dll
 add_custom_command(TARGET ${PROJECT_NAME} POST_BUILD
     COMMAND ${CMAKE_COMMAND} -E make_directory $<TARGET_FILE_DIR:${PROJECT_NAME}>
     COMMAND ${CMAKE_COMMAND} -E copy_if_different
-        "$<TARGET_FILE:RevolutionEngine>"  
+        "$<TARGET_FILE:REngine>"  
         "$<TARGET_FILE_DIR:${PROJECT_NAME}>"
-    COMMENT "Copying RevolutionEngine.dll (config-aware) to output directory"
+    COMMENT "Copying REngine.dll (config-aware) to output directory"
     VERBATIM
 )
 

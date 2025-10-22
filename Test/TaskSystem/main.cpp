@@ -8,7 +8,7 @@
 #include <REngine.h>
 
 int main() {
-  std::cout << "Hello RevolutionEngine" << std::endl;
+  std::cout << "Hello REngine" << std::endl;
 
   std::string file = "./Resource/Model/sibenik.gltf";
 
