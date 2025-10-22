@@ -19,6 +19,11 @@ file(GLOB_RECURSE EDITOR_RESOURCES
 # 定义运行目标
 add_executable(${PROJECT_NAME} ${EDITOR_SRCS} ${EDITOR_RESOURCES})
 
+# set app name
+set_target_properties(${PROJECT_NAME} PROPERTIES
+    OUTPUT_NAME "REditor"
+)
+
 # 设置输出路径
 SET_TARGET_OUTPUT_DIRS(${PROJECT_NAME})
 
