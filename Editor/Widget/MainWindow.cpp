@@ -3,20 +3,31 @@
 #include "MainWindow.h"
 #include "ui_mainwindow.h"
 
+using namespace RE::Engine;
+
 namespace RE::Editor {
 
 struct MainWindow::Impl {
-  RE::Engine::Scene mScene;
+  MainWindow::Impl() : mScene(GAllocateConstructor<Scene>()), mGraphicsCore(GAllocateConstructor<GraphicsCore>()) {}
+
+  GUniquePtr<Scene> mScene;
+  GUniquePtr<GraphicsCore> mGraphicsCore;
 };
 
 MainWindow::MainWindow() : QMainWindow(nullptr), mUi(new Ui::MainWindow), mImpl(nullptr) {
+  mImpl = new Impl();
+
   mUi->setupUi(this);
 
   setMinimumSize(QSize(700, 500));
 
   showMaximized();
 }
-MainWindow::~MainWindow() {}
+
+MainWindow::~MainWindow() {
+  delete mImpl;
+  mImpl = nullptr;
+}
 
 void MainWindow::Initialize() {}
 

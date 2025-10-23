@@ -25,7 +25,7 @@ function(LinkQt target_name)
                 COMMAND ${CMAKE_COMMAND} -E copy_if_different
                     "${src_dll}"
                     "${dst_dir}"
-                COMMENT "拷贝 ${dll_name} 到输出目录"
+                COMMENT "copy ${dll_name} to bin dir"
                 VERBATIM
             )
         endforeach()
@@ -37,7 +37,7 @@ function(LinkQt target_name)
             COMMAND ${CMAKE_COMMAND} -E copy_if_different
                 "${QT_DLL_PATH}/../plugins/platforms/qwindows${DLL_SUFFIX}.dll"
                 "$<TARGET_FILE_DIR:${target_name}>/platforms/"
-            COMMENT "拷贝Qt平台插件"
+            COMMENT "copy qt plugins"
             VERBATIM
         )
     endif()
