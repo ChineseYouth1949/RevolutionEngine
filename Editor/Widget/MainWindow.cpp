@@ -14,10 +14,16 @@ struct MainWindow::Impl {
   GUniquePtr<GraphicsCore> mGraphicsCore;
 };
 
-MainWindow::MainWindow() : QMainWindow(nullptr), mUi(new Ui::MainWindow), mImpl(nullptr) {
-  mImpl = new Impl();
+#define EXPAND_IMPL             \
+  auto& mScene = mImpl->mScene; \
+  auto& mGraphicsCore = mImpl->mGraphicsCore;
+
+MainWindow::MainWindow() : QMainWindow(nullptr), mUi(new Ui::MainWindow), mImpl(new Impl()) {
+  EXPAND_IMPL
 
   mUi->setupUi(this);
+
+  mGraphicsCore->BindScene(mScene.get());
 
   setMinimumSize(QSize(700, 500));
 

@@ -16,9 +16,10 @@ class RE_API GraphicsCore {
   GraphicsCore(const GraphicsCore&) = delete;
   GraphicsCore& operator=(const GraphicsCore&) = delete;
 
- private:
-  Result BindScene();
+  Result BindScene(Scene* pScene);
   Result UnBindScne();
+
+ private:
 };
 
 }  // namespace RE::Engine
