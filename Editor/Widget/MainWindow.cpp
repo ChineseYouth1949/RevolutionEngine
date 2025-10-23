@@ -1,10 +1,17 @@
-#include "MainWindow.h"
+#include <REngine.h>
 
-#include <QApplication>
-#include <QFile>
+#include "MainWindow.h"
+#include "ui_mainwindow.h"
 
 namespace RE::Editor {
-MainWindow::MainWindow() : QMainWindow(nullptr) {
+
+struct MainWindow::Impl {
+  RE::Engine::Scene mScene;
+};
+
+MainWindow::MainWindow() : QMainWindow(nullptr), mUi(new Ui::MainWindow), mImpl(nullptr) {
+  mUi->setupUi(this);
+
   setMinimumSize(QSize(700, 500));
 
   showMaximized();
@@ -33,4 +40,5 @@ void MainWindow::closeEvent(QCloseEvent* event) {}
 
 void MainWindow::showEvent(QShowEvent* event) {}
 void MainWindow::hideEvent(QHideEvent* event) {}
+
 }  // namespace RE::Editor

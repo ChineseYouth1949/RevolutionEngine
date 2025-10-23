@@ -1,3 +1,3 @@
-#include "Scene.h"
+#include "SceneObj.h"
 
 #include "ISceneImporter.h"

@@ -2,9 +2,17 @@
 
 #include <QMainWindow>
 
+QT_BEGIN_NAMESPACE
+namespace Ui {
+class MainWindow;
+}
+QT_END_NAMESPACE
+
 namespace RE::Editor {
 
 class MainWindow : public QMainWindow {
+  Q_OBJECT
+
  public:
   MainWindow();
   ~MainWindow();
@@ -33,6 +41,11 @@ class MainWindow : public QMainWindow {
 
  private:
   void Initialize();
+
+  Ui::MainWindow* mUi;
+
+  struct Impl;
+  Impl* mImpl;
 };
 
 }  // namespace RE::Editor

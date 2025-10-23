@@ -7,3 +7,5 @@
 #include "Math/Math.h"
 
 #include "Graphics/Graphics.h"
+
+#include "Scene/Scene.h"

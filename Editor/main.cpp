@@ -2,7 +2,7 @@
 
 #include <QApplication>
 
-#include "UI/MainWindow.h"
+#include "Widget/MainWindow.h"
 
 using namespace RE::Editor;
 

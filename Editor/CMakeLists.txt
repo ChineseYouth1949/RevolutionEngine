@@ -6,6 +6,7 @@ set(CMAKE_INCLUDE_CURRENT_DIR ON)
 set(CMAKE_AUTOUIC ON)       # 自动编译 .ui 文件
 set(CMAKE_AUTORCC ON)       # 自动编译 .qrc 文件
 set(CMAKE_AUTOMOC ON)       # 自动编译包含宏 Q_OBJECT 的文件
+
 set(CMAKE_CXX_STANDARD 20)
 set(CMAKE_CXX_STANDARD_REQUIRED ON)
 
@@ -19,7 +20,7 @@ file(GLOB_RECURSE EDITOR_RESOURCES
 # 定义运行目标
 add_executable(${PROJECT_NAME} ${EDITOR_SRCS} ${EDITOR_RESOURCES})
 
-# set app name
+# Set app name
 set_target_properties(${PROJECT_NAME} PROPERTIES
     OUTPUT_NAME "REditor"
 )
@@ -32,27 +33,8 @@ if(CMAKE_BUILD_TYPE STREQUAL "Debug")
     target_compile_definitions(${PROJECT_NAME} PUBLIC _DEBUG)
 endif()
 
-# WinMain
-set_target_properties(${PROJECT_NAME} PROPERTIES WIN32_EXECUTABLE TRUE)
-
-# 链接Qt
-set(CMAKE_PREFIX_PATH "${QT_BUILD_ROOT}/lib/cmake/Qt${QT_VERSION_MAJOR}")
-
-find_package(Qt${QT_VERSION_MAJOR} COMPONENTS Gui Quick Qml Core Widgets REQUIRED)
-
-target_link_libraries(${PROJECT_NAME} PRIVATE 
-    Qt${QT_VERSION_MAJOR}::Core
-    Qt${QT_VERSION_MAJOR}::Gui
-    Qt${QT_VERSION_MAJOR}::Widgets
-)
-
-# 拷贝Qt dll
-set(QT_DLL_PATH "${QT_BUILD_ROOT}/bin")
-
-LinkQt(${PROJECT_NAME})
-
 # 链接REngine库
-target_link_libraries(${PROJECT_NAME} PRIVATE
+target_link_libraries(${PROJECT_NAME} PUBLIC
     REngine
 )
 
@@ -65,6 +47,22 @@ add_custom_command(TARGET ${PROJECT_NAME} POST_BUILD
     COMMENT "Copying REngine.dll (config-aware) to output directory"
     VERBATIM
 )
+
+# 链接Qt
+set(CMAKE_PREFIX_PATH "${QT_BUILD_ROOT}/lib/cmake/Qt${QT_VERSION_MAJOR}")
+
+find_package(Qt${QT_VERSION_MAJOR} COMPONENTS Gui Quick Qml Core Widgets REQUIRED)
+
+target_link_libraries(${PROJECT_NAME} PUBLIC 
+    Qt${QT_VERSION_MAJOR}::Core
+    Qt${QT_VERSION_MAJOR}::Gui
+    Qt${QT_VERSION_MAJOR}::Widgets
+)
+
+# 拷贝Qt dll
+set(QT_DLL_PATH "${QT_BUILD_ROOT}/bin")
+
+LinkQt(${PROJECT_NAME})
 
 # # 拷贝Resource
 # add_custom_command(TARGET ${PROJECT_NAME} POST_BUILD
