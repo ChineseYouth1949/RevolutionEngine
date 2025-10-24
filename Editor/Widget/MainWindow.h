@@ -29,7 +29,7 @@ class MainWindow : public QMainWindow {
   void keyReleaseEvent(QKeyEvent* event) override;
   void focusInEvent(QFocusEvent* event) override;
   void focusOutEvent(QFocusEvent* event) override;
-  void enterEvent(QEnterEvent* event) override;
+  // void enterEvent(QEnterEvent* event) override;
   void leaveEvent(QEvent* event) override;
   void paintEvent(QPaintEvent* event) override;
   void moveEvent(QMoveEvent* event) override;
@@ -40,12 +40,7 @@ class MainWindow : public QMainWindow {
   void hideEvent(QHideEvent* event) override;
 
  private:
-  void Initialize();
-
   Ui::MainWindow* mUi;
-
-  struct Impl;
-  Impl* mImpl;
 };
 
 }  // namespace RE::Editor

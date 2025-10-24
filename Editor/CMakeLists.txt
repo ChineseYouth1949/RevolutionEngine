@@ -64,12 +64,12 @@ set(QT_DLL_PATH "${QT_BUILD_ROOT}/bin")
 
 LinkQt(${PROJECT_NAME})
 
-# # 拷贝Resource
-# add_custom_command(TARGET ${PROJECT_NAME} POST_BUILD
-#     COMMAND ${CMAKE_COMMAND} -E make_directory $<TARGET_FILE_DIR:${PROJECT_NAME}>/Resource
-#     COMMAND ${CMAKE_COMMAND} -E copy_directory
-#         ${CMAKE_SOURCE_DIR}/Resource/Editor
-#         $<TARGET_FILE_DIR:${PROJECT_NAME}>/Resource/
-#     COMMENT "Copying Resource/Editor directory to output"
-#     VERBATIM
-# )
+# 拷贝Resource
+add_custom_command(TARGET ${PROJECT_NAME} POST_BUILD
+    COMMAND ${CMAKE_COMMAND} -E make_directory $<TARGET_FILE_DIR:${PROJECT_NAME}>/Resource/
+    COMMAND ${CMAKE_COMMAND} -E copy_directory
+        ${CMAKE_SOURCE_DIR}/Resource/Editor/RuntimeFile/
+        $<TARGET_FILE_DIR:${PROJECT_NAME}>/Resource/
+    COMMENT "Copying Resource/ directory to output"
+    VERBATIM
+)

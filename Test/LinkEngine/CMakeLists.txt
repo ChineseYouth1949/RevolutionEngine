@@ -17,12 +17,12 @@ if(CMAKE_BUILD_TYPE STREQUAL "Debug")
     target_compile_definitions(${PROJECT_NAME} PUBLIC _DEBUG)
 endif()
 
-# 链接REngine库
+# 链接RevolutionEngine库
 target_link_libraries(${PROJECT_NAME} PUBLIC
     REngine
 )
 
-# 拷贝REngine.dll
+# 拷贝RevolutionEngine.dll
 add_custom_command(TARGET ${PROJECT_NAME} POST_BUILD
     COMMAND ${CMAKE_COMMAND} -E make_directory $<TARGET_FILE_DIR:${PROJECT_NAME}>
     COMMAND ${CMAKE_COMMAND} -E copy_if_different
@@ -32,12 +32,12 @@ add_custom_command(TARGET ${PROJECT_NAME} POST_BUILD
     VERBATIM
 )
 
-# 拷贝Resource
-add_custom_command(TARGET ${PROJECT_NAME} POST_BUILD
-    COMMAND ${CMAKE_COMMAND} -E make_directory $<TARGET_FILE_DIR:${PROJECT_NAME}>/Resource
-    COMMAND ${CMAKE_COMMAND} -E copy_directory
-        ${CMAKE_SOURCE_DIR}/Resource/Model
-        $<TARGET_FILE_DIR:${PROJECT_NAME}>/Resource/Model
-    COMMENT "Copying Resource/Model directory to output"
-    VERBATIM
-)
+# # 拷贝Assets
+# add_custom_command(TARGET ${PROJECT_NAME} POST_BUILD
+#     COMMAND ${CMAKE_COMMAND} -E make_directory $<TARGET_FILE_DIR:${PROJECT_NAME}>/Assets
+#     COMMAND ${CMAKE_COMMAND} -E copy_directory
+#         ${CMAKE_SOURCE_DIR}/Assets/Model
+#         $<TARGET_FILE_DIR:${PROJECT_NAME}>/Assets/Model
+#     COMMENT "Copying Assets/Model directory to output"
+#     VERBATIM
+# )

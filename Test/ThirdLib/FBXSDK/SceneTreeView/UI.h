@@ -1,5 +1,7 @@
 #pragma once
 
+#define UNICODE
+
 #include <windows.h>
 #include <commctrl.h>  // for treeview control
 

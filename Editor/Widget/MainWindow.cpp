@@ -1,4 +1,4 @@
-#include <REngine.h>
+#include <REngine/REngine.h>
 
 #include "MainWindow.h"
 #include "ui_mainwindow.h"
@@ -7,35 +7,13 @@ using namespace RE::Engine;
 
 namespace RE::Editor {
 
-struct MainWindow::Impl {
-  MainWindow::Impl() : mScene(GAllocateConstructor<Scene>()), mGraphicsCore(GAllocateConstructor<GraphicsCore>()) {}
-
-  GUniquePtr<Scene> mScene;
-  GUniquePtr<GraphicsCore> mGraphicsCore;
-};
-
-#define EXPAND_IMPL             \
-  auto& mScene = mImpl->mScene; \
-  auto& mGraphicsCore = mImpl->mGraphicsCore;
-
-MainWindow::MainWindow() : QMainWindow(nullptr), mUi(new Ui::MainWindow), mImpl(new Impl()) {
-  EXPAND_IMPL
-
+MainWindow::MainWindow() : QMainWindow(nullptr), mUi(new Ui::MainWindow) {
   mUi->setupUi(this);
 
-  mGraphicsCore->BindScene(mScene.get());
-
   setMinimumSize(QSize(700, 500));
-
-  showMaximized();
 }
 
-MainWindow::~MainWindow() {
-  delete mImpl;
-  mImpl = nullptr;
-}
-
-void MainWindow::Initialize() {}
+MainWindow::~MainWindow() {}
 
 void MainWindow::mousePressEvent(QMouseEvent* event) {}
 void MainWindow::mouseReleaseEvent(QMouseEvent* event) {}
@@ -48,7 +26,7 @@ void MainWindow::keyPressEvent(QKeyEvent* event) {}
 void MainWindow::keyReleaseEvent(QKeyEvent* event) {}
 void MainWindow::focusInEvent(QFocusEvent* event) {}
 void MainWindow::focusOutEvent(QFocusEvent* event) {}
-void MainWindow::enterEvent(QEnterEvent* event) {}
+// void MainWindow::enterEvent(QEnterEvent* event) {}
 void MainWindow::leaveEvent(QEvent* event) {}
 void MainWindow::paintEvent(QPaintEvent* event) {}
 void MainWindow::moveEvent(QMoveEvent* event) {}

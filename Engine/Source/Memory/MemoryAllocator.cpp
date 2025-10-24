@@ -1,4 +1,4 @@
-#include "Memory/MemoryAllocator.h"
+#include "Memory/Malloc.h"
 
 #include <cstdlib>
 #include <memory>
@@ -7,7 +7,7 @@
 
 namespace RE::Engine {
 
-void* MemoryAllocator::Malloc(size_t size, AllocType type) {
+void* Malloc(size_t size, AllocType type) {
   if (size == 0) {
     return nullptr;
   }
@@ -27,7 +27,7 @@ void* MemoryAllocator::Malloc(size_t size, AllocType type) {
   return res;
 }
 
-void* MemoryAllocator::Zalloc(size_t size, AllocType type) {
+void* Zalloc(size_t size, AllocType type) {
   if (size == 0) {
     return nullptr;
   }
@@ -48,11 +48,11 @@ void* MemoryAllocator::Zalloc(size_t size, AllocType type) {
   return res;
 }
 
-void* MemoryAllocator::Calloc(size_t size, size_t count, AllocType type) {
+void* Calloc(size_t size, size_t count, AllocType type) {
   return Zalloc(size * count, type);
 }
 
-void* MemoryAllocator::Realloc(void* p, size_t newSize, AllocType type) {
+void* Realloc(void* p, size_t newSize, AllocType type) {
   if (p == nullptr) {
     return Malloc(newSize, type);
   }
@@ -72,11 +72,11 @@ void* MemoryAllocator::Realloc(void* p, size_t newSize, AllocType type) {
   return res;
 }
 
-void* MemoryAllocator::ReallocN(void* p, size_t newSize, size_t count, AllocType type) {
+void* ReallocN(void* p, size_t newSize, size_t count, AllocType type) {
   return Realloc(p, newSize * count, type);
 }
 
-bool MemoryAllocator::Expand(void* p, size_t newSize, AllocType type) {
+bool Expand(void* p, size_t newSize, AllocType type) {
   if (!p) {
     return false;
   }
@@ -105,7 +105,7 @@ RE_INLINE void* AlignedAlloc(size_t size, size_t align) {
 #endif
 }
 
-void* MemoryAllocator::MallocAligned(size_t size, size_t alignment, AllocType type) {
+void* MallocAligned(size_t size, size_t alignment, AllocType type) {
   if (alignment == 0) {
     alignment = alignof(std::max_align_t);
   }
@@ -125,7 +125,7 @@ void* MemoryAllocator::MallocAligned(size_t size, size_t alignment, AllocType ty
   return res;
 }
 
-void* MemoryAllocator::ZallocAligned(size_t size, size_t alignment, AllocType type) {
+void* ZallocAligned(size_t size, size_t alignment, AllocType type) {
   if (alignment == 0) {
     alignment = alignof(std::max_align_t);
   }
@@ -146,11 +146,11 @@ void* MemoryAllocator::ZallocAligned(size_t size, size_t alignment, AllocType ty
   return res;
 }
 
-void* MemoryAllocator::CallocAligned(size_t size, size_t count, size_t alignment, AllocType type) {
+void* CallocAligned(size_t size, size_t count, size_t alignment, AllocType type) {
   return ZallocAligned(size * count, alignment, type);
 }
 
-void* MemoryAllocator::ReallocAligned(void* p, size_t newsize, size_t alignment, AllocType type) {
+void* ReallocAligned(void* p, size_t newsize, size_t alignment, AllocType type) {
   if (p) {
     Free(p, type);
   }
@@ -158,7 +158,7 @@ void* MemoryAllocator::ReallocAligned(void* p, size_t newsize, size_t alignment,
   return MallocAligned(newsize, alignment, type);
 }
 
-void* MemoryAllocator::MallocAlignedAt(size_t size, size_t alignment, size_t offset, AllocType type) {
+void* MallocAlignedAt(size_t size, size_t alignment, size_t offset, AllocType type) {
   if (offset >= alignment) {
     return nullptr;
   }
@@ -182,7 +182,7 @@ void* MemoryAllocator::MallocAlignedAt(size_t size, size_t alignment, size_t off
   return res;
 }
 
-void* MemoryAllocator::ZallocAlignedAt(size_t size, size_t alignment, size_t offset, AllocType type) {
+void* ZallocAlignedAt(size_t size, size_t alignment, size_t offset, AllocType type) {
   if (offset >= alignment) {
     return nullptr;
   }
@@ -206,11 +206,11 @@ void* MemoryAllocator::ZallocAlignedAt(size_t size, size_t alignment, size_t off
   return res;
 }
 
-void* MemoryAllocator::CallocAlignedAt(size_t size, size_t count, size_t alignment, size_t offset, AllocType type) {
+void* CallocAlignedAt(size_t size, size_t count, size_t alignment, size_t offset, AllocType type) {
   return ZallocAlignedAt(size * count, alignment, offset, type);
 }
 
-void* MemoryAllocator::ReallocAlignedAt(void* p, size_t newsize, size_t alignment, size_t offset, AllocType type) {
+void* ReallocAlignedAt(void* p, size_t newsize, size_t alignment, size_t offset, AllocType type) {
   if (p) {
     Free(p, type);
   }
@@ -218,7 +218,7 @@ void* MemoryAllocator::ReallocAlignedAt(void* p, size_t newsize, size_t alignmen
   return MallocAlignedAt(newsize, alignment, offset, type);
 }
 
-void MemoryAllocator::Free(void* p, AllocType type) {
+void Free(void* p, AllocType type) {
   if (p) {
     switch (type) {
       case AllocType::STD:

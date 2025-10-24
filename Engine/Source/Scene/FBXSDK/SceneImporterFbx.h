@@ -7,7 +7,7 @@
 
 namespace RE::Engine {
 
-class RE_API SceneImporterFBX : public ISceneImporter {
+class RE_DECLSPEC SceneImporterFBX : public ISceneImporter {
  public:
   SceneImporterFBX();
   virtual ~SceneImporterFBX();

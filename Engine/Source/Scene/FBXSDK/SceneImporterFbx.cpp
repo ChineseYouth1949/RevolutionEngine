@@ -37,7 +37,7 @@ void SceneImporterFBX::Destroy() {
   for (auto scene : m_scenes) {
     if (scene) {
       scene->Destroy();
-      GFree(scene);
+      GMemoryAllocator::Destry(scene);
     }
   }
   m_scenes.clear();

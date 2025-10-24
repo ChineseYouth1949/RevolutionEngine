@@ -5,7 +5,7 @@
 #include <chrono>
 #include <assert.h>
 
-#include <REngine.h>
+#include <REngine/REngine.h>
 
 int main() {
   std::cout << "Hello REngine" << std::endl;

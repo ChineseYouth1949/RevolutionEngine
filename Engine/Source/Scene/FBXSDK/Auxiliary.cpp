@@ -22,10 +22,10 @@ void FBXSDKInit() {
   std::lock_guard lock(sMutex);
 
   if (!sInited) {
-    FbxSetMallocHandler(GMalloc);
-    FbxSetCallocHandler(GCalloc);
-    FbxSetReallocHandler(GRealloc);
-    FbxSetFreeHandler(GFree);
+    FbxSetMallocHandler(GMemoryAllocator::Malloc);
+    FbxSetCallocHandler(GMemoryAllocator::Calloc);
+    FbxSetReallocHandler(GMemoryAllocator::Realloc);
+    FbxSetFreeHandler(GMemoryAllocator::Free);
 
     sInited = true;
   }
@@ -92,7 +92,7 @@ bool FbxSceneConverter::Transform(FbxManager* pFbxSdkManager, FbxImporter* pFbxI
   }
 
   // allocate scene obj
-  mScene = GAllocateConstructor<Scene>();
+  mScene = GMemoryAllocator::Create<Scene>();
 
   LoadAnimation();
   LoadCamera();
@@ -195,7 +195,7 @@ void FbxSceneConverter::LoadTexture() {
     if (lFileTexture && !lFileTexture->GetUserDataPtr()) {
       bool exist = FindTexture(lFileTexture, mFbxFileName.c_str(), lResTextureFileName);
       if (exist) {
-        Texture* lNewTexture = GAllocateConstructor<Texture>(lResTextureFileName);
+        Texture* lNewTexture = GMemoryAllocator::Create<Texture>(lResTextureFileName);
         lTextures.push_back(lNewTexture);
         lFileTexture->SetUserDataPtr(lNewTexture);
       } else {
@@ -290,7 +290,7 @@ void FbxSceneConverter::FindMaterialRecursive(FbxNode* pFbxNode, std::vector<Mat
 
     if (lMaterial && !lMaterial->GetUserDataPtr()) {
       if (ReadMaterialVector3f(lMaterial, MaterialPropertyMap::sEmissive, MaterialPropertyMap::sEmissiveFactor, lResVector3f, lResTexture)) {
-        Material* lLoadMaterial = GAllocateConstructor<Material>();
+        Material* lLoadMaterial = GMemoryAllocator::Create<Material>();
         lLoadMaterial->SetProperty(MaterialPropertyMap::sEmissiveFactor, lResVector3f);
         if (lResTexture != nullptr) {
           lLoadMaterial->SetProperty(MaterialPropertyMap::sEmissiveFactor + "-Texture", lResTexture);
@@ -349,7 +349,7 @@ void FbxSceneConverter::FindMeshRecursive(FbxNode* pFbxNode, std::vector<Mesh*>&
   if (lNodeAttribute && lNodeAttribute->GetAttributeType() == FbxNodeAttribute::eMesh) {
     // FbxMesh* lMesh = pNode->GetMesh();
     // if (lMesh && !lMesh->GetUserDataPtr() && lMesh->GetNode()) {
-    //   Mesh* lNewMesh = GAllocateConstructor<Mesh>();
+    //   Mesh* lNewMesh = GNew<Mesh>();
 
     //   const int lPolygonCount = pMesh->GetPolygonCount();
     //   FbxLayerElementArrayTemplate<int>* lMaterialIndice = NULL;

@@ -10,7 +10,7 @@
 
 // class Scene;
 
-// class RE_API SceneImporter {
+// class RE_DECLSPEC SceneImporter {
 //  public:
 //   SceneImporter();
 //   ~SceneImporter();

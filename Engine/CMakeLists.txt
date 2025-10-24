@@ -33,6 +33,8 @@ endif()
 target_include_directories(${PROJECT_NAME}
     PUBLIC
     ${RE_HEADER_DIR}
+    PRIVATE
+    ${RE_HEADER_DIR}/REngine
 )
 
 LINK_ENGINE_SDK(${PROJECT_NAME})
