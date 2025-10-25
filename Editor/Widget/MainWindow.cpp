@@ -1,19 +1,42 @@
-#include <REngine/REngine.h>
-
 #include "MainWindow.h"
-#include "ui_mainwindow.h"
-
-using namespace RE::Engine;
 
 namespace RE::Editor {
 
-MainWindow::MainWindow() : QMainWindow(nullptr), mUi(new Ui::MainWindow) {
-  mUi->setupUi(this);
+MainWindow::MainWindow() : QMainWindow() {
+  initUI();
 
+  resize(800, 600);
   setMinimumSize(QSize(700, 500));
 }
 
 MainWindow::~MainWindow() {}
+
+void MainWindow::initUI() {
+  mCentralwidget = new QWidget(this);
+  mVerticalLayout = new QVBoxLayout(mCentralwidget);
+  mTabWidget = new QTabWidget(mCentralwidget);
+
+  mSceneWindow = new SceneWindow(nullptr);
+  mSceneWidget = QWidget::createWindowContainer(mSceneWindow, mTabWidget);
+
+  mTabWidget->addTab(mSceneWidget, QString("Scene"));
+  mTabWidget->setTabText(0, QString("Scene"));
+  mTabWidget->setCurrentIndex(0);
+
+  mVerticalLayout->addWidget(mTabWidget);
+  setCentralWidget(mCentralwidget);
+
+  mMenubar = new QMenuBar(this);
+  mMenubar->setObjectName("menubar");
+  mMenubar->setGeometry(QRect(0, 0, 800, 25));
+  setMenuBar(mMenubar);
+
+  mStatusbar = new QStatusBar(this);
+  mStatusbar->setObjectName("statusbar");
+  setStatusBar(mStatusbar);
+
+  setWindowTitle(QString("MainWindow"));
+}
 
 void MainWindow::mousePressEvent(QMouseEvent* event) {}
 void MainWindow::mouseReleaseEvent(QMouseEvent* event) {}

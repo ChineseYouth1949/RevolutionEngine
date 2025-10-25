@@ -21,7 +21,7 @@ REditor::REditor()
 REditor::~REditor() {}
 
 void REditor::Initialize() {
-  auto windId = mMainWindow->winId();
+  auto windId = mMainWindow->mSceneWindow->winId();
   HWND windowHwnd = reinterpret_cast<HWND>(windId);
 
   Engine::GraphicsCoreConfig gcCofg;

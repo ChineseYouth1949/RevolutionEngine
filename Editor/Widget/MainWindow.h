@@ -1,14 +1,14 @@
 #pragma once
 
 #include <QMainWindow>
+#include <QBoxLayout>
+#include <QMenuBar>
+#include <QStatusBar>
 
-QT_BEGIN_NAMESPACE
-namespace Ui {
-class MainWindow;
-}
-QT_END_NAMESPACE
+#include "SceneWindow.h"
 
 namespace RE::Editor {
+class REditor;
 
 class MainWindow : public QMainWindow {
   Q_OBJECT
@@ -42,7 +42,20 @@ class MainWindow : public QMainWindow {
   QPaintEngine* paintEngine() const override;
 
  private:
-  Ui::MainWindow* mUi;
+  void initUI();
+
+  QWidget* mCentralwidget;
+  QVBoxLayout* mVerticalLayout;
+  QTabWidget* mTabWidget;
+
+  QWidget* mSceneWidget;
+  SceneWindow* mSceneWindow;
+
+  QWidget* mGameTable;
+  QMenuBar* mMenubar;
+  QStatusBar* mStatusbar;
+
+  friend class REditor;
 };
 
 }  // namespace RE::Editor
