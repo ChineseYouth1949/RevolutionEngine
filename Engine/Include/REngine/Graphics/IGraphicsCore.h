@@ -5,6 +5,8 @@
 
 #include "Object/RObject.h"
 
+#include "Type.h"
+
 namespace RE::Engine {
 class Scene;
 class Config;
@@ -21,7 +23,9 @@ class RE_DECLSPEC IGraphicsCore : public RObject {
   IGraphicsCore(const IGraphicsCore&) = delete;
   IGraphicsCore& operator=(const IGraphicsCore&) = delete;
 
-  Result Initialize(Config* pConfig);
+  Result Initialize(const GraphicsCoreConfig& config);
+
+  void Render();
 
   Result BindScene(Scene* pScene);
   Result UnBindScne();

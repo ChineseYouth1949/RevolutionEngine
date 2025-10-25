@@ -3,6 +3,7 @@
 #include <string>
 
 #include "CompileDefine.h"
+#include "Assert.h"
 
 #include "Object/RObject.h"
 
@@ -27,17 +28,21 @@ class RE_DECLSPEC Result : public RObject {
 
   bool Success() const;
   bool Failed() const;
-  void ThrowIfFailed(const std::string& errInfo) const;
 
  private:
   long m_code;
   ResultType m_type;
 };
 
-#define RESULT_RE(code) Result(ResultType::RE, code)
-#define RESULT_WIN_RESULT(code) Result(ResultType::WIN_HRESULT, code)
+#define REResult(code) Result(ResultType::RE, code)
+#define REWinResult(code) Result(ResultType::WIN_HRESULT, code)
 
-#define ThrowIfFailed_RE(code) RESULT_RE(code).ThrowIfFailed()
-#define ThrowIfFailed_WIN_RESULT(code) RESULT_WIN_RESULT(code).ThrowIfFailed()
+#ifdef RE_DEBUG
+#define REResultSuccess(code) REAssert(REResult(code).Success())
+#define REWinResultSuccess(code) REAssert(REWinResult(code).Success())
+#else
+#define REResultSuccess(code) code
+#define REWinResultSuccess(code) code
+#endif
 
 }  // namespace RE::Engine

@@ -1,7 +1,6 @@
 #pragma once
 
 #include <REngine/REngine.h>
-
 #include <Setting/Setting.h>
 
 namespace RE::Editor {
@@ -17,8 +16,8 @@ class REditor {
  private:
   void InitUI();
 
-  static std::string sAppRunPath;
-  static const std::string sMainConfigFileName;
+  static std::wstring sAppRunPath;
+  static const std::wstring sMainConfigFileName;
 
   GUniquePtr<MainWindow> mMainWindow;
   GUniquePtr<Engine::Config> mMainConfig;

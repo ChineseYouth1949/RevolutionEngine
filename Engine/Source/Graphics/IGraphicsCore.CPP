@@ -1,14 +1,29 @@
 #include "Graphics/IGraphicsCore.h"
+
 #include "GraphicsCore.h"
+
+#include "Memory/Memory.h"
 
 namespace RE::Engine {
 
-IGraphicsCore::IGraphicsCore() : mImpl(nullptr) {}
-IGraphicsCore::~IGraphicsCore() {}
+IGraphicsCore::IGraphicsCore() : mImpl(GMemoryAllocator::Create<GraphicsCore>()) {}
+IGraphicsCore::~IGraphicsCore() {
+  if (mImpl) {
+    GMemoryAllocator::Destry(mImpl);
+    mImpl = nullptr;
+  }
+}
 
-Result IGraphicsCore::Initialize(Config* pConfig) {
+Result IGraphicsCore::Initialize(const GraphicsCoreConfig& config) {
   Result lRes;
+
+  lRes = mImpl->Initialize(config);
+
   return lRes;
+}
+
+void IGraphicsCore::Render() {
+  mImpl->Render();
 }
 
 Result IGraphicsCore::BindScene(Scene* pScene) {

@@ -26,10 +26,4 @@ bool Result::Failed() const {
   return !Success();
 }
 
-void Result::ThrowIfFailed(const std::string& errInfo) const {
-  if (Failed()) {
-    throw ResultException(*this, errInfo);
-  }
-}
-
 }  // namespace RE::Engine

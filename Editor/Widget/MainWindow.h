@@ -31,13 +31,15 @@ class MainWindow : public QMainWindow {
   void focusOutEvent(QFocusEvent* event) override;
   // void enterEvent(QEnterEvent* event) override;
   void leaveEvent(QEvent* event) override;
-  void paintEvent(QPaintEvent* event) override;
   void moveEvent(QMoveEvent* event) override;
   void resizeEvent(QResizeEvent* event) override;
   void closeEvent(QCloseEvent* event) override;
 
   void showEvent(QShowEvent* event) override;
   void hideEvent(QHideEvent* event) override;
+
+  void paintEvent(QPaintEvent* event) override;
+  QPaintEngine* paintEngine() const override;
 
  private:
   Ui::MainWindow* mUi;
