@@ -17,7 +17,7 @@ SceneImporterFBX::SceneImporterFBX() {
 
   m_fbxSdkManager = FbxManager::Create();
   if (!m_fbxSdkManager) {
-    AssertInfo(false, "Error: Unable to create FBX Manager!")
+    REAssertInfo(false, "Error: Unable to create FBX Manager!")
   }
 
   std::string importerName = "Importer-" + std::to_string(sImporterIndex++);
@@ -66,7 +66,7 @@ SceneImporterFBX& SceneImporterFBX::operator=(SceneImporterFBX&& other) noexcept
 }
 
 bool SceneImporterFBX::LoadScene(std::string fileName, Flag64 flags) {
-  AssertInfo(m_fbxSdkManager != nullptr, "m_fbxSdkManager is nullptr");
+  REAssertInfo(m_fbxSdkManager != nullptr, "m_fbxSdkManager is nullptr");
 
   int fileFormat = -1;
   if (m_fbxSdkManager->GetIOPluginRegistry()->DetectReaderFileFormat(fileName.c_str(), fileFormat)) {

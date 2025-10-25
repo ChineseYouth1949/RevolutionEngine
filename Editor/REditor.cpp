@@ -16,14 +16,20 @@ REditor::REditor() : mMainWindow(GMemoryAllocator::CreateUniquePtr<MainWindow>()
 
 REditor::~REditor() {}
 
-Engine::Result REditor::Initialize() {
-  Engine::Result result;
-
+void REditor::Initialize() {
   bool success = mMainConfig->LoadFromFile(sAppRunPath + sMainConfigFileName);
+  REAssert(success);
+
+  InitUI();
+}
+
+void REditor::InitUI() {
+  bool success = mMainConfig->HasOption("window_min_size");
+  REAssert(success);
+
+  // auto& value = mMainConfig->GetOption("window_min_size");
 
   mMainWindow->showMaximized();
-
-  return result;
 }
 
 }  // namespace RE::Editor

@@ -7,7 +7,7 @@
 
 #ifdef RE_DEBUG
 
-#define Assert(value)                                                                                                              \
+#define REAssert(value)                                                                                                            \
   do {                                                                                                                             \
     if (!(value)) {                                                                                                                \
       TCHAR msg[1024];                                                                                                             \
@@ -17,7 +17,7 @@
     }                                                                                                                              \
   } while (0);
 
-#define AssertInfo(value, info)                                                                                                              \
+#define REAssertInfo(value, info)                                                                                                            \
   do {                                                                                                                                       \
     if (!(value)) {                                                                                                                          \
       TCHAR msg[1024];                                                                                                                       \
@@ -30,7 +30,7 @@
 
 #else
 
-#define Assert(value)
-#define AssertInfo(value, info)
+#define REAssert(value)
+#define REAssertInfo(value, info)
 
 #endif

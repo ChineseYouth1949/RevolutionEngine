@@ -12,9 +12,11 @@ class REditor {
   REditor();
   ~REditor();
 
-  Engine::Result Initialize();
+  void Initialize();
 
  private:
+  void InitUI();
+
   static std::string sAppRunPath;
   static const std::string sMainConfigFileName;
 

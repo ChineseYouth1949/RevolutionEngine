@@ -68,7 +68,7 @@ LinkQt(${PROJECT_NAME})
 add_custom_command(TARGET ${PROJECT_NAME} POST_BUILD
     COMMAND ${CMAKE_COMMAND} -E make_directory $<TARGET_FILE_DIR:${PROJECT_NAME}>/Resource/
     COMMAND ${CMAKE_COMMAND} -E copy_directory
-        ${CMAKE_SOURCE_DIR}/Resource/Editor/RuntimeFile/
+        ${CMAKE_SOURCE_DIR}/Resource/Editor/Runtime/
         $<TARGET_FILE_DIR:${PROJECT_NAME}>/Resource/
     COMMENT "Copying Resource/ directory to output"
     VERBATIM
