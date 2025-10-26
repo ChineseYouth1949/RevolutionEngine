@@ -38,8 +38,8 @@ class RE_DECLSPEC Result : public RObject {
 #define REWinResult(code) Result(ResultType::WIN_HRESULT, code)
 
 #ifdef RE_DEBUG
-#define REResultSuccess(code) REAssert(REResult(code).Success())
-#define REWinResultSuccess(code) REAssert(REWinResult(code).Success())
+#define REResultSuccess(code) REAssertCodeRes(REResult(code).Success(), #code, REResult(code).GetReusltCode())
+#define REWinResultSuccess(code) REAssertCodeRes(REWinResult(code).Success(), #code, REResult(code).GetReusltCode())
 #else
 #define REResultSuccess(code) code
 #define REWinResultSuccess(code) code

@@ -59,10 +59,7 @@ class GraphicsCore : public RObject {
   bool mUseWarpDevice;
   std::wstring mResourcePath;
 
-  struct Vertex {
-    XMFLOAT3 position;
-    XMFLOAT4 color;
-  };
+  using Vertex = Vector3f;
 
   UINT mFrameCount;
 
@@ -81,6 +78,7 @@ class GraphicsCore : public RObject {
   ComPtr<ID3D12PipelineState> mPipelineState;
   ComPtr<ID3D12GraphicsCommandList> mCommandList;
   UINT mRtvDescriptorSize;
+  UINT mCBVDescriptorSize;
 
   ComPtr<ID3D12Resource> mVertexBuffer;
   D3D12_VERTEX_BUFFER_VIEW mVertexBufferView;
@@ -97,17 +95,36 @@ class GraphicsCore : public RObject {
   void CreatePSO();
   void CreateVertexBuffer();
 
-  struct SceneConstantBuffer {
+  struct ViewProjBuffer {
     Matrix4x4 mView;
     Matrix4x4 mProj;
     float padding[32];
   };
-  static_assert((sizeof(SceneConstantBuffer) % 256) == 0, "Constant Buffer size must be 256-byte aligned");
+  static_assert((sizeof(ViewProjBuffer) % 256) == 0, "Constant Buffer size must be 256-byte aligned");
+
+  struct InfiniteGridBuffer {
+    Vector4f backgroundColor;
+    Vector4f gridColor;
+    Vector3f cameraPos;
+    float _padding1;
+    int32_t screenResolution[2];
+    float _padding2[2];
+    float gridSize;
+    float lineWidth;
+    float lineSoftness;
+    float _padding3[64 - 19];
+  };
+  static_assert((sizeof(InfiniteGridBuffer) % 256) == 0, "Constant Buffer size must be 256-byte aligned");
 
   ComPtr<ID3D12DescriptorHeap> mCbvHeap;
-  ComPtr<ID3D12Resource> mConstantBuffer;
-  SceneConstantBuffer mConstantBufferData;
-  UINT8* mPCbvDataBegin;
+
+  ComPtr<ID3D12Resource> mVPBffer;
+  ViewProjBuffer mVPBufferData;
+  UINT8* mVPBufferBegin;
+
+  ComPtr<ID3D12Resource> mIGBuffer;
+  InfiniteGridBuffer mIGBufferData;
+  UINT8* mIGBufferBegin;
 
   void LoadPipeline();
   void PopulateCommandList();

@@ -2,6 +2,8 @@
 
 #include "Base/Result.h"
 
+#include <limits>
+
 namespace RE::Engine {
 
 GraphicsCore::GraphicsCore() {}
@@ -23,6 +25,7 @@ Result GraphicsCore::Initialize(const GraphicsCoreConfig& config) {
   mScissorRect = CD3DX12_RECT(0, 0, static_cast<LONG>(mWidth), static_cast<LONG>(mHeight));
 
   mRtvDescriptorSize = 0;
+  mCBVDescriptorSize = 0;
 
   Build();
 
@@ -90,10 +93,25 @@ void GraphicsCore::Build() {
 void GraphicsCore::Update() {
   mCamera.UpdateViewProj();
 
-  mConstantBufferData.mView = mCamera.GetViewMatrix();
-  mConstantBufferData.mProj = mCamera.GetProjMatrix();
+  mVPBufferData.mView = mCamera.GetViewMatrix();
+  mVPBufferData.mProj = mCamera.GetProjMatrix();
 
-  memcpy(mPCbvDataBegin, &mConstantBufferData, sizeof(mConstantBufferData));
+  memcpy(mVPBufferBegin, &mVPBufferData, sizeof(mVPBufferData));
+
+  {
+    memset(&mIGBufferData, 0, sizeof(mIGBufferData));
+
+    mIGBufferData.backgroundColor = Vector4f(0.24, 0.24, 0.24, 1.0);
+    mIGBufferData.gridColor = Vector4f(0.33, 0.33, 0.33, 1.0);
+    mIGBufferData.cameraPos = mCamera.GetPosition();
+    mIGBufferData.screenResolution[0] = mWidth;
+    mIGBufferData.screenResolution[1] = mHeight;
+    mIGBufferData.gridSize = 1.0;
+    mIGBufferData.lineWidth = 0.4;
+    mIGBufferData.lineSoftness = 0.8;
+
+    memcpy(mIGBufferBegin, &mIGBufferData, sizeof(mIGBufferData));
+  }
 }
 void GraphicsCore::Render() {
   PopulateCommandList();
@@ -169,6 +187,7 @@ void GraphicsCore::LoadCoreInterface() {
     REWinResultSuccess(mDevice->CreateDescriptorHeap(&rtvHeapDesc, IID_PPV_ARGS(&mRtvHeap)));
 
     mRtvDescriptorSize = mDevice->GetDescriptorHandleIncrementSize(D3D12_DESCRIPTOR_HEAP_TYPE_RTV);
+    mCBVDescriptorSize = mDevice->GetDescriptorHandleIncrementSize(D3D12_DESCRIPTOR_HEAP_TYPE_CBV_SRV_UAV);
   }
 
   {
@@ -219,6 +238,10 @@ void GraphicsCore::PopulateCommandList() {
   mCommandList->SetDescriptorHeaps(_countof(ppHeaps), ppHeaps);
   mCommandList->SetGraphicsRootDescriptorTable(0, mCbvHeap->GetGPUDescriptorHandleForHeapStart());
 
+  D3D12_GPU_DESCRIPTOR_HANDLE gpuHandle = mCbvHeap->GetGPUDescriptorHandleForHeapStart();
+  gpuHandle.ptr += mCBVDescriptorSize;
+  mCommandList->SetGraphicsRootDescriptorTable(1, gpuHandle);
+
   mCommandList->RSSetViewports(1, &mViewport);
   mCommandList->RSSetScissorRects(1, &mScissorRect);
 
@@ -263,16 +286,21 @@ void GraphicsCore::CreateRootSignature() {
     featureData.HighestVersion = D3D_ROOT_SIGNATURE_VERSION_1_0;
   }
 
-  CD3DX12_DESCRIPTOR_RANGE1 ranges[1];
-  CD3DX12_ROOT_PARAMETER1 rootParameters[1];
+  // 定义两个描述符范围，分别对应两个CBV
+  CD3DX12_DESCRIPTOR_RANGE1 ranges[2];
+  CD3DX12_ROOT_PARAMETER1 rootParameters[2];
 
+  // 第一个CBV：CameraConstants (register b0)
   ranges[0].Init(D3D12_DESCRIPTOR_RANGE_TYPE_CBV, 1, 0, 0, D3D12_DESCRIPTOR_RANGE_FLAG_DATA_STATIC);
   rootParameters[0].InitAsDescriptorTable(1, &ranges[0], D3D12_SHADER_VISIBILITY_VERTEX);
 
+  // 第二个CBV：GridConstants (register b1)
+  ranges[1].Init(D3D12_DESCRIPTOR_RANGE_TYPE_CBV, 1, 1, 0, D3D12_DESCRIPTOR_RANGE_FLAG_DATA_STATIC);
+  rootParameters[1].InitAsDescriptorTable(1, &ranges[1], D3D12_SHADER_VISIBILITY_PIXEL);
+
   D3D12_ROOT_SIGNATURE_FLAGS rootSignatureFlags =
       D3D12_ROOT_SIGNATURE_FLAG_ALLOW_INPUT_ASSEMBLER_INPUT_LAYOUT | D3D12_ROOT_SIGNATURE_FLAG_DENY_HULL_SHADER_ROOT_ACCESS |
-      D3D12_ROOT_SIGNATURE_FLAG_DENY_DOMAIN_SHADER_ROOT_ACCESS | D3D12_ROOT_SIGNATURE_FLAG_DENY_GEOMETRY_SHADER_ROOT_ACCESS |
-      D3D12_ROOT_SIGNATURE_FLAG_DENY_PIXEL_SHADER_ROOT_ACCESS;
+      D3D12_ROOT_SIGNATURE_FLAG_DENY_DOMAIN_SHADER_ROOT_ACCESS | D3D12_ROOT_SIGNATURE_FLAG_DENY_GEOMETRY_SHADER_ROOT_ACCESS;
 
   CD3DX12_VERSIONED_ROOT_SIGNATURE_DESC rootSignatureDesc;
   rootSignatureDesc.Init_1_1(_countof(rootParameters), rootParameters, 0, nullptr, rootSignatureFlags);
@@ -285,27 +313,53 @@ void GraphicsCore::CreateRootSignature() {
 
 void GraphicsCore::CreateConstantBuffer() {
   D3D12_DESCRIPTOR_HEAP_DESC cbvHeapDesc = {};
-  cbvHeapDesc.NumDescriptors = 1;
+  cbvHeapDesc.NumDescriptors = 2;
   cbvHeapDesc.Flags = D3D12_DESCRIPTOR_HEAP_FLAG_SHADER_VISIBLE;
   cbvHeapDesc.Type = D3D12_DESCRIPTOR_HEAP_TYPE_CBV_SRV_UAV;
   REWinResultSuccess(mDevice->CreateDescriptorHeap(&cbvHeapDesc, IID_PPV_ARGS(&mCbvHeap)));
 
-  const UINT constantBufferSize = sizeof(SceneConstantBuffer);
+  // view proj buffer
+  {
+    const UINT constantBufferSize = sizeof(ViewProjBuffer);
 
-  auto heap_pro = CD3DX12_HEAP_PROPERTIES(D3D12_HEAP_TYPE_UPLOAD);
-  auto buff_desc = CD3DX12_RESOURCE_DESC::Buffer(constantBufferSize);
+    auto heap_pro = CD3DX12_HEAP_PROPERTIES(D3D12_HEAP_TYPE_UPLOAD);
+    auto buff_desc = CD3DX12_RESOURCE_DESC::Buffer(constantBufferSize);
 
-  REWinResultSuccess(mDevice->CreateCommittedResource(&heap_pro, D3D12_HEAP_FLAG_NONE, &buff_desc, D3D12_RESOURCE_STATE_GENERIC_READ, nullptr,
-                                                      IID_PPV_ARGS(&mConstantBuffer)));
+    REWinResultSuccess(mDevice->CreateCommittedResource(&heap_pro, D3D12_HEAP_FLAG_NONE, &buff_desc, D3D12_RESOURCE_STATE_GENERIC_READ, nullptr,
+                                                        IID_PPV_ARGS(&mVPBffer)));
 
-  D3D12_CONSTANT_BUFFER_VIEW_DESC cbvDesc = {};
-  cbvDesc.BufferLocation = mConstantBuffer->GetGPUVirtualAddress();
-  cbvDesc.SizeInBytes = constantBufferSize;
-  mDevice->CreateConstantBufferView(&cbvDesc, mCbvHeap->GetCPUDescriptorHandleForHeapStart());
+    D3D12_CONSTANT_BUFFER_VIEW_DESC cbvDesc = {};
+    cbvDesc.BufferLocation = mVPBffer->GetGPUVirtualAddress();
+    cbvDesc.SizeInBytes = constantBufferSize;
+    mDevice->CreateConstantBufferView(&cbvDesc, mCbvHeap->GetCPUDescriptorHandleForHeapStart());
 
-  CD3DX12_RANGE readRange(0, 0);
-  REWinResultSuccess(mConstantBuffer->Map(0, &readRange, reinterpret_cast<void**>(&mPCbvDataBegin)));
-  memcpy(mPCbvDataBegin, &mConstantBufferData, sizeof(mConstantBufferData));
+    CD3DX12_RANGE readRange(0, 0);
+    REWinResultSuccess(mVPBffer->Map(0, &readRange, reinterpret_cast<void**>(&mVPBufferBegin)));
+    memcpy(mVPBufferBegin, &mVPBufferData, sizeof(mVPBufferData));
+  }
+
+  // grid param
+  {
+    const UINT constantBufferSize = sizeof(InfiniteGridBuffer);
+
+    auto heap_pro = CD3DX12_HEAP_PROPERTIES(D3D12_HEAP_TYPE_UPLOAD);
+    auto buff_desc = CD3DX12_RESOURCE_DESC::Buffer(constantBufferSize);
+
+    REWinResultSuccess(mDevice->CreateCommittedResource(&heap_pro, D3D12_HEAP_FLAG_NONE, &buff_desc, D3D12_RESOURCE_STATE_GENERIC_READ, nullptr,
+                                                        IID_PPV_ARGS(&mIGBuffer)));
+
+    D3D12_CONSTANT_BUFFER_VIEW_DESC cbvDesc = {};
+    cbvDesc.BufferLocation = mIGBuffer->GetGPUVirtualAddress();
+    cbvDesc.SizeInBytes = constantBufferSize;
+
+    D3D12_CPU_DESCRIPTOR_HANDLE cpuHandle = mCbvHeap->GetCPUDescriptorHandleForHeapStart();
+    cpuHandle.ptr += mCBVDescriptorSize;
+    mDevice->CreateConstantBufferView(&cbvDesc, cpuHandle);
+
+    CD3DX12_RANGE readRange(0, 0);
+    REWinResultSuccess(mIGBuffer->Map(0, &readRange, reinterpret_cast<void**>(&mIGBufferBegin)));
+    memcpy(mIGBufferBegin, &mIGBufferData, sizeof(mIGBufferData));
+  }
 }
 
 void GraphicsCore::CreatePSO() {
@@ -318,15 +372,14 @@ void GraphicsCore::CreatePSO() {
   UINT compileFlags = 0;
 #endif
 
-  std::wstring vertexShaderPath = GetResourceFilePath(L"TrinagleScene.hlsl");
+  std::wstring vertexShaderPath = GetResourceFilePath(L"InfiniteGrid.hlsl");
   std::wcout << "vertexShaderPath : " << vertexShaderPath << std::endl;
   REWinResultSuccess(D3DCompileFromFile(vertexShaderPath.c_str(), nullptr, nullptr, "VSMain", "vs_5_0", compileFlags, 0, &vertexShader, nullptr));
 
-  std::wstring pixelShaderPath = GetResourceFilePath(L"TrinagleScene.hlsl");
+  std::wstring pixelShaderPath = GetResourceFilePath(L"InfiniteGrid.hlsl");
   REWinResultSuccess(D3DCompileFromFile(pixelShaderPath.c_str(), nullptr, nullptr, "PSMain", "ps_5_0", compileFlags, 0, &pixelShader, nullptr));
 
-  D3D12_INPUT_ELEMENT_DESC inputElementDescs[] = {{"POSITION", 0, DXGI_FORMAT_R32G32B32_FLOAT, 0, 0, D3D12_INPUT_CLASSIFICATION_PER_VERTEX_DATA, 0},
-                                                  {"COLOR", 0, DXGI_FORMAT_R32G32B32A32_FLOAT, 0, 12, D3D12_INPUT_CLASSIFICATION_PER_VERTEX_DATA, 0}};
+  D3D12_INPUT_ELEMENT_DESC inputElementDescs[] = {{"POSITION", 0, DXGI_FORMAT_R32G32B32_FLOAT, 0, 0, D3D12_INPUT_CLASSIFICATION_PER_VERTEX_DATA, 0}};
 
   D3D12_GRAPHICS_PIPELINE_STATE_DESC psoDesc = {};
   psoDesc.InputLayout = {inputElementDescs, _countof(inputElementDescs)};
@@ -345,9 +398,14 @@ void GraphicsCore::CreatePSO() {
   REWinResultSuccess(mDevice->CreateGraphicsPipelineState(&psoDesc, IID_PPV_ARGS(&mPipelineState)));
 }
 void GraphicsCore::CreateVertexBuffer() {
-  Vertex triangleVertices[] = {{{0.0f, 0.25f * mAspectRatio, 0.0f}, {1.0f, 0.0f, 0.0f, 1.0f}},
-                               {{0.25f, -0.25f * mAspectRatio, 0.0f}, {0.0f, 1.0f, 0.0f, 1.0f}},
-                               {{-0.25f, -0.25f * mAspectRatio, 0.0f}, {0.0f, 0.0f, 1.0f, 1.0f}}};
+  const float maxFloat = std::numeric_limits<float>::max();
+
+  float halfMax = maxFloat * 0.5f;
+
+  // Vertex triangleVertices[] = {{-halfMax, -halfMax, 0.0f}, {halfMax, -halfMax, 0.0f}, {-halfMax, halfMax, 0.0f},
+  //                              {halfMax, -halfMax, 0.0f},  {halfMax, halfMax, 0.0f},  {-halfMax, halfMax, 0.0f}};
+
+  Vertex triangleVertices[] = {{0.0f, 0.25f * mAspectRatio, 0.0f}, {0.25f, -0.25f * mAspectRatio, 0.0f}, {-0.25f, -0.25f * mAspectRatio, 0.0f}};
 
   const UINT vertexBufferSize = sizeof(triangleVertices);
 
