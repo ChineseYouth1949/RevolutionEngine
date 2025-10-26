@@ -88,6 +88,8 @@ class GraphicsCore : public RObject {
   ComPtr<ID3D12Fence> mFence;
   UINT64 mFenceValue;
 
+  Vector4f mBackgroundColor;
+
   void LoadCoreInterface();
 
   void WaitForPreviousFrame();
@@ -108,11 +110,11 @@ class GraphicsCore : public RObject {
     Vector3f cameraPos;
     float _padding1;
     int32_t screenResolution[2];
-    float _padding2[2];
+
     float gridSize;
     float lineWidth;
     float lineSoftness;
-    float _padding3[64 - 19];
+    float _padding3[64 - 17];
   };
   static_assert((sizeof(InfiniteGridBuffer) % 256) == 0, "Constant Buffer size must be 256-byte aligned");
 

@@ -29,6 +29,8 @@ Result GraphicsCore::Initialize(const GraphicsCoreConfig& config) {
 
   mCamera.LookAt(Vector3f(0, 2, -5), Vector3f(0, 0, 0), Vector3f(0, 1, 0));
 
+  mBackgroundColor = Vector4f(0.24, 0.24, 0.24, 1.0f);
+
   Build();
 
   return lRes;
@@ -103,8 +105,8 @@ void GraphicsCore::Update() {
   {
     memset(&mIGBufferData, 0, sizeof(mIGBufferData));
 
-    mIGBufferData.backgroundColor = Vector4f(0.24, 0.24, 0.24, 1.0);
-    mIGBufferData.gridColor = Vector4f(0.33, 0.33, 0.33, 1.0);
+    mIGBufferData.backgroundColor = mBackgroundColor;
+    mIGBufferData.gridColor = Vector4f(0.63, 0.63, 0.63, 1.0);
     mIGBufferData.cameraPos = mCamera.GetPosition();
     mIGBufferData.screenResolution[0] = mWidth;
     mIGBufferData.screenResolution[1] = mHeight;
@@ -254,11 +256,10 @@ void GraphicsCore::PopulateCommandList() {
   CD3DX12_CPU_DESCRIPTOR_HANDLE rtvHandle(mRtvHeap->GetCPUDescriptorHandleForHeapStart(), mFrameIndex, mRtvDescriptorSize);
   mCommandList->OMSetRenderTargets(1, &rtvHandle, FALSE, nullptr);
 
-  const float clearColor[] = {0.0, 0.2f, 0.4f, 1.0f};
-  mCommandList->ClearRenderTargetView(rtvHandle, clearColor, 0, nullptr);
+  mCommandList->ClearRenderTargetView(rtvHandle, &mBackgroundColor.x, 0, nullptr);
   mCommandList->IASetPrimitiveTopology(D3D_PRIMITIVE_TOPOLOGY_TRIANGLELIST);
   mCommandList->IASetVertexBuffers(0, 1, &mVertexBufferView);
-  mCommandList->DrawInstanced(6, 1, 0, 0);
+  mCommandList->DrawInstanced(9, 1, 0, 0);
 
   auto resouceBarrier2 =
       CD3DX12_RESOURCE_BARRIER::Transition(mRenderTargets[mFrameIndex].Get(), D3D12_RESOURCE_STATE_RENDER_TARGET, D3D12_RESOURCE_STATE_PRESENT);
@@ -389,6 +390,7 @@ void GraphicsCore::CreatePSO() {
   psoDesc.VS = CD3DX12_SHADER_BYTECODE(vertexShader.Get());
   psoDesc.PS = CD3DX12_SHADER_BYTECODE(pixelShader.Get());
   psoDesc.RasterizerState = CD3DX12_RASTERIZER_DESC(D3D12_DEFAULT);
+  psoDesc.RasterizerState.CullMode = D3D12_CULL_MODE_NONE;
   psoDesc.BlendState = CD3DX12_BLEND_DESC(D3D12_DEFAULT);
   psoDesc.DepthStencilState.DepthEnable = FALSE;
   psoDesc.DepthStencilState.StencilEnable = FALSE;
@@ -402,13 +404,23 @@ void GraphicsCore::CreatePSO() {
 void GraphicsCore::CreateVertexBuffer() {
   const float maxFloat = std::numeric_limits<float>::max();
 
-  float halfMax = maxFloat * 0.5f;
+  float halfMax = 1000;
 
   // Vertex triangleVertices[] = {{-halfMax, -halfMax, 0.0f}, {halfMax, -halfMax, 0.0f}, {-halfMax, halfMax, 0.0f},
   //                              {halfMax, -halfMax, 0.0f},  {halfMax, halfMax, 0.0f},  {-halfMax, halfMax, 0.0f}};
 
-  Vertex triangleVertices[] = {{0.0f, 0.25f * mAspectRatio, 0.0f}, {0.25f, -0.25f * mAspectRatio, 0.0f}, {-0.25f, -0.25f * mAspectRatio, 0.0f},
-                               {0.0f, 0.0f, 0.25f * mAspectRatio}, {0.25f, 0.0f, -0.25f * mAspectRatio}, {-0.25f, 0.0f, -0.25f * mAspectRatio}};
+  Vertex triangleVertices[] = {// triangle 1
+                               {0.0f, 0.25f * mAspectRatio, 0.0f},
+                               {0.25f, -0.25f * mAspectRatio, 0.0f},
+                               {-0.25f, -0.25f * mAspectRatio, 0.0f},
+                               // triangle 2
+                               {-halfMax, 0.0f, -halfMax},
+                               {halfMax, 0.0f, -halfMax},
+                               {halfMax, 0.0f, halfMax},
+                               // triangle 3
+                               {-halfMax, 0.0f, -halfMax},
+                               {-halfMax, 0.0f, halfMax},
+                               {halfMax, 0.0f, halfMax}};
 
   const UINT vertexBufferSize = sizeof(triangleVertices);
 
