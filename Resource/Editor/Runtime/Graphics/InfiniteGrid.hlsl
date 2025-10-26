@@ -41,18 +41,26 @@ float4 PSMain(PSInput input) : SV_TARGET {
   // 获取世界坐标
   float3 worldPos = input.worldPos;
   
-  // 网格线计算（与原shader相同的算法）
+  // 精确计算屏幕空间导数（关键改进）
+  float2 dx = ddx(worldPos.xz);
+  float2 dy = ddy(worldPos.xz);
+  float2 pixelSize = max(length(dx), length(dy)) * gridSize;
+  
+  // 网格线计算（与原ShaderToy完全一致）
   float2 gridCoord = worldPos.xz / gridSize;
-  float2 fractional = abs(frac(gridCoord - 0.5) - 0.5);
+  float2 fractional = abs(frac(gridCoord) - 0.5);
   
-  // 使用屏幕空间导数进行抗锯齿
-  float2 pixelSize = fwidth(gridCoord);
-  float2 gridDist = abs(fractional) / pixelSize;
+  // 使用fwidth计算距离，确保与ShaderToy一致
+  float2 fw = fwidth(gridCoord);
+  float2 gridDist = fractional / fw;
   
-  // 计算网格线遮罩
-  float lineMask = 1.0 - smoothstep(lineWidth - lineSoftness, lineWidth + lineSoftness, min(gridDist.x, gridDist.y));
+  // 计算到最近网格线的距离
+  float lineDist = min(gridDist.x, gridDist.y);
   
-  // 计算距离衰减（基于相机到像素的距离）
+  // 使用与原ShaderToy完全相同的抗锯齿算法
+  float lineMask = 1.0 - smoothstep(lineWidth - lineSoftness, lineWidth + lineSoftness, lineDist);
+  
+  // 计算距离衰减（基于相机到像素的世界空间距离）
   float3 viewDir = worldPos - cameraPos;
   float distance = length(viewDir);
   float fade = exp(-0.02 * distance);
