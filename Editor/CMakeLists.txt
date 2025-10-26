@@ -33,10 +33,17 @@ if(CMAKE_BUILD_TYPE STREQUAL "Debug")
     target_compile_definitions(${PROJECT_NAME} PUBLIC _DEBUG)
 endif()
 
+# 确保REngine库是最新的
+add_dependencies(${PROJECT_NAME} REngine)
+
 # 链接REngine库
 target_link_libraries(${PROJECT_NAME} PUBLIC
     REngine
 )
+
+# 强制重新链接当库更新时
+set_target_properties(${PROJECT_NAME} PROPERTIES
+    LINK_DEPENDS $<TARGET_FILE:REngine>)
 
 # 拷贝REngine.dll
 add_custom_command(TARGET ${PROJECT_NAME} POST_BUILD
