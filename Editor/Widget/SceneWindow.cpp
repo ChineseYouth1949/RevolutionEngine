@@ -51,7 +51,7 @@ void SceneWindow::mousePressEvent(QMouseEvent* event) {
   if (event->button() == Qt::MiddleButton) {
     mMouseMidPressStartPos = event->pos();
     mMouseMidPressLastPos = event->pos();
-    setCursor(Qt::ClosedHandCursor);
+    setCursor(Qt::BlankCursor);
   }
 }
 void SceneWindow::mouseReleaseEvent(QMouseEvent* event) {
