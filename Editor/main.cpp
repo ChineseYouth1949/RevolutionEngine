@@ -1,6 +1,6 @@
-#include "REditor.h"
-
 #include <QApplication>
+
+#include "Widget/MainWindow.h"
 
 using namespace RE::Editor;
 
@@ -11,8 +11,8 @@ int main(int argc, char* argv[]) {
   app.setApplicationVersion("1.0");
   app.setOrganizationName("Revolution");
 
-  REditor editor;
-  editor.Initialize();
+  MainWindow window;
+  window.show();
 
   return app.exec();
 }

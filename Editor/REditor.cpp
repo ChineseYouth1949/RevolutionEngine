@@ -10,12 +10,25 @@ namespace RE::Editor {
 const std::wstring REditor::sMainConfigFileName = L"Resource/Config/MainConfig.json";
 std::wstring REditor::sAppRunPath = L"";
 
-REditor::REditor()
-    : mMainWindow(GMemoryAllocator::CreateUniquePtr<MainWindow>()),
+void REditor::BuildInstance(MainWindow* mainWindow) {
+  if (!sInstance) {
+    sInstance = new REditor(mainWindow);
+  }
+}
+
+REditor& REditor::Instance() {
+  REAssert(sInstance);
+  return *sInstance;
+}
+
+REditor::REditor(MainWindow* mainWindow)
+    : mMainWindow(mainWindow),
       mMainConfig(GMemoryAllocator::CreateUniquePtr<Engine::Config>()),
       mGraphicsCore(GMemoryAllocator::Create<Engine::IGraphicsCore>()) {
   sAppRunPath = QApplication::applicationDirPath().toStdWString();
   sAppRunPath += L"/";
+
+  Initialize();
 }
 
 REditor::~REditor() {}
@@ -44,12 +57,6 @@ void REditor::Initialize() {
   });
 
   sRenderTimer->start(16);
-
-  InitUI();
-}
-
-void REditor::InitUI() {
-  mMainWindow->showMaximized();
 }
 
 }  // namespace RE::Editor

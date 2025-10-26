@@ -1,3 +1,4 @@
+#include "REditor.h"
 #include "MainWindow.h"
 
 namespace RE::Editor {
@@ -7,6 +8,8 @@ MainWindow::MainWindow() : QMainWindow() {
 
   resize(800, 600);
   setMinimumSize(QSize(700, 500));
+
+  REditor::BuildInstance(this);
 }
 
 MainWindow::~MainWindow() {}
@@ -58,9 +61,9 @@ void MainWindow::closeEvent(QCloseEvent* event) {}
 void MainWindow::showEvent(QShowEvent* event) {}
 void MainWindow::hideEvent(QHideEvent* event) {}
 
-void MainWindow::paintEvent(QPaintEvent* event) {}
-QPaintEngine* MainWindow::paintEngine() const {
-  return nullptr;
-}
+// void MainWindow::paintEvent(QPaintEvent* event) {}
+// QPaintEngine* MainWindow::paintEngine() const {
+//   return nullptr;
+// }
 
 }  // namespace RE::Editor

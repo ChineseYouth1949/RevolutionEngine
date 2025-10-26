@@ -38,8 +38,8 @@ class MainWindow : public QMainWindow {
   void showEvent(QShowEvent* event) override;
   void hideEvent(QHideEvent* event) override;
 
-  void paintEvent(QPaintEvent* event) override;
-  QPaintEngine* paintEngine() const override;
+  // void paintEvent(QPaintEvent* event) override;
+  // QPaintEngine* paintEngine() const override;
 
  private:
   void initUI();

@@ -8,21 +8,23 @@ class MainWindow;
 
 class REditor {
  public:
-  REditor();
+  static void BuildInstance(MainWindow* mainWindow);
+  static REditor& Instance();
+
+ private:
+  REditor(MainWindow* mainWindow);
   ~REditor();
 
   void Initialize();
 
- private:
-  void InitUI();
-
+  static inline REditor* sInstance = nullptr;
   static std::wstring sAppRunPath;
   static const std::wstring sMainConfigFileName;
 
-  GUniquePtr<MainWindow> mMainWindow;
+  MainWindow* mMainWindow;
   GUniquePtr<Engine::Config> mMainConfig;
-  GUniquePtr<Engine::Scene> mScene;
   GUniquePtr<Engine::IGraphicsCore> mGraphicsCore;
+  GUniquePtr<Engine::Scene> mScene;
 };
 
 }  // namespace RE::Editor
