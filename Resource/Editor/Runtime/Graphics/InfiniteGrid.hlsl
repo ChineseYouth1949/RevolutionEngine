@@ -38,26 +38,27 @@ cbuffer GridConstants : register(b1) {
 };
 
 float4 PSMain(PSInput input) : SV_TARGET {
+  // 获取世界坐标
   float3 worldPos = input.worldPos;
-
-  // 计算网格线
+  
+  // 网格线计算（与原shader相同的算法）
   float2 gridCoord = worldPos.xz / gridSize;
-  float2 gridLines = abs(frac(gridCoord - 0.5) - 0.5);
-
-  // 应用抗锯齿（使用fwidth计算屏幕空间导数）
-  float2 pixelSize = fwidth(gridLines);
-  float gridLine = min(gridLines.x / pixelSize.x, gridLines.y / pixelSize.y);
-
-  // 创建网格遮罩
-  float mask = 1.0 - smoothstep(lineWidth - lineSoftness, lineWidth + lineSoftness, gridLine);
-
-  // 计算基于距离的淡出效果
+  float2 fractional = abs(frac(gridCoord - 0.5) - 0.5);
+  
+  // 使用屏幕空间导数进行抗锯齿
+  float2 pixelSize = fwidth(gridCoord);
+  float2 gridDist = abs(fractional) / pixelSize;
+  
+  // 计算网格线遮罩
+  float lineMask = 1.0 - smoothstep(lineWidth - lineSoftness, lineWidth + lineSoftness, min(gridDist.x, gridDist.y));
+  
+  // 计算距离衰减（基于相机到像素的距离）
   float3 viewDir = worldPos - cameraPos;
   float distance = length(viewDir);
   float fade = exp(-0.02 * distance);
-
+  
   // 混合颜色
-  float3 color = lerp(backgroundColor.rgb, gridColor.rgb, mask * fade);
-
-  return float4(color, 1.0);
+  float3 finalColor = lerp(backgroundColor.rgb, gridColor.rgb, lineMask * fade);
+  
+  return float4(finalColor, 1.0);
 }
