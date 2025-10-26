@@ -30,6 +30,10 @@ class SceneWindow : public QWindow {
   void mouseMoveEvent(QMouseEvent*) override;
 
   void wheelEvent(QWheelEvent*) override;
+
+ private:
+  QPoint mMouseMidPressStartPos;
+  QPoint mMouseMidPressLastPos;
 };
 
 }  // namespace RE::Editor
