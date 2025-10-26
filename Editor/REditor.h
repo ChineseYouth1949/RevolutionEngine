@@ -9,7 +9,9 @@ class MainWindow;
 class REditor {
  public:
   static void BuildInstance(MainWindow* mainWindow);
-  static REditor& Instance();
+  static REditor* Instance();
+
+  Engine::IGraphicsCore* GetGraphicsCore();
 
  private:
   REditor(MainWindow* mainWindow);

@@ -1,4 +1,7 @@
+#include "REditor.h"
+
 #include "SceneWindow.h"
+#include <QKeyEvent>
 
 namespace RE::Editor {
 
@@ -18,7 +21,29 @@ void SceneWindow::hideEvent(QHideEvent*) {}
 void SceneWindow::closeEvent(QCloseEvent*) {}
 
 // bool SceneWindow::event(QEvent*) {}
-void SceneWindow::keyPressEvent(QKeyEvent*) {}
+void SceneWindow::keyPressEvent(QKeyEvent* event) {
+  auto pEditor = REditor::Instance();
+  auto pGC = pEditor->GetGraphicsCore();
+  auto pCamera = pGC->GetCamera();
+
+  switch (event->key()) {
+    case Qt::Key_W:
+      pCamera->Walk(1);
+      break;
+    case Qt::Key_A:
+      pCamera->Strafe(-1);
+      break;
+    case Qt::Key_S:
+      pCamera->Walk(-1);
+      break;
+    case Qt::Key_D:
+      pCamera->Strafe(1);
+      break;
+    default:
+      QWindow::keyPressEvent(event);
+  }
+}
+
 void SceneWindow::keyReleaseEvent(QKeyEvent*) {}
 void SceneWindow::mousePressEvent(QMouseEvent*) {}
 void SceneWindow::mouseReleaseEvent(QMouseEvent*) {}

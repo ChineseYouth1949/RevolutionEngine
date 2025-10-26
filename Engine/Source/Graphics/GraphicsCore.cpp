@@ -88,6 +88,8 @@ void GraphicsCore::Build() {
   LoadPipeline();
 }
 void GraphicsCore::Update() {
+  mCamera.UpdateViewProj();
+
   mConstantBufferData.mView = mCamera.GetViewMatrix();
   mConstantBufferData.mProj = mCamera.GetProjMatrix();
 
@@ -375,8 +377,8 @@ Result GraphicsCore::UnBindScne() {
   return lRes;
 }
 
-Camera& GraphicsCore::GetCamera() {
-  return mCamera;
+Camera* GraphicsCore::GetCamera() {
+  return &mCamera;
 }
 
 }  // namespace RE::Engine

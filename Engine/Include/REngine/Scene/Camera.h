@@ -4,7 +4,7 @@
 
 namespace RE::Engine {
 
-class Camera {
+class RE_DECLSPEC Camera {
  public:
   Camera();
   ~Camera() = default;

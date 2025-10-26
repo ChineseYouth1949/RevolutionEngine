@@ -16,9 +16,9 @@ void REditor::BuildInstance(MainWindow* mainWindow) {
   }
 }
 
-REditor& REditor::Instance() {
+REditor* REditor::Instance() {
   REAssert(sInstance);
-  return *sInstance;
+  return sInstance;
 }
 
 REditor::REditor(MainWindow* mainWindow)
@@ -57,6 +57,10 @@ void REditor::Initialize() {
   });
 
   sRenderTimer->start(16);
+}
+
+Engine::IGraphicsCore* REditor::GetGraphicsCore() {
+  return mGraphicsCore.get();
 }
 
 }  // namespace RE::Editor

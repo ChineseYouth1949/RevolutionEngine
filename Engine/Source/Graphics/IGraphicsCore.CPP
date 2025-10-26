@@ -30,7 +30,7 @@ void IGraphicsCore::Render() {
   mImpl->Render();
 }
 
-Camera& IGraphicsCore::GetCamera() {
+Camera* IGraphicsCore::GetCamera() {
   return mImpl->GetCamera();
 }
 

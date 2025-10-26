@@ -29,7 +29,7 @@ class RE_DECLSPEC IGraphicsCore : public RObject {
   void Update();
   void Render();
 
-  Camera& GetCamera();
+  Camera* GetCamera();
 
   Result BindScene(Scene* pScene);
   Result UnBindScne();

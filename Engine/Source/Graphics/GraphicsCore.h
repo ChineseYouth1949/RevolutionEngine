@@ -42,7 +42,7 @@ class GraphicsCore : public RObject {
   Result BindScene(Scene* pScene);
   Result UnBindScne();
 
-  Camera& GetCamera();
+  Camera* GetCamera();
 
  private:
   static void GetHardwareAdapter(IDXGIFactory1* pFactory, IDXGIAdapter1** ppAdapter, bool requestHighPerformanceAdapter = false);
