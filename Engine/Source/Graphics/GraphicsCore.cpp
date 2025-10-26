@@ -27,6 +27,8 @@ Result GraphicsCore::Initialize(const GraphicsCoreConfig& config) {
   mRtvDescriptorSize = 0;
   mCBVDescriptorSize = 0;
 
+  mCamera.LookAt(Vector3f(0, 2, -5), Vector3f(0, 0, 0), Vector3f(0, 1, 0));
+
   Build();
 
   return lRes;
@@ -256,7 +258,7 @@ void GraphicsCore::PopulateCommandList() {
   mCommandList->ClearRenderTargetView(rtvHandle, clearColor, 0, nullptr);
   mCommandList->IASetPrimitiveTopology(D3D_PRIMITIVE_TOPOLOGY_TRIANGLELIST);
   mCommandList->IASetVertexBuffers(0, 1, &mVertexBufferView);
-  mCommandList->DrawInstanced(3, 1, 0, 0);
+  mCommandList->DrawInstanced(6, 1, 0, 0);
 
   auto resouceBarrier2 =
       CD3DX12_RESOURCE_BARRIER::Transition(mRenderTargets[mFrameIndex].Get(), D3D12_RESOURCE_STATE_RENDER_TARGET, D3D12_RESOURCE_STATE_PRESENT);
@@ -405,7 +407,8 @@ void GraphicsCore::CreateVertexBuffer() {
   // Vertex triangleVertices[] = {{-halfMax, -halfMax, 0.0f}, {halfMax, -halfMax, 0.0f}, {-halfMax, halfMax, 0.0f},
   //                              {halfMax, -halfMax, 0.0f},  {halfMax, halfMax, 0.0f},  {-halfMax, halfMax, 0.0f}};
 
-  Vertex triangleVertices[] = {{0.0f, 0.25f * mAspectRatio, 0.0f}, {0.25f, -0.25f * mAspectRatio, 0.0f}, {-0.25f, -0.25f * mAspectRatio, 0.0f}};
+  Vertex triangleVertices[] = {{0.0f, 0.25f * mAspectRatio, 0.0f}, {0.25f, -0.25f * mAspectRatio, 0.0f}, {-0.25f, -0.25f * mAspectRatio, 0.0f},
+                               {0.0f, 0.0f, 0.25f * mAspectRatio}, {0.25f, 0.0f, -0.25f * mAspectRatio}, {-0.25f, 0.0f, -0.25f * mAspectRatio}};
 
   const UINT vertexBufferSize = sizeof(triangleVertices);
 
