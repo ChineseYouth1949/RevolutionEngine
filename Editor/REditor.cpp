@@ -38,6 +38,7 @@ void REditor::Initialize() {
   // 使用 lambda 表达式连接
   QObject::connect(sRenderTimer, &QTimer::timeout, [this] {
     if (mGraphicsCore) {
+      mGraphicsCore->Update();
       mGraphicsCore->Render();
     }
   });

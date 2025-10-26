@@ -5,6 +5,7 @@
 
 #include "Object/RObject.h"
 #include "Utils/Utils.h"
+
 #include "Scene/Scene.h"
 
 #include "Graphics/Graphics.h"
@@ -41,11 +42,15 @@ class GraphicsCore : public RObject {
   Result BindScene(Scene* pScene);
   Result UnBindScne();
 
+  Camera& GetCamera();
+
  private:
   static void GetHardwareAdapter(IDXGIFactory1* pFactory, IDXGIAdapter1** ppAdapter, bool requestHighPerformanceAdapter = false);
   std::wstring GetResourceFilePath(const std::wstring& fileName) const;
 
  private:
+  Camera mCamera;
+
   HWND mHwnd;
   UINT mWidth;
   UINT mHeight;
@@ -86,14 +91,29 @@ class GraphicsCore : public RObject {
   UINT64 mFenceValue;
 
   void LoadCoreInterface();
-  void LoadPipeline();
 
-  void PopulateCommandList();
   void WaitForPreviousFrame();
 
-  void CreateRootSignature();
   void CreatePSO();
   void CreateVertexBuffer();
+
+  struct SceneConstantBuffer {
+    Matrix4x4 mView;
+    Matrix4x4 mProj;
+    float padding[32];
+  };
+  static_assert((sizeof(SceneConstantBuffer) % 256) == 0, "Constant Buffer size must be 256-byte aligned");
+
+  ComPtr<ID3D12DescriptorHeap> mCbvHeap;
+  ComPtr<ID3D12Resource> mConstantBuffer;
+  SceneConstantBuffer mConstantBufferData;
+  UINT8* mPCbvDataBegin;
+
+  void LoadPipeline();
+  void PopulateCommandList();
+
+  void CreateRootSignature();
+  void CreateConstantBuffer();
 };
 
 }  // namespace RE::Engine

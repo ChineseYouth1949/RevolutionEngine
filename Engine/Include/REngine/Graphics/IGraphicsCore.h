@@ -11,6 +11,7 @@ namespace RE::Engine {
 class Scene;
 class Config;
 class GraphicsCore;
+class Camera;
 
 class RE_DECLSPEC IGraphicsCore : public RObject {
  public:
@@ -25,7 +26,10 @@ class RE_DECLSPEC IGraphicsCore : public RObject {
 
   Result Initialize(const GraphicsCoreConfig& config);
 
+  void Update();
   void Render();
+
+  Camera& GetCamera();
 
   Result BindScene(Scene* pScene);
   Result UnBindScne();

@@ -87,7 +87,12 @@ void GraphicsCore::Build() {
   LoadCoreInterface();
   LoadPipeline();
 }
-void GraphicsCore::Update() {}
+void GraphicsCore::Update() {
+  mConstantBufferData.mView = mCamera.GetViewMatrix();
+  mConstantBufferData.mProj = mCamera.GetProjMatrix();
+
+  memcpy(mPCbvDataBegin, &mConstantBufferData, sizeof(mConstantBufferData));
+}
 void GraphicsCore::Render() {
   PopulateCommandList();
 
@@ -196,6 +201,7 @@ void GraphicsCore::LoadPipeline() {
   CreateRootSignature();
   CreatePSO();
   CreateVertexBuffer();
+  CreateConstantBuffer();
 
   WaitForPreviousFrame();
 }
@@ -206,6 +212,11 @@ void GraphicsCore::PopulateCommandList() {
   REWinResultSuccess(mCommandList->Reset(mCommandAllocator.Get(), mPipelineState.Get()));
 
   mCommandList->SetGraphicsRootSignature(mRootSignature.Get());
+
+  ID3D12DescriptorHeap* ppHeaps[] = {mCbvHeap.Get()};
+  mCommandList->SetDescriptorHeaps(_countof(ppHeaps), ppHeaps);
+  mCommandList->SetGraphicsRootDescriptorTable(0, mCbvHeap->GetGPUDescriptorHandleForHeapStart());
+
   mCommandList->RSSetViewports(1, &mViewport);
   mCommandList->RSSetScissorRects(1, &mScissorRect);
 
@@ -242,14 +253,59 @@ void GraphicsCore::WaitForPreviousFrame() {
 }
 
 void GraphicsCore::CreateRootSignature() {
-  CD3DX12_ROOT_SIGNATURE_DESC rootSignatureDesc;
-  rootSignatureDesc.Init(0, nullptr, 0, nullptr, D3D12_ROOT_SIGNATURE_FLAG_ALLOW_INPUT_ASSEMBLER_INPUT_LAYOUT);
+  D3D12_FEATURE_DATA_ROOT_SIGNATURE featureData = {};
+
+  featureData.HighestVersion = D3D_ROOT_SIGNATURE_VERSION_1_1;
+
+  if (FAILED(mDevice->CheckFeatureSupport(D3D12_FEATURE_ROOT_SIGNATURE, &featureData, sizeof(featureData)))) {
+    featureData.HighestVersion = D3D_ROOT_SIGNATURE_VERSION_1_0;
+  }
+
+  CD3DX12_DESCRIPTOR_RANGE1 ranges[1];
+  CD3DX12_ROOT_PARAMETER1 rootParameters[1];
+
+  ranges[0].Init(D3D12_DESCRIPTOR_RANGE_TYPE_CBV, 1, 0, 0, D3D12_DESCRIPTOR_RANGE_FLAG_DATA_STATIC);
+  rootParameters[0].InitAsDescriptorTable(1, &ranges[0], D3D12_SHADER_VISIBILITY_VERTEX);
+
+  D3D12_ROOT_SIGNATURE_FLAGS rootSignatureFlags =
+      D3D12_ROOT_SIGNATURE_FLAG_ALLOW_INPUT_ASSEMBLER_INPUT_LAYOUT | D3D12_ROOT_SIGNATURE_FLAG_DENY_HULL_SHADER_ROOT_ACCESS |
+      D3D12_ROOT_SIGNATURE_FLAG_DENY_DOMAIN_SHADER_ROOT_ACCESS | D3D12_ROOT_SIGNATURE_FLAG_DENY_GEOMETRY_SHADER_ROOT_ACCESS |
+      D3D12_ROOT_SIGNATURE_FLAG_DENY_PIXEL_SHADER_ROOT_ACCESS;
+
+  CD3DX12_VERSIONED_ROOT_SIGNATURE_DESC rootSignatureDesc;
+  rootSignatureDesc.Init_1_1(_countof(rootParameters), rootParameters, 0, nullptr, rootSignatureFlags);
 
   ComPtr<ID3DBlob> signature;
   ComPtr<ID3DBlob> error;
-  REWinResultSuccess(D3D12SerializeRootSignature(&rootSignatureDesc, D3D_ROOT_SIGNATURE_VERSION_1, &signature, &error));
+  REWinResultSuccess(D3DX12SerializeVersionedRootSignature(&rootSignatureDesc, featureData.HighestVersion, &signature, &error));
   REWinResultSuccess(mDevice->CreateRootSignature(0, signature->GetBufferPointer(), signature->GetBufferSize(), IID_PPV_ARGS(&mRootSignature)));
 }
+
+void GraphicsCore::CreateConstantBuffer() {
+  D3D12_DESCRIPTOR_HEAP_DESC cbvHeapDesc = {};
+  cbvHeapDesc.NumDescriptors = 1;
+  cbvHeapDesc.Flags = D3D12_DESCRIPTOR_HEAP_FLAG_SHADER_VISIBLE;
+  cbvHeapDesc.Type = D3D12_DESCRIPTOR_HEAP_TYPE_CBV_SRV_UAV;
+  REWinResultSuccess(mDevice->CreateDescriptorHeap(&cbvHeapDesc, IID_PPV_ARGS(&mCbvHeap)));
+
+  const UINT constantBufferSize = sizeof(SceneConstantBuffer);
+
+  auto heap_pro = CD3DX12_HEAP_PROPERTIES(D3D12_HEAP_TYPE_UPLOAD);
+  auto buff_desc = CD3DX12_RESOURCE_DESC::Buffer(constantBufferSize);
+
+  REWinResultSuccess(mDevice->CreateCommittedResource(&heap_pro, D3D12_HEAP_FLAG_NONE, &buff_desc, D3D12_RESOURCE_STATE_GENERIC_READ, nullptr,
+                                                      IID_PPV_ARGS(&mConstantBuffer)));
+
+  D3D12_CONSTANT_BUFFER_VIEW_DESC cbvDesc = {};
+  cbvDesc.BufferLocation = mConstantBuffer->GetGPUVirtualAddress();
+  cbvDesc.SizeInBytes = constantBufferSize;
+  mDevice->CreateConstantBufferView(&cbvDesc, mCbvHeap->GetCPUDescriptorHandleForHeapStart());
+
+  CD3DX12_RANGE readRange(0, 0);
+  REWinResultSuccess(mConstantBuffer->Map(0, &readRange, reinterpret_cast<void**>(&mPCbvDataBegin)));
+  memcpy(mPCbvDataBegin, &mConstantBufferData, sizeof(mConstantBufferData));
+}
+
 void GraphicsCore::CreatePSO() {
   ComPtr<ID3DBlob> vertexShader;
   ComPtr<ID3DBlob> pixelShader;
@@ -260,11 +316,11 @@ void GraphicsCore::CreatePSO() {
   UINT compileFlags = 0;
 #endif
 
-  std::wstring vertexShaderPath = GetResourceFilePath(L"Triangle.hlsl");
+  std::wstring vertexShaderPath = GetResourceFilePath(L"TrinagleScene.hlsl");
   std::wcout << "vertexShaderPath : " << vertexShaderPath << std::endl;
   REWinResultSuccess(D3DCompileFromFile(vertexShaderPath.c_str(), nullptr, nullptr, "VSMain", "vs_5_0", compileFlags, 0, &vertexShader, nullptr));
 
-  std::wstring pixelShaderPath = GetResourceFilePath(L"Triangle.hlsl");
+  std::wstring pixelShaderPath = GetResourceFilePath(L"TrinagleScene.hlsl");
   REWinResultSuccess(D3DCompileFromFile(pixelShaderPath.c_str(), nullptr, nullptr, "PSMain", "ps_5_0", compileFlags, 0, &pixelShader, nullptr));
 
   D3D12_INPUT_ELEMENT_DESC inputElementDescs[] = {{"POSITION", 0, DXGI_FORMAT_R32G32B32_FLOAT, 0, 0, D3D12_INPUT_CLASSIFICATION_PER_VERTEX_DATA, 0},
@@ -317,6 +373,10 @@ Result GraphicsCore::BindScene(Scene* pScene) {
 Result GraphicsCore::UnBindScne() {
   Result lRes;
   return lRes;
+}
+
+Camera& GraphicsCore::GetCamera() {
+  return mCamera;
 }
 
 }  // namespace RE::Engine

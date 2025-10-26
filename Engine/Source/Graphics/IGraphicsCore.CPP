@@ -22,8 +22,16 @@ Result IGraphicsCore::Initialize(const GraphicsCoreConfig& config) {
   return lRes;
 }
 
+void IGraphicsCore::Update() {
+  mImpl->Update();
+}
+
 void IGraphicsCore::Render() {
   mImpl->Render();
+}
+
+Camera& IGraphicsCore::GetCamera() {
+  return mImpl->GetCamera();
 }
 
 Result IGraphicsCore::BindScene(Scene* pScene) {
