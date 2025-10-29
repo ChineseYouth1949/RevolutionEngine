@@ -10,7 +10,7 @@
 
 #include "Graphics/Graphics.h"
 
-#include "D3D12.h"
+#include "Graphics/Auxiliary/GpuResouce.h"
 
 #include <vector>
 #include <string>
