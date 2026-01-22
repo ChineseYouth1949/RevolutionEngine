@@ -1,35 +1,36 @@
 {
-    "version": 10,
+    "version": 4,
+    "cmakeMinimumRequired": {
+        "major": 3,
+        "minor": 24,
+        "patch": 0
+    },
     "configurePresets": [
         {
-            "name": "windows-base",
+            "name": "WindowsBase",
             "hidden": true,
             "generator": "Ninja",
             "binaryDir": "${sourceDir}/Build/${presetName}/GenerateCacheFile",
-            "installDir": "${sourceDir}/install/${presetName}",
+            "installDir": "${sourceDir}/Install/${presetName}",
             "cacheVariables": {
                 "CMAKE_C_COMPILER": "cl.exe",
                 "CMAKE_CXX_COMPILER": "cl.exe",
-                "RUNTIME_ARCHIVE_LIBRARY_BASE_DIRECTORY": "${sourceDir}/Build/${presetName}",
                 "CMAKE_JOB_POOLS": "compile=4;link=2",
                 "CMAKE_BUILD_PARALLEL_LEVEL": "4",
-                "VCPKG_ROOT": "$env{VCPKG_ROOT}",
-                "CMAKE_TOOLCHAIN_FILE": "$env{VCPKG_ROOT}/scripts/buildsystems/vcpkg.cmake",
+                "RUNTIME_ARCHIVE_LIBRARY_BASE_DIRECTORY": "${sourceDir}/Build/${presetName}",
+                "VCPKG_ROOT": "$env{RE_VCPKG_ROOT}",
                 "VCPKG_TARGET_TRIPLET": "x64-windows-static-md",
-                "QT_BUILD_ROOT": "$env{QT_BUILD_ROOT}",
-                "QT_VERSION_MAJOR": "6",
-                "RE_SDK_ROOT": "$env{RE_SDK_ROOT}"
-            },
-            "condition": {
-                "type": "equals",
-                "lhs": "${hostSystemName}",
-                "rhs": "Windows"
+                "CMAKE_TOOLCHAIN_FILE": "$env{RE_VCPKG_ROOT}/scripts/buildsystems/vcpkg.cmake",
+                "QT_ROOT": "$env{RE_QT_ROOT}",
+                "QT_VERSION_MAJOR": "5",
+                "SDK_ROOT": "$env{RE_SDK_ROOT}"
+                "DX12_Agility_VERSION": "616"
             }
         },
         {
-            "name": "x64-debug",
-            "displayName": "x64 Debug",
-            "inherits": "windows-base",
+            "name": "Win64-Debug",
+            "displayName": "Win64-Debug",
+            "inherits": "WindowsBase",
             "architecture": {
                 "value": "x64",
                 "strategy": "external"
@@ -39,9 +40,9 @@
             }
         },
         {
-            "name": "x64-release",
-            "displayName": "x64 Release",
-            "inherits": "windows-base",
+            "name": "Win64-Release",
+            "displayName": "Win64-Release",
+            "inherits": "WindowsBase",
             "architecture": {
                 "value": "x64",
                 "strategy": "external"
@@ -49,22 +50,6 @@
             "cacheVariables": {
                 "CMAKE_BUILD_TYPE": "Release"
             }
-        }
-    ],
-    "buildPresets": [
-        {
-            "name": "x64-debug",
-            "displayName": "Build x64 Debug",
-            "configurePreset": "x64-debug",
-            "configuration": "Debug",
-            "jobs": 24
-        },
-        {
-            "name": "x64-release",
-            "displayName": "Build x64 Release",
-            "configurePreset": "x64-release",
-            "configuration": "Release",
-            "jobs": 24
         }
     ]
 }

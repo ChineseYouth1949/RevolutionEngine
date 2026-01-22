@@ -1,16 +1,5 @@
-cmake_minimum_required(VERSION 3.30)
+cmake_minimum_required(VERSION 3.10...3.31)
 
 project(Revolution VERSION 1.0)
 
-set(VCPKG_INSTALL_PATH "${VCPKG_ROOT}/installed/${VCPKG_TARGET_TRIPLET}")
-
-include(Generate/CheckSDKValid.cmake)
-CheckSDKValid()
-
-include(Generate/LinkSDK.cmake)
-include(Generate/LinkQt.cmake)
-include(Generate/OutputSet.cmake)
-
-add_subdirectory(Engine)
-add_subdirectory(Editor)
-add_subdirectory(Test)
+add_subdirectory(Generate)

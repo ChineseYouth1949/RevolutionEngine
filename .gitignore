@@ -5,5 +5,5 @@ CMakePresets.json
 # Build file
 Build/*
 
-# Enternal file
-External/
+# Generate fbs header file
+Engine/FlatBuffers/*

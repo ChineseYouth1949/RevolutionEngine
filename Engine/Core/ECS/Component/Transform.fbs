@@ -1,0 +1,22 @@
+namespace RE.Core.ecs;
+
+struct Vec3 {
+  x:float;
+  y:float;
+  z:float;
+}
+
+struct Quat {
+  x:float;
+  y:float;
+  z:float;
+  w:float;
+}
+
+table Transform {
+  position:Vec3;
+  rotation:Quat;
+  scale:Vec3;
+}
+
+root_type Transform;

@@ -1,8 +1,0 @@
-function(SET_TARGET_OUTPUT_DIRS target_name)
-    set(OUTPUT_BASE_DIR "${RUNTIME_ARCHIVE_LIBRARY_BASE_DIRECTORY}")
-    set_target_properties(${target_name} PROPERTIES
-            RUNTIME_OUTPUT_DIRECTORY "${OUTPUT_BASE_DIR}/${PROJECT_NAME}/Bin"
-            ARCHIVE_OUTPUT_DIRECTORY "${OUTPUT_BASE_DIR}/${PROJECT_NAME}/Lib"
-            LIBRARY_OUTPUT_DIRECTORY "${OUTPUT_BASE_DIR}/${PROJECT_NAME}/Lib"
-    )
-endfunction()
