@@ -14,7 +14,7 @@
       MessageBox(NULL, msg, _T("REAssert"), MB_ICONERROR | MB_OK);                                                                              \
       DebugBreak();                                                                                                                             \
     }                                                                                                                                           \
-  } while (0)
+  } while (0);
 
 #define RE_ASSERT_MSG(expr, message)                                                                                                       \
   do {                                                                                                                                     \
@@ -26,7 +26,7 @@
       MessageBox(NULL, msg, _T("REAssertMsg"), MB_ICONERROR | MB_OK);                                                                      \
       DebugBreak();                                                                                                                        \
     }                                                                                                                                      \
-  } while (0)
+  } while (0);
 
 #define RE_ASSERT_HR(expr)                                                                                                                  \
   do {                                                                                                                                      \
@@ -39,13 +39,30 @@
       MessageBox(NULL, msg, _T("REAssertHR"), MB_ICONERROR | MB_OK);                                                                        \
       DebugBreak();                                                                                                                         \
     }                                                                                                                                       \
+  } while (0);
+
+#define RE_WARNING(expr, message)                                                    \
+  do {                                                                               \
+    if (!(expr)) {                                                                   \
+      TCHAR msg[1024];                                                               \
+      _stprintf_s(msg,                                                               \
+                  _T("Warning!\n\nFile: %s\nLine: %d\nFunction: %s\n\n")             \
+                  _T("Expression: %s\nMessage: %s"),                                 \
+                  _T(__FILE__), __LINE__, _T(__FUNCTION__), _T(#expr), _T(message)); \
+                                                                                     \
+      OutputDebugString(msg);                                                        \
+      OutputDebugString(_T("\n"));                                                   \
+                                                                                     \
+      MessageBox(NULL, msg, _T("RE_Warning"), MB_ICONWARNING | MB_OK);               \
+    }                                                                                \
   } while (0)
 
 #else
 
-#define RE_ASSERT(expr) (void)(expr)
-#define RE_ASSERT_MSG(expr, message) (void)(expr)
-#define RE_ASSERT_HR(expr) (void)(expr)
+#define RE_ASSERT(expr) (void)(expr);
+#define RE_ASSERT_MSG(expr, message) (void)(expr);
+#define RE_ASSERT_HR(expr) (void)(expr);
+#define RE_WARNING(expr, message) (void)(expr);
 
 #endif
 
