@@ -5,7 +5,7 @@
 
 #include <REngine/Core/Memory/Allocator.h>
 
-using namespace re::core::memory;
+using namespace RE::Core::memory;
 
 // The number of benchmark tests within each range
 const size_t TestNumBase = 10;

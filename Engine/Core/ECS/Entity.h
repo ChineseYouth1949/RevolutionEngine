@@ -5,7 +5,7 @@
 #include "WorldBase.h"
 #include "State.h"
 
-namespace re::core::ecs {
+namespace re::engine::ecs {
 class Entity {
  public:
   Entity() {}
@@ -65,4 +65,4 @@ class Entity {
   WorldBase* m_World{nullptr};
   stl::string m_Name;
 };
-}  // namespace re::core::ecs
+}  // namespace re::engine::ecs

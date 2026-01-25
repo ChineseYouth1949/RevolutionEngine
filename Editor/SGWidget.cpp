@@ -1,6 +1,8 @@
 #include "SGWidget.h"
 #include "RenderWindow.h"
 
+#include <QDebug>
+
 namespace re::editor {
 SGWidget::SGWidget(const QString& title, QWidget* parent) : QDockWidget(title, parent) {
   // 1. 创建主容器和 Tab 控件

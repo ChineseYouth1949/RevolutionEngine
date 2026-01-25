@@ -1,6 +1,6 @@
 #pragma once
 
-namespace re::core::memory {
+namespace re::engine::memory {
 
 template <>
 void* Allocator<AllocType::MiMalloc>::Malloc(size_t size) {
@@ -77,4 +77,4 @@ void Allocator<AllocType::MiMalloc>::Free(void* p) {
   mi_free(p);
 }
 
-}  // namespace re::core::memory
+}  // namespace re::engine::memory

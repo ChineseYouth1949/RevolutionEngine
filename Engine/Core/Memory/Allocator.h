@@ -2,7 +2,7 @@
 
 #include "Engine/Core/Base.h"
 
-namespace re::core::memory {
+namespace re::engine::memory {
 
 enum struct AllocType : std::uint8_t { STD, MiMalloc };
 
@@ -100,11 +100,11 @@ class StlAllocator;
 const AllocType GlobalAllocType = AllocType::MiMalloc;
 using GAllocator = Allocator<GlobalAllocType>;
 
-}  // namespace re::core::memory
+}  // namespace re::engine::memory
 
 // Convenient macro
-#define RE_CLASS_ALLOCATOR(Type) using Allocator = re::core::memory::Allocator<re::core::memory::Type>;
-#define RE_NAME_ALLOCATOR(Name, Type) using Name = re::core::memory::Allocator<re::core::memory::Type>;
+#define RE_CLASS_ALLOCATOR(Type) using ClassAllocator = re::engine::memory::Allocator<re::engine::memory::AllocType::Type>;
+#define RE_NAME_ALLOCATOR(Name, Type) using Name = re::engine::memory::Allocator<re::engine::memory::AllocType::Type>;
 
 #include "StlAllocator.inl"
 #include "Mimalloc.inl"

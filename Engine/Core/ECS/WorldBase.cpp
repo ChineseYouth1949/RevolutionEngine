@@ -2,7 +2,7 @@
 
 #include "WorldBase.h"
 
-namespace re::core::ecs {
+namespace re::engine::ecs {
 WorldBase::WorldBase() {}
 WorldBase::~WorldBase() {}
-}  // namespace re::core::ecs
+}  // namespace re::engine::ecs

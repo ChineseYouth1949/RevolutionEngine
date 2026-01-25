@@ -1,7 +1,6 @@
 #pragma once
 
 namespace re::engine::render {
-using namespace core;
 
 class CommandAllocatorPool {
  public:

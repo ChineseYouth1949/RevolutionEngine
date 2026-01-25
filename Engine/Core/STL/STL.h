@@ -43,9 +43,9 @@ RE_FINLE void* operator new[](size_t size, size_t alignment, size_t alignmentOff
 #endif
 
 // use stl::xxx
-namespace re::core::stl {
+namespace re::engine::stl {
 using namespace STL_NAMESPACE;
-}  // namespace re::core::stl
+}  // namespace re::engine::stl
 
 #ifdef RE_USE_EASTL
 // impl new function

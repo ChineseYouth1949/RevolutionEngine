@@ -1,18 +1,13 @@
 #pragma once
 
-#define D3D12_GPU_VIRTUAL_ADDRESS_NULL ((D3D12_GPU_VIRTUAL_ADDRESS)0)
-#define D3D12_GPU_VIRTUAL_ADDRESS_UNKNOWN ((D3D12_GPU_VIRTUAL_ADDRESS) - 1)
-
 namespace re::engine::render {
-using namespace core;
 
 // This is an unbounded resource descriptor allocator.  It is intended to provide space for CPU-visible
 // resource descriptors as resources are created.  For those that need to be made shader-visible, they
 // will need to be copied to a DescriptorHeap or a DynamicDescriptorHeap.
 class DescriptorAllocator {
  public:
-  DescriptorAllocator(ID3D12Device* Device, D3D12_DESCRIPTOR_HEAP_TYPE Type)
-      : m_Device(Device), m_Type(Type), m_CurrentHeap(nullptr), m_DescriptorSize(0) {
+  DescriptorAllocator(D3D12_DESCRIPTOR_HEAP_TYPE Type) : m_Type(Type), m_CurrentHeap(nullptr), m_DescriptorSize(0) {
     m_CurrentHandle.ptr = D3D12_GPU_VIRTUAL_ADDRESS_UNKNOWN;
   }
 
@@ -23,10 +18,9 @@ class DescriptorAllocator {
  protected:
   static const uint32_t sm_NumDescriptorsPerHeap = 256;
   static std::mutex sm_AllocationMutex;
-  static stl::vector<Microsoft::WRL::ComPtr<ID3D12DescriptorHeap>> sm_DescriptorHeapPool;
-  static ID3D12DescriptorHeap* RequestNewHeap(ID3D12Device* Device, D3D12_DESCRIPTOR_HEAP_TYPE Type);
+  static std::vector<Microsoft::WRL::ComPtr<ID3D12DescriptorHeap>> sm_DescriptorHeapPool;
+  static ID3D12DescriptorHeap* RequestNewHeap(D3D12_DESCRIPTOR_HEAP_TYPE Type);
 
-  ID3D12Device* m_Device;
   D3D12_DESCRIPTOR_HEAP_TYPE m_Type;
   ID3D12DescriptorHeap* m_CurrentHeap;
   D3D12_CPU_DESCRIPTOR_HANDLE m_CurrentHandle;
@@ -85,7 +79,7 @@ class DescriptorHeap {
   DescriptorHeap(void) {}
   ~DescriptorHeap(void) { Destroy(); }
 
-  void Create(ID3D12Device* Device, const std::wstring& DebugHeapName, D3D12_DESCRIPTOR_HEAP_TYPE Type, uint32_t MaxCount);
+  void Create(const std::wstring& DebugHeapName, D3D12_DESCRIPTOR_HEAP_TYPE Type, uint32_t MaxCount);
   void Destroy(void) { m_Heap = nullptr; }
 
   bool HasAvailableSpace(uint32_t Count) const { return Count <= m_NumFreeDescriptors; }

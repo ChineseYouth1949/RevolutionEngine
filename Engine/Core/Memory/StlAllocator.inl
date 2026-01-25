@@ -1,6 +1,6 @@
 #pragma once
 
-namespace re::core::memory {
+namespace re::engine::memory {
 
 template <typename T>
 class StlAllocator<AllocType::STD, T> : public std::allocator<T> {
@@ -24,4 +24,4 @@ class StlAllocator<AllocType::MiMalloc, T> : public mi_stl_allocator<T> {
   };
 };
 
-}  // namespace re::core::memory
+}  // namespace re::engine::memory

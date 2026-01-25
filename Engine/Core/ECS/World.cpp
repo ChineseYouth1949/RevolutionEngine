@@ -1,7 +1,7 @@
 #include "World.h"
 
-namespace re::core::ecs {
+namespace re::engine::ecs {
 World::World() : WorldBase() {}
 World::~World() {}
 
-}  // namespace re::core::ecs
+}  // namespace re::engine::ecs

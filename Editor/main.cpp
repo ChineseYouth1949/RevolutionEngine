@@ -59,7 +59,7 @@ int main(int argc, char* argv[]) {
   app.setApplicationVersion("1.0");
   app.setOrganizationName("Revolution");
 
-  re::core::ecs::World world;
+  re::engine::ecs::World world;
   ComPtr<ID3D12Device> outDevice;
   InitD3D12(outDevice);
 

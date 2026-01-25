@@ -2,7 +2,7 @@
 
 #include "Engine/Core/Base.h"
 
-namespace re::core::ecs {
+namespace re::engine::ecs {
 using EntityId = entt::entity;
 
 class RE_API WorldBase {
@@ -26,4 +26,4 @@ class RE_API WorldBase {
   entt::registry m_Reg;
   std::vector<EntityId> m_DestryEntitys;
 };
-}  // namespace re::core::ecs
+}  // namespace re::engine::ecs

@@ -1,6 +1,6 @@
 #pragma once
 
-namespace re::core::ecs {
+namespace re::engine::ecs {
 template <typename T>
 class AddComponent {
   template <typename... Args>
@@ -13,4 +13,4 @@ class ChangeComponent {};
 
 template <typename T>
 class DelComponent {};
-}  // namespace re::core::ecs
+}  // namespace re::engine::ecs
