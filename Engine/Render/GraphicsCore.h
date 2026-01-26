@@ -51,7 +51,7 @@ class RE_API GraphicsCore {
   UINT m_FrameIndex;
   ComPtr<ID3D12DescriptorHeap> m_RtvHeap;
   UINT m_RtvDescriptorSize;
-  stl::vector<ComPtr<ID3D12Resource>> m_RenderTargets;
+  Alloc::vector<ComPtr<ID3D12Resource>> m_RenderTargets;
 
   Alloc::UniquePtr<ContextManager> m_ContextManager{nullptr};
   D3D_FEATURE_LEVEL m_D3DFeatureLevel;
