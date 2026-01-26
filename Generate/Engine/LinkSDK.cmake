@@ -26,8 +26,11 @@ find_package(PkgConfig REQUIRED)
 pkg_check_modules(LUAJIT REQUIRED IMPORTED_TARGET luajit)
 target_link_libraries(${PROJECT_NAME} PUBLIC PkgConfig::LUAJIT)
 
+find_package(winpixevent CONFIG REQUIRED)
+target_link_libraries(${PROJECT_NAME} PUBLIC Microsoft::WinPixEventRuntime)
+
 find_package(directx12-agility CONFIG REQUIRED)
-target_link_libraries(${PROJECT_NAME} PRIVATE Microsoft::DirectX-Headers Microsoft::DirectX-Guids Microsoft::DirectX12-Agility)
+target_link_libraries(${PROJECT_NAME} PUBLIC Microsoft::DirectX-Headers Microsoft::DirectX-Guids Microsoft::DirectX12-Agility)
 
 if(TARGET Microsoft::DirectX12-Agility)
     add_custom_command(TARGET ${PROJECT_NAME} POST_BUILD
