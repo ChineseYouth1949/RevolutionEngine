@@ -1,21 +1,28 @@
+#include "Engine/Render/RHI/GraphicsCore.h"
 #include "RenderSystem.h"
+
+#include "Mesh.h"
 
 using namespace re::engine::render;
 using namespace re::engine::ecs;
+
+struct RenderSystem::Impl {
+  GraphicsCore gc;
+};
 
 RenderSystem::RenderSystem() {}
 RenderSystem::~RenderSystem() {}
 
 bool RenderSystem::Initialize() {
-  m_GC = Alloc::CreateUniquePtr<GraphicsCore>();
+  m_Impl = Alloc::CreateUniquePtr<Impl>();
 
   GCInitInfo info;
-  m_GC->Initialize(info);
+  m_Impl->gc.Initialize(info);
 
   return true;
 }
 bool RenderSystem::Release() {
-  m_GC = nullptr;
+  m_Impl = nullptr;
   return true;
 }
 

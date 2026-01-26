@@ -1,15 +1,20 @@
 #pragma once
 
 #include "Engine/Core/ECS/System.h"
-#include "GraphicsCore.h"
 
 namespace re::engine::render {
 using namespace ecs;
+class GraphicsCore;
 
-class RenderSystem : public System {
+struct ColorVertex {
+  glm::vec3 position;
+  glm::vec4 color;
+};
+
+class RenderColorVertex : public System {
  public:
-  RenderSystem();
-  ~RenderSystem();
+  RenderColorVertex(GraphicsCore* gc);
+  ~RenderColorVertex();
 
   bool Initialize() override;
   bool Release() override;
@@ -22,6 +27,8 @@ class RenderSystem : public System {
   void PostUpdate(const UpdateInfo& info) override;
 
  private:
-  Alloc::UniquePtr<GraphicsCore> m_GC{nullptr};
+  struct Impl;
+  Alloc::UniquePtr<Impl> m_Impl{nullptr};
 };
+
 }  // namespace re::engine::render

@@ -113,6 +113,9 @@ class Allocator {
   template <typename Key, typename Value>
   using map = stl::map<Key, Value, stl::less<Key>, StlAllocator<type, stl::pair<const Key, Value>>>;
 
+  template <typename Key, typename Value>
+  using unordered_map = stl::unordered_map<Key, Value, stl::less<Key>, StlAllocator<type, stl::pair<const Key, Value>>>;
+
   template <typename T>
   using multiset = stl::multiset<T, stl::less<T>, StlAllocator<type, T>>;
 

@@ -12,7 +12,6 @@
 
 #include <memory>
 #include <malloc.h>
-#include <mimalloc.h>
 
 #if defined(_WIN32)
 // Use the C++ standard templated min/max
@@ -40,6 +39,7 @@
 
 #include <dxcapi.h>
 #include <dxgi1_6.h>
+#include <d3dcompiler.h>
 #include "directx/d3d12.h"
 #include "directx/d3dx12.h"
 
@@ -47,3 +47,5 @@
 #endif  // _WIN32
 
 #include <entt/entt.hpp>
+#include <mimalloc.h>
+#include <glm/glm.hpp>

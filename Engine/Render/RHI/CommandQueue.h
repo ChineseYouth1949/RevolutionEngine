@@ -29,11 +29,11 @@ class CommandQueue : public GraphicsObject {
 
   uint64_t GetNextFenceValue() { return m_NextFenceValue; }
 
- private:
   uint64_t ExecuteCommandList(ID3D12CommandList* List);
   ID3D12CommandAllocator* RequestAllocator(void);
   void DiscardAllocator(uint64_t FenceValueForReset, ID3D12CommandAllocator* Allocator);
 
+ private:
   ID3D12CommandQueue* m_CommandQueue;
 
   const D3D12_COMMAND_LIST_TYPE m_Type;

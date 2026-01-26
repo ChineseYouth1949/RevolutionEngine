@@ -351,4 +351,58 @@ void GraphicsCore::Release() {
   }
 }
 
+Alloc::wstring GraphicsCore::GetAssetFullPath(const Alloc::wstring& assetName) {
+  return m_AssetsPath + assetName;
+}
+
+void GraphicsCore::Begin() {
+  if (m_CommandList == nullptr) {
+    m_CommandListManager->CreateNewCommandList(D3D12_COMMAND_LIST_TYPE_DIRECT, &m_CommandList, &m_CommandAllocator);
+    for (size_t i = 0; i < 10; i++) {
+      m_FrameFenceValues[i] = 0;
+    }
+  }
+
+  RE_ASSERT_SUCCEEDED(m_CommandList->Reset(m_CommandAllocator, nullptr));
+
+  m_CommandList->RSSetViewports(1, &m_Viewport);
+  m_CommandList->RSSetScissorRects(1, &m_ScissorRect);
+
+  // Indicate that the back buffer will be used as a render target.
+  auto transition =
+      CD3DX12_RESOURCE_BARRIER::Transition(m_RenderTargets[m_FrameIndex].Get(), D3D12_RESOURCE_STATE_PRESENT, D3D12_RESOURCE_STATE_RENDER_TARGET);
+  m_CommandList->ResourceBarrier(1, &transition);
+
+  CD3DX12_CPU_DESCRIPTOR_HANDLE rtvHandle(m_RtvHeap->GetCPUDescriptorHandleForHeapStart(), m_FrameIndex, m_RtvDescriptorSize);
+  m_CommandList->OMSetRenderTargets(1, &rtvHandle, FALSE, nullptr);
+
+  const float clearColor[] = {0.0f, 0.2f, 0.4f, 1.0f};
+  m_CommandList->ClearRenderTargetView(rtvHandle, clearColor, 0, nullptr);
+}
+void GraphicsCore::End() {
+  // 1. 状态切换回 Present
+  auto transition =
+      CD3DX12_RESOURCE_BARRIER::Transition(m_RenderTargets[m_FrameIndex].Get(), D3D12_RESOURCE_STATE_RENDER_TARGET, D3D12_RESOURCE_STATE_PRESENT);
+  m_CommandList->ResourceBarrier(1, &transition);
+
+  // 2. 关闭并提交
+  RE_ASSERT_SUCCEEDED(m_CommandList->Close());
+  // 执行并返回当前任务的 Fence Value
+  uint64_t currentFenceValue = m_CommandListManager->GetGraphicsQueue().ExecuteCommandList(m_CommandList);
+
+  // 3. 呈现
+  RE_ASSERT_SUCCEEDED(m_SwapChain->Present(1, 0));
+
+  // 4. 更新帧索引（准备下一帧）
+  m_FrameIndex = m_SwapChain->GetCurrentBackBufferIndex();
+
+  // 5. 【核心改进】等待下一帧所需的资源释放，而不是等待当前帧完成
+  // 假设你有一个数组存储了每一帧最后提交的 FenceValue
+  m_CommandListManager->WaitForFence(m_FrameFenceValues[m_FrameIndex]);
+  m_FrameFenceValues[m_FrameIndex] = currentFenceValue;
+
+  // 6. 重置状态，以便 Begin 获取
+  m_CommandList = nullptr;
+}
+
 }  // namespace re::engine::render

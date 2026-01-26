@@ -33,4 +33,52 @@ class System {
   WorldBase* m_World = nullptr;
 };
 
+class SystemGroup : public System {
+ public:
+  SystemGroup() = default;
+  ~SystemGroup() { Release(); }
+
+  bool Initialize() override {
+    for (auto sys : m_ChildSystem) {
+      sys->Initialize();
+    }
+  }
+  bool Release() override {
+    for (auto sys : m_ChildSystem) {
+      sys->Release();
+    }
+    m_ChildSystem.clear();
+  }
+
+  void OnEnable() {
+    for (auto sys : m_ChildSystem) {
+      sys->OnEnable();
+    }
+  }
+  void OnDisable() {
+    for (auto sys : m_ChildSystem) {
+      sys->OnDisable();
+    }
+  }
+
+  void PreUpdate(const UpdateInfo& info) {
+    for (auto sys : m_ChildSystem) {
+      sys->PreUpdate(info);
+    }
+  }
+  void Update(const UpdateInfo& info) {
+    for (auto sys : m_ChildSystem) {
+      sys->Update(info);
+    }
+  }
+  void PostUpdate(const UpdateInfo& info) {
+    for (auto sys : m_ChildSystem) {
+      sys->PostUpdate(info);
+    }
+  }
+
+ protected:
+  Alloc::vector<System*> m_ChildSystem;
+};
+
 }  // namespace re::engine::ecs
