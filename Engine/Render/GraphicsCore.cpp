@@ -1,5 +1,5 @@
+#include "GraphicsCore.h"
 #include "CommandListManager.h"
-#include "GraphicsCoreBase.h"
 
 namespace re::engine::render {
 using namespace Microsoft::WRL;
@@ -27,29 +27,29 @@ uint32_t GetVendorIdFromDevice(ID3D12Device* pDevice) {
 
   // Obtain the DXGI factory
   Microsoft::WRL::ComPtr<IDXGIFactory4> dxgiFactory;
-  RE_ASSERT_HR(CreateDXGIFactory2(0, IID_PPV_ARGS(&dxgiFactory)));
+  RE_ASSERT_SUCCEEDED(CreateDXGIFactory2(0, IID_PPV_ARGS(&dxgiFactory)));
 
   Microsoft::WRL::ComPtr<IDXGIAdapter1> pAdapter;
 
-  RE_ASSERT_HR(dxgiFactory->EnumAdapterByLuid(luid, IID_PPV_ARGS(&pAdapter)));
+  RE_ASSERT_SUCCEEDED(dxgiFactory->EnumAdapterByLuid(luid, IID_PPV_ARGS(&pAdapter)));
   DXGI_ADAPTER_DESC1 desc;
-  RE_ASSERT_HR(pAdapter->GetDesc1(&desc));
+  RE_ASSERT_SUCCEEDED(pAdapter->GetDesc1(&desc));
 
   return desc.VendorId;
 }
 
-bool GraphicsCoreBase::IsDeviceNvidia() {
+bool GraphicsCore::IsDeviceNvidia() {
   return GetVendorIdFromDevice(m_Device.Get()) == vendorID_Nvidia;
 }
-bool GraphicsCoreBase::IsDeviceAMD() {
+bool GraphicsCore::IsDeviceAMD() {
   return GetVendorIdFromDevice(m_Device.Get()) == vendorID_AMD;
 }
-bool GraphicsCoreBase::IsDeviceIntel() {
+bool GraphicsCore::IsDeviceIntel() {
   return GetVendorIdFromDevice(m_Device.Get()) == vendorID_Intel;
 }
 
-GraphicsCoreBase::GraphicsCoreBase() {}
-GraphicsCoreBase::~GraphicsCoreBase() {
+GraphicsCore::GraphicsCore() {}
+GraphicsCore::~GraphicsCore() {
   Release();
 }
 
@@ -62,7 +62,7 @@ bool IsDirectXRaytracingSupported(ID3D12Device* testDevice) {
   return featureSupport.RaytracingTier != D3D12_RAYTRACING_TIER_NOT_SUPPORTED;
 }
 
-void GraphicsCoreBase::Initialize(InitInfo info) {
+void GraphicsCore::Initialize(GCInitInfo info) {
   Microsoft::WRL::ComPtr<ID3D12Device> pDevice;
 
   DWORD dxgiFactoryFlags = 0;
@@ -79,7 +79,7 @@ void GraphicsCoreBase::Initialize(InitInfo info) {
         }
       }
     } else {
-      RE_ASSERT_MSG(0, "WARNING:  Unable to enable D3D12 debug validation layer\n")
+      RE_WARN_ONCE_IF(0, "WARNING:  Unable to enable D3D12 debug validation layer\n")
     }
 
     if (info.enableDXGIDebugInfo) {
@@ -104,7 +104,7 @@ void GraphicsCoreBase::Initialize(InitInfo info) {
 
   // Obtain the DXGI factory
   Microsoft::WRL::ComPtr<IDXGIFactory6> dxgiFactory;
-  RE_ASSERT_HR(CreateDXGIFactory2(dxgiFactoryFlags, IID_PPV_ARGS(&dxgiFactory)));
+  RE_ASSERT_SUCCEEDED(CreateDXGIFactory2(dxgiFactoryFlags, IID_PPV_ARGS(&dxgiFactory)));
 
   // Create the D3D graphics device
   Microsoft::WRL::ComPtr<IDXGIAdapter1> pAdapter;
@@ -145,16 +145,16 @@ void GraphicsCoreBase::Initialize(InitInfo info) {
       m_Device = pDevice.Detach();
     }
   } else {
-    RE_ASSERT_HR(dxgiFactory->EnumWarpAdapter(IID_PPV_ARGS(&pAdapter)));
-    RE_ASSERT_HR(D3D12CreateDevice(pAdapter.Get(), info.d3DFeatureLevel, IID_PPV_ARGS(&m_Device)));
+    RE_ASSERT_SUCCEEDED(dxgiFactory->EnumWarpAdapter(IID_PPV_ARGS(&pAdapter)));
+    RE_ASSERT_SUCCEEDED(D3D12CreateDevice(pAdapter.Get(), info.d3DFeatureLevel, IID_PPV_ARGS(&m_Device)));
   }
 
   if (info.requireDXRSupport && !IsDirectXRaytracingSupported(m_Device.Get())) {
-    RE_ASSERT_MSG(0, "Unable to find a DXR-capable device. Halting.\n");
+    RE_ASSERT(0, "Unable to find a DXR-capable device. Halting.\n");
   }
 
   if (m_Device == nullptr) {
-    RE_ASSERT_MSG(0, "Create device error\n");
+    RE_ASSERT(0, "Create device error\n");
   } else if (info.setStablePowerState) {
     bool DeveloperModeEnabled = false;
 
@@ -169,7 +169,7 @@ void GraphicsCoreBase::Initialize(InitInfo info) {
       RegCloseKey(hKey);
     }
 
-    RE_WARNING(DeveloperModeEnabled, "Enable Developer Mode on Windows 10 to get consistent profiling results");
+    RE_WARN_ONCE_IF_NOT(DeveloperModeEnabled, "Enable Developer Mode on Windows 10 to get consistent profiling results")
 
     // Prevent the GPU from overclocking or underclocking to get consistent timings
     if (DeveloperModeEnabled) {
@@ -263,7 +263,10 @@ void GraphicsCoreBase::Initialize(InitInfo info) {
   //   GraphRenderer::Initialize();
   //   ParticleEffectManager::Initialize(3840, 2160);
 }
-void GraphicsCoreBase::Release() {
+void GraphicsCore::Release() {
+  // m_CommandListManager->IdleGPU();
+  // m_ContextManager->Shutdown();
+
   //   g_CommandManager.IdleGPU();
 
   //   CommandContext::DestroyAllContexts();

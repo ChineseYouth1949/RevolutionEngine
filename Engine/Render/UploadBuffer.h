@@ -1,14 +1,15 @@
 #pragma once
 
+#include "GraphicsObject.h"
 #include "GpuResource.h"
 
 namespace re::engine::render {
 
 class UploadBuffer : public GpuResource {
  public:
-  virtual ~UploadBuffer() { Destroy(); }
+  virtual ~UploadBuffer() { Release(); }
 
-  void Create(ID3D12Device* pDevice, const std::wstring& name, size_t BufferSize);
+  void Initialize(const std::wstring& name, size_t BufferSize);
 
   void* Map(void);
   void Unmap(size_t begin = 0, size_t end = -1);

@@ -1,10 +1,10 @@
 #pragma once
 
-#include "Macros.h"
+#include "GraphicsObject.h"
 
 namespace re::engine::render {
 
-class GpuResource {
+class GpuResource : public GraphicsObject {
   friend class CommandContext;
   friend class GraphicsContext;
   friend class ComputeContext;
@@ -21,9 +21,9 @@ class GpuResource {
         m_UsageState(CurrentState),
         m_TransitioningState((D3D12_RESOURCE_STATES)-1) {}
 
-  ~GpuResource() { Destroy(); }
+  ~GpuResource() { Release(); }
 
-  virtual void Destroy() {
+  virtual void Release() {
     m_pResource = nullptr;
     m_GpuVirtualAddress = D3D12_GPU_VIRTUAL_ADDRESS_NULL;
     ++m_VersionID;

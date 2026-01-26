@@ -10,7 +10,8 @@ class RenderWindow : public QWindow {
   explicit RenderWindow(QWindow* parent);
   ~RenderWindow();
 
-  void Render();
+  void Initialize();
+  void Release();
 
  protected:
   // void exposeEvent(QExposeEvent*) override;

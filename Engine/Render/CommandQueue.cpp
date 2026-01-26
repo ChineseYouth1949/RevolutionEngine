@@ -1,3 +1,4 @@
+#include "GraphicsCore.h"
 #include "CommandQueue.h"
 
 namespace re::engine::render {
@@ -11,14 +12,14 @@ CommandQueue::CommandQueue(D3D12_COMMAND_LIST_TYPE Type)
       m_AllocatorPool(Type) {}
 
 CommandQueue::~CommandQueue() {
-  Shutdown();
+  Release();
 }
 
-void CommandQueue::Shutdown() {
+void CommandQueue::Release() {
   if (m_CommandQueue == nullptr)
     return;
 
-  m_AllocatorPool.Shutdown();
+  m_AllocatorPool.Release();
 
   CloseHandle(m_FenceEventHandle);
 
@@ -29,25 +30,22 @@ void CommandQueue::Shutdown() {
   m_CommandQueue = nullptr;
 }
 
-void CommandQueue::Create(ID3D12Device* pDevice) {
-  RE_ASSERT(pDevice != nullptr);
+void CommandQueue::Initialize() {
   RE_ASSERT(!IsReady());
   RE_ASSERT(m_AllocatorPool.Size() == 0);
 
   D3D12_COMMAND_QUEUE_DESC QueueDesc = {};
   QueueDesc.Type = m_Type;
   QueueDesc.NodeMask = 1;
-  pDevice->CreateCommandQueue(&QueueDesc, IID_PPV_ARGS(&m_CommandQueue));
+  RE_GCDevice->CreateCommandQueue(&QueueDesc, IID_PPV_ARGS(&m_CommandQueue));
   m_CommandQueue->SetName(L"CommandListManager::m_CommandQueue");
 
-  RE_ASSERT_HR(pDevice->CreateFence(0, D3D12_FENCE_FLAG_NONE, IID_PPV_ARGS(&m_pFence)));
+  RE_ASSERT_SUCCEEDED(RE_GCDevice->CreateFence(0, D3D12_FENCE_FLAG_NONE, IID_PPV_ARGS(&m_pFence)));
   m_pFence->SetName(L"CommandListManager::m_pFence");
   m_pFence->Signal((uint64_t)m_Type << 56);
 
   m_FenceEventHandle = CreateEvent(nullptr, false, false, nullptr);
   RE_ASSERT(m_FenceEventHandle != NULL);
-
-  m_AllocatorPool.Create(pDevice);
 
   RE_ASSERT(IsReady());
 }
@@ -55,7 +53,7 @@ void CommandQueue::Create(ID3D12Device* pDevice) {
 uint64_t CommandQueue::ExecuteCommandList(ID3D12CommandList* List) {
   std::lock_guard<std::mutex> LockGuard(m_FenceMutex);
 
-  RE_ASSERT_HR(((ID3D12GraphicsCommandList*)List)->Close());
+  RE_ASSERT_SUCCEEDED(((ID3D12GraphicsCommandList*)List)->Close());
 
   // Kickoff the command list
   m_CommandQueue->ExecuteCommandLists(1, &List);

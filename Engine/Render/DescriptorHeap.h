@@ -1,11 +1,13 @@
 #pragma once
 
+#include "GraphicsObject.h"
+
 namespace re::engine::render {
 
 // This is an unbounded resource descriptor allocator.  It is intended to provide space for CPU-visible
 // resource descriptors as resources are created.  For those that need to be made shader-visible, they
 // will need to be copied to a DescriptorHeap or a DynamicDescriptorHeap.
-class DescriptorAllocator {
+class DescriptorAllocator : public GraphicsObject {
  public:
   DescriptorAllocator(D3D12_DESCRIPTOR_HEAP_TYPE Type) : m_Type(Type), m_CurrentHeap(nullptr), m_DescriptorSize(0) {
     m_CurrentHandle.ptr = D3D12_GPU_VIRTUAL_ADDRESS_UNKNOWN;
@@ -19,7 +21,7 @@ class DescriptorAllocator {
   static const uint32_t sm_NumDescriptorsPerHeap = 256;
   static std::mutex sm_AllocationMutex;
   static std::vector<Microsoft::WRL::ComPtr<ID3D12DescriptorHeap>> sm_DescriptorHeapPool;
-  static ID3D12DescriptorHeap* RequestNewHeap(D3D12_DESCRIPTOR_HEAP_TYPE Type);
+  static ID3D12DescriptorHeap* RequestNewHeap(ID3D12Device* device, D3D12_DESCRIPTOR_HEAP_TYPE Type);
 
   D3D12_DESCRIPTOR_HEAP_TYPE m_Type;
   ID3D12DescriptorHeap* m_CurrentHeap;
@@ -74,13 +76,13 @@ class DescriptorHandle {
   D3D12_GPU_DESCRIPTOR_HANDLE m_GpuHandle;
 };
 
-class DescriptorHeap {
+class DescriptorHeap : public GraphicsObject {
  public:
   DescriptorHeap(void) {}
-  ~DescriptorHeap(void) { Destroy(); }
+  ~DescriptorHeap(void) { Release(); }
 
-  void Create(const std::wstring& DebugHeapName, D3D12_DESCRIPTOR_HEAP_TYPE Type, uint32_t MaxCount);
-  void Destroy(void) { m_Heap = nullptr; }
+  void Initialize(const std::wstring& DebugHeapName, D3D12_DESCRIPTOR_HEAP_TYPE Type, uint32_t MaxCount);
+  void Release(void) { m_Heap = nullptr; }
 
   bool HasAvailableSpace(uint32_t Count) const { return Count <= m_NumFreeDescriptors; }
   DescriptorHandle Alloc(uint32_t Count = 1);

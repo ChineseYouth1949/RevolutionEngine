@@ -1,9 +1,12 @@
 #pragma once
 
+#include "Engine/Core/Core.h"
+#include "GraphicsObject.h"
+
 namespace re::engine::render {
 class RootSignature;
 
-class PSO {
+class PSO : public GraphicsObject {
  public:
   PSO(const wchar_t* Name) : m_Name(Name), m_RootSignature(nullptr), m_PSO(nullptr) {}
 
@@ -58,11 +61,11 @@ class GraphicsPSO : public PSO {
   void SetDomainShader(const D3D12_SHADER_BYTECODE& Binary) { m_PSODesc.DS = Binary; }
 
   // Perform validation and compute a hash value for fast state block comparisons
-  void Finalize(ID3D12Device* pDevice);
+  void Finalize();
 
  private:
   D3D12_GRAPHICS_PIPELINE_STATE_DESC m_PSODesc;
-  stl::shared_ptr<const D3D12_INPUT_ELEMENT_DESC> m_InputLayouts;
+  Alloc::SharedPtr<const D3D12_INPUT_ELEMENT_DESC> m_InputLayouts;
 };
 
 class ComputePSO : public PSO {
@@ -74,7 +77,7 @@ class ComputePSO : public PSO {
   void SetComputeShader(const void* Binary, size_t Size) { m_PSODesc.CS = CD3DX12_SHADER_BYTECODE(const_cast<void*>(Binary), Size); }
   void SetComputeShader(const D3D12_SHADER_BYTECODE& Binary) { m_PSODesc.CS = Binary; }
 
-  void Finalize(ID3D12Device* pDevice);
+  void Finalize();
 
  private:
   D3D12_COMPUTE_PIPELINE_STATE_DESC m_PSODesc;

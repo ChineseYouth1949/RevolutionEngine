@@ -1,10 +1,11 @@
 #pragma once
 
+#include "GraphicsObject.h"
 #include "CommandAllocatorPool.h"
 
 namespace re::engine::render {
 
-class CommandQueue {
+class CommandQueue : public GraphicsObject {
   friend class CommandListManager;
   friend class CommandContext;
 
@@ -12,8 +13,8 @@ class CommandQueue {
   CommandQueue(D3D12_COMMAND_LIST_TYPE Type);
   ~CommandQueue();
 
-  void Create(ID3D12Device* pDevice);
-  void Shutdown();
+  void Initialize();
+  void Release();
 
   RE_FINLE bool IsReady() { return m_CommandQueue != nullptr; }
 

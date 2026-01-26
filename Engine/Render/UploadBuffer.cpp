@@ -1,9 +1,10 @@
+#include "GraphicsCore.h"
 #include "UploadBuffer.h"
 
 using namespace re::engine::render;
 
-void UploadBuffer::Create(ID3D12Device* pDevice, const std::wstring& name, size_t BufferSize) {
-  Destroy();
+void UploadBuffer::Initialize(const std::wstring& name, size_t BufferSize) {
+  Release();
 
   m_BufferSize = BufferSize;
 
@@ -29,16 +30,12 @@ void UploadBuffer::Create(ID3D12Device* pDevice, const std::wstring& name, size_
   ResourceDesc.Layout = D3D12_TEXTURE_LAYOUT_ROW_MAJOR;
   ResourceDesc.Flags = D3D12_RESOURCE_FLAG_NONE;
 
-  RE_ASSERT_HR(pDevice->CreateCommittedResource(&HeapProps, D3D12_HEAP_FLAG_NONE, &ResourceDesc, D3D12_RESOURCE_STATE_GENERIC_READ, nullptr,
-                                                IID_PPV_ARGS(&m_pResource)));
+  RE_ASSERT_SUCCEEDED(RE_GCDevice->CreateCommittedResource(&HeapProps, D3D12_HEAP_FLAG_NONE, &ResourceDesc, D3D12_RESOURCE_STATE_GENERIC_READ,
+                                                           nullptr, IID_PPV_ARGS(&m_pResource)));
 
   m_GpuVirtualAddress = m_pResource->GetGPUVirtualAddress();
 
-#ifdef RELEASE
-  (name);
-#else
-  m_pResource->SetName(name.c_str());
-#endif
+  RE_D3D12_SetName(m_pResource, name.c_str());
 }
 
 void* UploadBuffer::Map(void) {

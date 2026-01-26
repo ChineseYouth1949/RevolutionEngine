@@ -1,14 +1,15 @@
 #pragma once
 
+#include "GraphicsObject.h"
+
 namespace re::engine::render {
 
-class CommandAllocatorPool {
+class CommandAllocatorPool : public GraphicsObject {
  public:
   CommandAllocatorPool(D3D12_COMMAND_LIST_TYPE Type);
   ~CommandAllocatorPool();
 
-  void Create(ID3D12Device* pDevice);
-  void Shutdown();
+  void Release();
 
   ID3D12CommandAllocator* RequestAllocator(uint64_t CompletedFenceValue);
   void DiscardAllocator(uint64_t FenceValue, ID3D12CommandAllocator* Allocator);
@@ -18,9 +19,8 @@ class CommandAllocatorPool {
  private:
   const D3D12_COMMAND_LIST_TYPE m_cCommandListType;
 
-  ID3D12Device* m_Device;
-  stl::vector<ID3D12CommandAllocator*> m_AllocatorPool;
-  stl::queue<stl::pair<uint64_t, ID3D12CommandAllocator*>> m_ReadyAllocators;
+  Alloc::vector<ID3D12CommandAllocator*> m_AllocatorPool;
+  Alloc::queue<stl::pair<uint64_t, ID3D12CommandAllocator*>> m_ReadyAllocators;
   std::mutex m_AllocatorMutex;
 };
 }  // namespace re::engine::render

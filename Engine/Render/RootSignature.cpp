@@ -1,3 +1,4 @@
+#include "GraphicsCore.h"
 #include "RootSignature.h"
 #include "Hash.h"
 
@@ -32,7 +33,7 @@ void RootSignature::InitStaticSampler(UINT Register, const D3D12_SAMPLER_DESC& N
 
   if (StaticSamplerDesc.AddressU == D3D12_TEXTURE_ADDRESS_MODE_BORDER || StaticSamplerDesc.AddressV == D3D12_TEXTURE_ADDRESS_MODE_BORDER ||
       StaticSamplerDesc.AddressW == D3D12_TEXTURE_ADDRESS_MODE_BORDER) {
-    RE_ASSERT_MSG(
+    RE_ASSERT_SUCCEEDED(
         // Transparent Black
         NonStaticSamplerDesc.BorderColor[0] == 0.0f && NonStaticSamplerDesc.BorderColor[1] == 0.0f && NonStaticSamplerDesc.BorderColor[2] == 0.0f &&
                 NonStaticSamplerDesc.BorderColor[3] == 0.0f ||
@@ -54,13 +55,11 @@ void RootSignature::InitStaticSampler(UINT Register, const D3D12_SAMPLER_DESC& N
   }
 }
 
-void RootSignature::Finalize(ID3D12Device* pDevice, const stl::wstring& name, D3D12_ROOT_SIGNATURE_FLAGS Flags) {
+void RootSignature::Finalize(const stl::wstring& name, D3D12_ROOT_SIGNATURE_FLAGS Flags) {
   if (m_Finalized)
     return;
 
-  RE_ASSERT(pDevice != nullptr);
-  m_Device = pDevice;
-
+  RE_ASSERT(RE_GCDevice != nullptr);
   RE_ASSERT(m_NumInitializedStaticSamplers == m_NumSamplers);
 
   D3D12_ROOT_SIGNATURE_DESC RootDesc;
@@ -115,11 +114,11 @@ void RootSignature::Finalize(ID3D12Device* pDevice, const stl::wstring& name, D3
   if (firstCompile) {
     ComPtr<ID3DBlob> pOutBlob, pErrorBlob;
 
-    RE_ASSERT_HR(D3D12SerializeRootSignature(&RootDesc, D3D_ROOT_SIGNATURE_VERSION_1, pOutBlob.GetAddressOf(), pErrorBlob.GetAddressOf()));
+    RE_ASSERT_SUCCEEDED(D3D12SerializeRootSignature(&RootDesc, D3D_ROOT_SIGNATURE_VERSION_1, pOutBlob.GetAddressOf(), pErrorBlob.GetAddressOf()));
 
-    RE_ASSERT_HR(m_Device->CreateRootSignature(1, pOutBlob->GetBufferPointer(), pOutBlob->GetBufferSize(), IID_PPV_ARGS(&m_Signature)));
+    RE_ASSERT_SUCCEEDED(RE_GCDevice->CreateRootSignature(1, pOutBlob->GetBufferPointer(), pOutBlob->GetBufferSize(), IID_PPV_ARGS(&m_Signature)));
 
-    m_Signature->SetName(name.c_str());
+    RE_D3D12_SetName(m_Signature, name.c_str());
 
     s_RootSignatureHashMap[HashCode].Attach(m_Signature);
     RE_ASSERT(*RSRef == m_Signature);

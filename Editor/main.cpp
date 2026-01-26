@@ -1,6 +1,6 @@
 #include <QApplication>
 
-#include <Engine/Core/ECS/World.h>
+#include <Engine/Core/Core.h>
 
 #include "mainwindow.h"
 
@@ -24,7 +24,7 @@ void InitD3D12(ComPtr<ID3D12Device>& outDevice) {
 
   // 2. 创建 DXGI Factory
   ComPtr<IDXGIFactory6> factory;
-  RE_ASSERT_HR(CreateDXGIFactory2(dxgiFactoryFlags, IID_PPV_ARGS(&factory)));
+  RE_ASSERT_SUCCEEDED(CreateDXGIFactory2(dxgiFactoryFlags, IID_PPV_ARGS(&factory)));
 
   // 3. 枚举高性能 GPU 适配器 (Adapter)
   ComPtr<IDXGIAdapter1> adapter;
@@ -49,7 +49,7 @@ void InitD3D12(ComPtr<ID3D12Device>& outDevice) {
     }
   }
 
-  RE_ASSERT_MSG(outDevice != nullptr, "Failed to create D3D12 Device!");
+  RE_ASSERT(outDevice != nullptr, "Failed to create D3D12 Device!");
 }
 
 int main(int argc, char* argv[]) {

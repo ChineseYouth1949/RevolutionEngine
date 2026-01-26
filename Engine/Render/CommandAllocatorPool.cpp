@@ -1,18 +1,15 @@
+#include "GraphicsCore.h"
 #include "CommandAllocatorPool.h"
 
 namespace re::engine::render {
 
-CommandAllocatorPool::CommandAllocatorPool(D3D12_COMMAND_LIST_TYPE Type) : m_cCommandListType(Type), m_Device(nullptr) {}
+CommandAllocatorPool::CommandAllocatorPool(D3D12_COMMAND_LIST_TYPE Type) : m_cCommandListType(Type) {}
 
 CommandAllocatorPool::~CommandAllocatorPool() {
-  Shutdown();
+  Release();
 }
 
-void CommandAllocatorPool::Create(ID3D12Device* pDevice) {
-  m_Device = pDevice;
-}
-
-void CommandAllocatorPool::Shutdown() {
+void CommandAllocatorPool::Release() {
   for (size_t i = 0; i < m_AllocatorPool.size(); ++i)
     m_AllocatorPool[i]->Release();
 
@@ -29,14 +26,14 @@ ID3D12CommandAllocator* CommandAllocatorPool::RequestAllocator(uint64_t Complete
 
     if (AllocatorPair.first <= CompletedFenceValue) {
       pAllocator = AllocatorPair.second;
-      RE_ASSERT_HR(pAllocator->Reset());
+      RE_ASSERT_SUCCEEDED(pAllocator->Reset());
       m_ReadyAllocators.pop();
     }
   }
 
   // If no allocator's were ready to be reused, create a new one
   if (pAllocator == nullptr) {
-    RE_ASSERT_HR(m_Device->CreateCommandAllocator(m_cCommandListType, IID_PPV_ARGS(&pAllocator)));
+    RE_ASSERT_SUCCEEDED(RE_GCDevice->CreateCommandAllocator(m_cCommandListType, IID_PPV_ARGS(&pAllocator)));
     wchar_t AllocatorName[32];
     swprintf(AllocatorName, 32, L"CommandAllocator %zu", m_AllocatorPool.size());
     pAllocator->SetName(AllocatorName);

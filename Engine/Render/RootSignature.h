@@ -1,5 +1,8 @@
 #pragma once
 
+#include "Engine/Core/Core.h"
+#include "GraphicsObject.h"
+
 namespace re::engine::render {
 class DescriptorCache;
 
@@ -80,7 +83,7 @@ class RootParameter {
 // Root descriptor (CBV, SRV, or UAV) = 2 DWORDs each
 // Descriptor table pointer = 1 DWORD
 // Static samplers = 0 DWORDS (compiled into shader)
-class RootSignature {
+class RootSignature : public GraphicsObject {
   friend class DynamicDescriptorHeap;
 
  public:
@@ -120,7 +123,7 @@ class RootSignature {
   void InitStaticSampler(UINT Register, const D3D12_SAMPLER_DESC& NonStaticSamplerDesc,
                          D3D12_SHADER_VISIBILITY Visibility = D3D12_SHADER_VISIBILITY_ALL);
 
-  void Finalize(ID3D12Device* pDevice, const stl::wstring& name, D3D12_ROOT_SIGNATURE_FLAGS Flags = D3D12_ROOT_SIGNATURE_FLAG_NONE);
+  void Finalize(const stl::wstring& name, D3D12_ROOT_SIGNATURE_FLAGS Flags = D3D12_ROOT_SIGNATURE_FLAG_NONE);
 
   ID3D12RootSignature* GetSignature() const { return m_Signature; }
 
@@ -135,7 +138,6 @@ class RootSignature {
   stl::unique_ptr<RootParameter[]> m_ParamArray;
   stl::unique_ptr<D3D12_STATIC_SAMPLER_DESC[]> m_SamplerArray;
   ID3D12RootSignature* m_Signature;
-  ID3D12Device* m_Device;
 };
 
 }  // namespace re::engine::render

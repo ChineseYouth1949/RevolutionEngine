@@ -1,35 +1,31 @@
+#include "GraphicsCore.h"
 #include "CommandListManager.h"
 
 namespace re::engine::render {
 
 CommandListManager::CommandListManager()
-    : m_Device(nullptr),
-      m_GraphicsQueue(D3D12_COMMAND_LIST_TYPE_DIRECT),
-      m_ComputeQueue(D3D12_COMMAND_LIST_TYPE_COMPUTE),
-      m_CopyQueue(D3D12_COMMAND_LIST_TYPE_COPY) {}
+    : m_GraphicsQueue(D3D12_COMMAND_LIST_TYPE_DIRECT), m_ComputeQueue(D3D12_COMMAND_LIST_TYPE_COMPUTE), m_CopyQueue(D3D12_COMMAND_LIST_TYPE_COPY) {}
 
 CommandListManager::~CommandListManager() {
-  Shutdown();
+  Release();
 }
 
-void CommandListManager::Shutdown() {
-  m_GraphicsQueue.Shutdown();
-  m_ComputeQueue.Shutdown();
-  m_CopyQueue.Shutdown();
+void CommandListManager::Release() {
+  m_GraphicsQueue.Release();
+  m_ComputeQueue.Release();
+  m_CopyQueue.Release();
 }
 
-void CommandListManager::Create(ID3D12Device* pDevice) {
-  RE_ASSERT(pDevice != nullptr);
+void CommandListManager::Initialize() {
+  RE_ASSERT(RE_GCDevice != nullptr);
 
-  m_Device = pDevice;
-
-  m_GraphicsQueue.Create(pDevice);
-  m_ComputeQueue.Create(pDevice);
-  m_CopyQueue.Create(pDevice);
+  m_GraphicsQueue.Initialize();
+  m_ComputeQueue.Initialize();
+  m_CopyQueue.Initialize();
 }
 
 void CommandListManager::CreateNewCommandList(D3D12_COMMAND_LIST_TYPE Type, ID3D12GraphicsCommandList** List, ID3D12CommandAllocator** Allocator) {
-  RE_ASSERT_MSG(Type != D3D12_COMMAND_LIST_TYPE_BUNDLE, "Bundles are not yet supported");
+  RE_ASSERT(Type != D3D12_COMMAND_LIST_TYPE_BUNDLE, "Bundles are not yet supported");
   switch (Type) {
     case D3D12_COMMAND_LIST_TYPE_DIRECT:
       *Allocator = m_GraphicsQueue.RequestAllocator();
@@ -44,7 +40,7 @@ void CommandListManager::CreateNewCommandList(D3D12_COMMAND_LIST_TYPE Type, ID3D
       break;
   }
 
-  RE_ASSERT_HR(m_Device->CreateCommandList(1, Type, *Allocator, nullptr, IID_PPV_ARGS(List)));
+  RE_ASSERT_SUCCEEDED(RE_GCDevice->CreateCommandList(1, Type, *Allocator, nullptr, IID_PPV_ARGS(List)));
   (*List)->SetName(L"CommandList");
 }
 

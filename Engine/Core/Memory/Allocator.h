@@ -6,6 +6,10 @@ namespace re::engine::memory {
 
 enum struct AllocType : std::uint8_t { STD, MiMalloc };
 
+// Support STL and MiMalloc
+template <AllocType type, typename T>
+class StlAllocator;
+
 /*
 *  Allocator not supported AllocType::STD, because MSVC cannot implement std::align_malloc, 
 *  and Windows memory allocation requires the separate use of free and _aligned_free to release memory, 
@@ -90,21 +94,61 @@ class Allocator {
     T* ptr = Create<T>(std::forward<Args>(args)...);
     return UniquePtr<T>(ptr);
   }
+
+  template <typename T>
+  using vector = stl::vector<T, StlAllocator<type, T>>;
+
+  template <typename T>
+  using deque = stl::deque<T, StlAllocator<type, T>>;
+
+  template <typename T>
+  using list = stl::list<T, StlAllocator<type, T>>;
+
+  template <typename T, size_t N>
+  using array = stl::array<T, N>;
+
+  template <typename T>
+  using set = stl::set<T, stl::less<T>, StlAllocator<type, T>>;
+
+  template <typename Key, typename Value>
+  using map = stl::map<Key, Value, stl::less<Key>, StlAllocator<type, stl::pair<const Key, Value>>>;
+
+  template <typename T>
+  using multiset = stl::multiset<T, stl::less<T>, StlAllocator<type, T>>;
+
+  template <typename T>
+  using hash_set = stl::unordered_set<T, stl::hash<T>, stl::equal_to<T>, StlAllocator<type, T>>;
+
+  template <typename Key, typename Value>
+  using hash_map = stl::unordered_map<Key, Value, stl::hash<Key>, stl::equal_to<Key>, StlAllocator<type, stl::pair<const Key, Value>>>;
+
+  template <typename T>
+  using queue = stl::queue<T, deque<T>>;
+
+  template <typename T>
+  using stack = stl::stack<T, deque<T>>;
+
+  template <typename T, typename Container = vector<T>, typename Compare = stl::less<typename Container::value_type>>
+  using priority_queue = stl::priority_queue<T, Container, Compare>;
+
+  template <typename T>
+  using basic_string = stl::basic_string<T, StlAllocator<type, T>>;
+
+  using string = basic_string<char>;
+  using wstring = basic_string<wchar_t>;
 };
-
-// Support STL and MiMalloc
-template <AllocType type, typename T>
-class StlAllocator;
-
-// Global Memory Allocator
-const AllocType GlobalAllocType = AllocType::MiMalloc;
-using GAllocator = Allocator<GlobalAllocType>;
 
 }  // namespace re::engine::memory
 
+namespace re::engine {
+// Global Memory Allocator
+const memory::AllocType GlobalAllocType = memory::AllocType::MiMalloc;
+using Alloc = memory::Allocator<GlobalAllocType>;
+}  // namespace re::engine
+
 // Convenient macro
-#define RE_CLASS_ALLOCATOR(Type) using ClassAllocator = re::engine::memory::Allocator<re::engine::memory::AllocType::Type>;
+#define RE_CLASS_ALLOCATOR(Type) using Alloc = re::engine::memory::Allocator<re::engine::memory::AllocType::Type>;
 #define RE_NAME_ALLOCATOR(Name, Type) using Name = re::engine::memory::Allocator<re::engine::memory::AllocType::Type>;
 
-#include "StlAllocator.inl"
-#include "Mimalloc.inl"
+#include "StlAllocator.h"
+#include "Mimalloc.h"

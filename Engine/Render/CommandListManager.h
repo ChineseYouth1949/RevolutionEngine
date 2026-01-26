@@ -1,18 +1,19 @@
 #pragma once
 
+#include "GraphicsObject.h"
 #include "CommandQueue.h"
 
 namespace re::engine::render {
 
-class CommandListManager {
+class CommandListManager : public GraphicsObject {
   friend class CommandContext;
 
  public:
   CommandListManager();
   ~CommandListManager();
 
-  void Create(ID3D12Device* pDevice);
-  void Shutdown();
+  void Initialize();
+  void Release();
 
   CommandQueue& GetGraphicsQueue(void) { return m_GraphicsQueue; }
   CommandQueue& GetComputeQueue(void) { return m_ComputeQueue; }
@@ -45,8 +46,6 @@ class CommandListManager {
   }
 
  private:
-  ID3D12Device* m_Device;
-
   CommandQueue m_GraphicsQueue;
   CommandQueue m_ComputeQueue;
   CommandQueue m_CopyQueue;

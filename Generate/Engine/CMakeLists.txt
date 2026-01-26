@@ -18,6 +18,7 @@ add_library(${PROJECT_NAME} SHARED ${SOURCE_FILE})
 RE_TARGET_SET(${PROJECT_NAME})
 set_target_properties(${PROJECT_NAME} PROPERTIES DEBUG_POSTFIX "d")
 
+target_compile_definitions(${PROJECT_NAME} PUBLIC UNICODE _UNICODE)
 target_compile_definitions(${PROJECT_NAME} PRIVATE RE_EXPORT)
 if(CMAKE_BUILD_TYPE STREQUAL "Debug")
     target_compile_definitions(${PROJECT_NAME} PUBLIC RE_DEBUG)

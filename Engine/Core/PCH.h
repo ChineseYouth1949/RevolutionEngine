@@ -37,13 +37,12 @@
 #include <wrl/client.h>
 #include <wrl/event.h>
 
+#include <dxcapi.h>
 #include <dxgi1_6.h>
 #include "directx/d3d12.h"
 #include "directx/d3dx12.h"
 
-#ifdef RE_DEBUG
 #include <dxgidebug.h>
-#endif
 #endif  // _WIN32
 
 #include <entt/entt.hpp>

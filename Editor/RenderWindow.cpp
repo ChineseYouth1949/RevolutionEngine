@@ -1,10 +1,17 @@
 #include "RenderWindow.h"
 
+#include <Engine/All.h>
+
 namespace re::editor {
 RenderWindow::RenderWindow(QWindow* parent) : QWindow(parent) {
   setFlags(flags() | Qt::FramelessWindowHint);
 }
 RenderWindow::~RenderWindow() {}
+
+void RenderWindow::Initialize() {
+  auto graphicsCore = engine::render::GraphicsCore();
+}
+void RenderWindow::Release() {}
 
 // void RenderWindow::exposeEvent(QExposeEvent*) {}
 // void RenderWindow::resizeEvent(QResizeEvent*) {}
