@@ -18,8 +18,12 @@ struct GCInitInfo {
 
   int swapChainBufferCount = 3;
   int swapChainWidth = 1280;
-  int swapChainHeigth = 720;
+  int swapChainHeight = 720;
   DXGI_FORMAT swapChainFormat = DXGI_FORMAT_R8G8B8A8_UNORM;
+  DXGI_SWAP_EFFECT swapChainEffect = DXGI_SWAP_EFFECT_FLIP_DISCARD;
+  DXGI_SCALING swapChainScaling = DXGI_SCALING_NONE;
+  UINT swapChainFlags = DXGI_SWAP_CHAIN_FLAG_ALLOW_TEARING | DXGI_SWAP_CHAIN_FLAG_FRAME_LATENCY_WAITABLE_OBJECT;
+  HWND swapChainHWND;
 };
 
 class RE_API GraphicsCore {
@@ -39,19 +43,16 @@ class RE_API GraphicsCore {
   void Initialize(GCInitInfo info);
   void Release();
 
-  template <typename T, typename... Args>
-  T* Create(Args&&... args) {
-    static_assert(std::is_base_of_v<GraphicsObject, T>, "T must be derived from GraphicsObject to be created via GraphicsCore.");
-    T* res = Alloc::Create<T>(std::forward<Args>(args)...);
-    if (res) {
-      res->SetGraphicsCore(this);
-    }
-    return res;
-  }
-
  private:
   Microsoft::WRL::ComPtr<ID3D12Device> m_Device{nullptr};
   Alloc::UniquePtr<CommandListManager> m_CommandListManager{nullptr};
+
+  ComPtr<IDXGISwapChain3> m_SwapChain;
+  UINT m_FrameIndex;
+  ComPtr<ID3D12DescriptorHeap> m_RtvHeap;
+  UINT m_RtvDescriptorSize;
+  stl::vector<ComPtr<ID3D12Resource>> m_RenderTargets;
+
   Alloc::UniquePtr<ContextManager> m_ContextManager{nullptr};
   D3D_FEATURE_LEVEL m_D3DFeatureLevel;
 

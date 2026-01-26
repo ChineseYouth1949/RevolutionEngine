@@ -2,7 +2,6 @@
 #include "CommandListManager.h"
 
 namespace re::engine::render {
-using namespace Microsoft::WRL;
 
 static const uint32_t vendorID_Nvidia = 0x10DE;
 static const uint32_t vendorID_AMD = 0x1002;
@@ -177,6 +176,8 @@ void GraphicsCore::Initialize(GCInitInfo info) {
     }
   }
 
+  m_D3DFeatureLevel = info.d3DFeatureLevel;
+
   if (info.enableDebugLayer) {
     ID3D12InfoQueue* pInfoQueue = nullptr;
     if (SUCCEEDED(m_Device->QueryInterface(IID_PPV_ARGS(&pInfoQueue)))) {
@@ -245,6 +246,56 @@ void GraphicsCore::Initialize(GCInitInfo info) {
           (Support.Support2 & D3D12_FORMAT_SUPPORT2_UAV_TYPED_LOAD) != 0) {
         m_bTypedUAVLoadSupport_R16G16B16A16_FLOAT = true;
       }
+    }
+  }
+
+  // Command
+  m_CommandListManager = Alloc::CreateUniquePtr<CommandListManager>();
+  m_CommandListManager->SetGraphicsCore(this);
+  m_CommandListManager->Initialize();
+
+  // Create swap chain
+  DXGI_SWAP_CHAIN_DESC1 swapChainDesc = {};
+  swapChainDesc.BufferCount = info.swapChainBufferCount;
+  swapChainDesc.Width = info.swapChainWidth;
+  swapChainDesc.Height = info.swapChainHeight;
+  swapChainDesc.Format = info.swapChainFormat;
+  swapChainDesc.BufferUsage = DXGI_USAGE_RENDER_TARGET_OUTPUT;
+  swapChainDesc.SwapEffect = info.swapChainEffect;
+  swapChainDesc.SampleDesc.Count = 1;
+  swapChainDesc.Scaling = info.swapChainScaling;
+  swapChainDesc.Flags = info.swapChainFlags;
+
+  ComPtr<IDXGISwapChain1> swapChain;
+  RE_ASSERT_SUCCEEDED(dxgiFactory->CreateSwapChainForHwnd(m_CommandListManager->GetGraphicsQueue().GetCommandQueue(), info.swapChainHWND,
+                                                          &swapChainDesc, nullptr, nullptr, &swapChain));
+
+  // initlize m_FrameIndex
+  RE_ASSERT_SUCCEEDED(swapChain.As(&m_SwapChain));
+  m_FrameIndex = m_SwapChain->GetCurrentBackBufferIndex();
+
+  // Create descriptor heaps.
+  {
+    // Describe and create a render target view (RTV) descriptor heap.
+    D3D12_DESCRIPTOR_HEAP_DESC rtvHeapDesc = {};
+    rtvHeapDesc.NumDescriptors = info.swapChainBufferCount;
+    rtvHeapDesc.Type = D3D12_DESCRIPTOR_HEAP_TYPE_RTV;
+    rtvHeapDesc.Flags = D3D12_DESCRIPTOR_HEAP_FLAG_NONE;
+    RE_ASSERT_SUCCEEDED(m_Device->CreateDescriptorHeap(&rtvHeapDesc, IID_PPV_ARGS(&m_RtvHeap)));
+
+    m_RtvDescriptorSize = m_Device->GetDescriptorHandleIncrementSize(D3D12_DESCRIPTOR_HEAP_TYPE_RTV);
+  }
+
+  // Create frame resources.
+  {
+    CD3DX12_CPU_DESCRIPTOR_HANDLE rtvHandle(m_RtvHeap->GetCPUDescriptorHandleForHeapStart());
+
+    // Create a RTV and a command allocator for each frame.
+    m_RenderTargets.resize(info.swapChainBufferCount);
+    for (UINT n = 0; n < info.swapChainBufferCount; n++) {
+      RE_ASSERT_SUCCEEDED(m_SwapChain->GetBuffer(n, IID_PPV_ARGS(&m_RenderTargets[n])));
+      m_Device->CreateRenderTargetView(m_RenderTargets[n].Get(), nullptr, rtvHandle);
+      rtvHandle.Offset(1, m_RtvDescriptorSize);
     }
   }
 

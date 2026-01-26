@@ -13,3 +13,7 @@
 #else
 #define RE_D3D12_SetName(obj, name) (void)0
 #endif
+
+namespace re::engine::render {
+using namespace Microsoft::WRL;
+}

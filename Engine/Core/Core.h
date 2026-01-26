@@ -6,5 +6,6 @@
 #include "Memory/Allocator.h"
 
 #include "ECS/WorldBase.h"
+#include "ECS/Entity.h"
+#include "ECS/System.h"
 #include "ECS/World.h"
-// #include "ECS/Entity.h"
