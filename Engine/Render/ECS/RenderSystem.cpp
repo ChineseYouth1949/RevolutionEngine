@@ -19,16 +19,29 @@ bool RenderSystem::Initialize() {
   GCInitInfo info;
   m_Impl->gc.Initialize(info);
 
+  SystemGroup::Initialize();
+
   return true;
 }
 bool RenderSystem::Release() {
+  SystemGroup::Release();
   m_Impl = nullptr;
   return true;
 }
 
-void RenderSystem::OnEnable() {}
-void RenderSystem::OnDisable() {}
+void RenderSystem::OnEnable() {
+  SystemGroup::OnEnable();
+}
+void RenderSystem::OnDisable() {
+  SystemGroup::OnDisable();
+}
 
-void RenderSystem::PreUpdate(const UpdateInfo& info) {}
-void RenderSystem::Update(const UpdateInfo& info) {}
-void RenderSystem::PostUpdate(const UpdateInfo& info) {}
+void RenderSystem::PreUpdate(const UpdateInfo& info) {
+  SystemGroup::PreUpdate(info);
+}
+void RenderSystem::Update(const UpdateInfo& info) {
+  SystemGroup::Update(info);
+}
+void RenderSystem::PostUpdate(const UpdateInfo& info) {
+  SystemGroup::PostUpdate(info);
+}

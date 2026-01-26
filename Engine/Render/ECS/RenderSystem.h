@@ -6,7 +6,7 @@ namespace re::engine::render {
 using namespace ecs;
 class GraphicsCore;
 
-class RenderSystem : public System {
+class RenderSystem : public SystemGroup {
  public:
   RenderSystem();
   ~RenderSystem();

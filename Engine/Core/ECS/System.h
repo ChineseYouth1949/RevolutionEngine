@@ -40,14 +40,20 @@ class SystemGroup : public System {
 
   bool Initialize() override {
     for (auto sys : m_ChildSystem) {
-      sys->Initialize();
+      if (!sys->Initialize()) {
+        return false;
+      }
     }
+    return true;
   }
   bool Release() override {
     for (auto sys : m_ChildSystem) {
-      sys->Release();
+      if (sys->Release()) {
+        return false;
+      }
     }
     m_ChildSystem.clear();
+    return true;
   }
 
   void OnEnable() {
