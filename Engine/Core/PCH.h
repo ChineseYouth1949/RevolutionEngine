@@ -8,6 +8,7 @@
 #include <tchar.h>
 #include <utility>
 #include <cinttypes>
+#include <typeindex>
 
 #include <memory>
 #include <malloc.h>
