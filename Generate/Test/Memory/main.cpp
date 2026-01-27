@@ -1,40 +1,32 @@
 #include <gtest/gtest.h>
-
-#ifndef BENCHMARK_STATIC_DEFINE
-#define BENCHMARK_STATIC_DEFINE
-#endif
 #include <benchmark/benchmark.h>
 
-// // #include <Engine/All.h>
-// // using namespace re::engine::memory;
+#include <Engine/All.h>
+using namespace re::engine::memory;
 
-// // #include "Malloc.h"
-// // #include "MallocType.h"
-// // #include "MallocPtr.h"
-// // #include "MallocTypeArray.h"
-// // #include "MallocPerformance.h"
-// // #include "STLPerformance.h"
+#include "Malloc.h"
+#include "MallocType.h"
+#include "MallocPtr.h"
+#include "MallocTypeArray.h"
+#include "MallocPerformance.h"
+#include "STLPerformance.h"
 
-// int main(int argc, char* argv[]) {
-//   printf("=== Running Unit Tests ===\n");
-//   testing::InitGoogleTest(&argc, argv);
-//   int test_result = RUN_ALL_TESTS();
+int main(int argc, char* argv[]) {
+  printf("=== Running Unit Tests ===\n");
+  testing::InitGoogleTest(&argc, argv);
+  int test_result = RUN_ALL_TESTS();
 
-//   if (test_result != 0) {
-//     printf("Tests failed, skipping benchmarks.\n");
-//     return test_result;
-//   }
+  if (test_result != 0) {
+    printf("Tests failed, skipping benchmarks.\n");
+    return test_result;
+  }
 
-//   printf("\n=== Running Performance Benchmarks ===\n");
-//   benchmark::Initialize(&argc, argv);
-//   if (benchmark::ReportUnrecognizedArguments(argc, argv))
-//     return 1;
-//   benchmark::RunSpecifiedBenchmarks();
-//   benchmark::Shutdown();
+  printf("\n=== Running Performance Benchmarks ===\n");
+  benchmark::Initialize(&argc, argv);
+  if (benchmark::ReportUnrecognizedArguments(argc, argv))
+    return 1;
+  benchmark::RunSpecifiedBenchmarks();
+  benchmark::Shutdown();
 
-//   return 0;
-// }
-
-int main() {
   return 0;
 }
