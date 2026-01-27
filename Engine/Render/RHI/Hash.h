@@ -19,22 +19,22 @@
 
 namespace re::engine::utility {
 template <typename T>
-RE_FINLE T AlignUpWithMask(T value, size_t mask) {
+RE_FINLINE T AlignUpWithMask(T value, size_t mask) {
   return (T)(((size_t)value + mask) & ~mask);
 }
 
 template <typename T>
-RE_FINLE T AlignDownWithMask(T value, size_t mask) {
+RE_FINLINE T AlignDownWithMask(T value, size_t mask) {
   return (T)((size_t)value & ~mask);
 }
 
 template <typename T>
-RE_FINLE T AlignUp(T value, size_t alignment) {
+RE_FINLINE T AlignUp(T value, size_t alignment) {
   return AlignUpWithMask(value, alignment - 1);
 }
 
 template <typename T>
-RE_FINLE T AlignDown(T value, size_t alignment) {
+RE_FINLINE T AlignDown(T value, size_t alignment) {
   return AlignDownWithMask(value, alignment - 1);
 }
 

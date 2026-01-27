@@ -28,7 +28,7 @@ class RenderColorVertex : public System {
 
  private:
   struct Impl;
-  Alloc::UniquePtr<Impl> m_Impl{nullptr};
+  unique_ptr<Impl> m_Impl{nullptr};
 };
 
 }  // namespace re::engine::render

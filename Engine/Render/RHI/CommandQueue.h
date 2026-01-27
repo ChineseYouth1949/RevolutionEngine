@@ -16,7 +16,7 @@ class CommandQueue : public GraphicsObject {
   void Initialize();
   void Release();
 
-  RE_FINLE bool IsReady() { return m_CommandQueue != nullptr; }
+  RE_FINLINE bool IsReady() { return m_CommandQueue != nullptr; }
 
   uint64_t IncrementFence(void);
   bool IsFenceComplete(uint64_t FenceValue);

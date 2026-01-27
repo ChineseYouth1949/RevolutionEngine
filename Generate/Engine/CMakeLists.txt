@@ -32,7 +32,7 @@ endif()
 # PCH file
 target_precompile_headers(${PROJECT_NAME}
     PUBLIC
-    # "${CodePath}/Core/PCH.h"
+    "${CodePath}/Core/PCH.h"
     "${CodePath}/Core/Base.h"
 )
 
@@ -48,7 +48,7 @@ include(FlatGener.cmake)
 
 # find fbs file
 file(GLOB_RECURSE FBS_FILES
-    "${CodePath}/Core/ECS/Component/*.fbs"
+    "${CodePath}/*.fbs"
 )
 
 FlatGenerateFun(

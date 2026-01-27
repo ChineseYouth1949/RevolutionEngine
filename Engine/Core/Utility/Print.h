@@ -1,25 +1,25 @@
 #pragma once
 
-#include "Base.h"
+#include "PCH.h"
 
 namespace re::engine::utility {
 #ifdef _CONSOLE
-RE_FINLE void Print(const char* msg) {
+RE_FINLINE void Print(const char* msg) {
   printf("%s", msg);
 }
-RE_FINLE void Print(const wchar_t* msg) {
+RE_FINLINE void Print(const wchar_t* msg) {
   wprintf(L"%ws", msg);
 }
 #else
-RE_FINLE void Print(const char* msg) {
+RE_FINLINE void Print(const char* msg) {
   OutputDebugStringA(msg);
 }
-RE_FINLE void Print(const wchar_t* msg) {
+RE_FINLINE void Print(const wchar_t* msg) {
   OutputDebugString(msg);
 }
 #endif
 
-RE_FINLE void Printf(const char* format, ...) {
+RE_FINLINE void Printf(const char* format, ...) {
   char buffer[256];
   va_list ap;
   va_start(ap, format);
@@ -28,7 +28,7 @@ RE_FINLE void Printf(const char* format, ...) {
   Print(buffer);
 }
 
-RE_FINLE void Printf(const wchar_t* format, ...) {
+RE_FINLINE void Printf(const wchar_t* format, ...) {
   wchar_t buffer[256];
   va_list ap;
   va_start(ap, format);
@@ -37,7 +37,7 @@ RE_FINLE void Printf(const wchar_t* format, ...) {
   Print(buffer);
 }
 
-RE_FINLE void PrintSubMessage(const char* format, ...) {
+RE_FINLINE void PrintSubMessage(const char* format, ...) {
   Print("--> ");
   char buffer[256];
   va_list ap;
@@ -47,7 +47,7 @@ RE_FINLE void PrintSubMessage(const char* format, ...) {
   Print(buffer);
   Print("\n");
 }
-RE_FINLE void PrintSubMessage(const wchar_t* format, ...) {
+RE_FINLINE void PrintSubMessage(const wchar_t* format, ...) {
   Print("--> ");
   wchar_t buffer[256];
   va_list ap;
@@ -57,6 +57,6 @@ RE_FINLE void PrintSubMessage(const wchar_t* format, ...) {
   Print(buffer);
   Print("\n");
 }
-RE_FINLE void PrintSubMessage(void) {}
+RE_FINLINE void PrintSubMessage(void) {}
 
 }  // namespace re::engine::utility

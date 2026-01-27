@@ -65,7 +65,7 @@ class GraphicsPSO : public PSO {
 
  private:
   D3D12_GRAPHICS_PIPELINE_STATE_DESC m_PSODesc;
-  Alloc::SharedPtr<const D3D12_INPUT_ELEMENT_DESC> m_InputLayouts;
+  shared_ptr<const D3D12_INPUT_ELEMENT_DESC> m_InputLayouts;
 };
 
 class ComputePSO : public PSO {

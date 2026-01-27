@@ -8,8 +8,8 @@ using namespace re::engine;
 
 using Microsoft::WRL::ComPtr;
 
-static Alloc::map<size_t, ComPtr<ID3D12PipelineState>> s_GraphicsPSOHashMap;
-static Alloc::map<size_t, ComPtr<ID3D12PipelineState>> s_ComputePSOHashMap;
+static map<size_t, ComPtr<ID3D12PipelineState>> s_GraphicsPSOHashMap;
+static map<size_t, ComPtr<ID3D12PipelineState>> s_ComputePSOHashMap;
 
 void PSO::DestroyAll(void) {
   s_GraphicsPSOHashMap.clear();
@@ -75,7 +75,7 @@ void GraphicsPSO::SetInputLayout(UINT NumElements, const D3D12_INPUT_ELEMENT_DES
   m_PSODesc.InputLayout.NumElements = NumElements;
 
   if (NumElements > 0) {
-    D3D12_INPUT_ELEMENT_DESC* NewElements = (D3D12_INPUT_ELEMENT_DESC*)Alloc::Malloc(sizeof(D3D12_INPUT_ELEMENT_DESC) * NumElements);
+    D3D12_INPUT_ELEMENT_DESC* NewElements = (D3D12_INPUT_ELEMENT_DESC*)GAlloc::malloc(sizeof(D3D12_INPUT_ELEMENT_DESC) * NumElements);
     memcpy(NewElements, pInputElementDescs, NumElements * sizeof(D3D12_INPUT_ELEMENT_DESC));
     m_InputLayouts.reset((const D3D12_INPUT_ELEMENT_DESC*)NewElements);
   } else

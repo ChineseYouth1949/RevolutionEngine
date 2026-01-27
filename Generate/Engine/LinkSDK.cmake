@@ -29,6 +29,9 @@ target_link_libraries(${PROJECT_NAME} PUBLIC PkgConfig::LUAJIT)
 find_package(winpixevent CONFIG REQUIRED)
 target_link_libraries(${PROJECT_NAME} PUBLIC Microsoft::WinPixEventRuntime)
 
+find_package(benchmark CONFIG REQUIRED)
+target_link_libraries(${PROJECT_NAME} PUBLIC benchmark::benchmark benchmark::benchmark_main)
+
 find_package(directx12-agility CONFIG REQUIRED)
 target_link_libraries(${PROJECT_NAME} PUBLIC Microsoft::DirectX-Headers Microsoft::DirectX-Guids Microsoft::DirectX12-Agility)
 

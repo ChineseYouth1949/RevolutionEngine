@@ -70,9 +70,9 @@
  * force inline.
  */
 #if RE_MSVC
-#define RE_FINLE __forceinline
+#define RE_FINLINE __forceinline
 #elif RE_CLANG | RE_GCC
-#define RE_FINLE __attribute__((always_inline))
+#define RE_FINLINE __attribute__((always_inline))
 #endif
 
 /**

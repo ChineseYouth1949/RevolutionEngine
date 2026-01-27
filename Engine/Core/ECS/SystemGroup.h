@@ -1,14 +1,14 @@
 #pragma once
 
-#include "Engine/Core/Core.h"
+#include "System.h"
 
-namespace re::engine::render {
-using namespace ecs;
-
-class RenderSystem : public SystemGroup {
+namespace re::engine::ecs {
+class SystemGroup : public System {
  public:
-  RenderSystem();
-  ~RenderSystem();
+  SystemGroup() = default;
+  ~SystemGroup() {}
+
+  void AddSystem(shared_ptr<System> sys);
 
   bool OnAttach() override;
   bool OnDetach() override;
@@ -20,8 +20,7 @@ class RenderSystem : public SystemGroup {
   void OnUpdate(const UpdateInfo& info) override;
   void OnPostUpdate(const UpdateInfo& info) override;
 
- private:
-  struct Impl;
-  unique_ptr<Impl> m_Impl{nullptr};
+ protected:
+  vector<shared_ptr<System>> m_ChildSystem;
 };
-}  // namespace re::engine::render
+}  // namespace re::engine::ecs

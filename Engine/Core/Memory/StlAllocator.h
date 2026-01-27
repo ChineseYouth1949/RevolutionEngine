@@ -12,9 +12,32 @@ class StlAllocator<AllocType::STD, T> : public std::allocator<T> {
   StlAllocator(const char* pName) noexcept : std::allocator<T>() { (void)pName; }
 
   template <typename U>
+  StlAllocator(const StlAllocator<AllocType::STD, U>&) noexcept : std::allocator<T>() {}
+
+  template <typename U>
   struct rebind {
     using other = StlAllocator<AllocType::STD, U>;
   };
+
+  RE_FINLINE T* allocate(size_t n, size_t /*alignment*/, size_t /*offset*/, int /*flags*/ = 0) { return std::allocator<T>::allocate(n); }
+  RE_FINLINE T* allocate(size_t n, int /*flags*/, const char* /*pName*/ = nullptr) { return std::allocator<T>::allocate(n); }
+  RE_FINLINE T* allocate(size_t n) { return std::allocator<T>::allocate(n); }
+
+  RE_FINLINE void deallocate(void* p, size_t n) noexcept {
+    if (p) {
+      std::allocator<T>::deallocate(static_cast<T*>(p), n);
+    }
+  }
+  RE_FINLINE void deallocate(T* p, size_t n) noexcept { std::allocator<T>::deallocate(p, n); }
+
+  template <typename U>
+  RE_FINLINE bool operator==(const StlAllocator<AllocType::STD, U>&) const noexcept {
+    return true;
+  }
+  template <typename U>
+  RE_FINLINE bool operator!=(const StlAllocator<AllocType::STD, U>&) const noexcept {
+    return false;
+  }
 };
 
 template <typename T>
@@ -24,22 +47,14 @@ class StlAllocator<AllocType::MiMalloc, T> : public mi_stl_allocator<T> {
 
   StlAllocator(const char* pName) noexcept : mi_stl_allocator<T>() { (void)pName; }
 
-  T* allocate(size_t n) { return mi_stl_allocator<T>::allocate(n); }
-  T* allocate(size_t n, int flags, const char* pName = nullptr) {
-    (void)flags;
-    (void)pName;
-    return mi_stl_allocator<T>::allocate(n);
-  }
-  T* allocate(size_t n, size_t alignment, size_t offset, int flags = 0) {
-    (void)offset;
-    (void)flags;
+  RE_FINLINE T* allocate(size_t n) { return mi_stl_allocator<T>::allocate(n); }
+  RE_FINLINE T* allocate(size_t n, int flags, const char* pName = nullptr) { return mi_stl_allocator<T>::allocate(n); }
+  RE_FINLINE T* allocate(size_t n, size_t alignment, size_t offset, int flags = 0) {
     return static_cast<T*>(mi_malloc_aligned(n * sizeof(T), alignment));
   }
 
-  void deallocate(void* p, size_t n) noexcept {
-    mi_free(p);  // 直接调用 mimalloc 释放
-  }
-  void deallocate(T* p, size_t n) noexcept { mi_free(p); }
+  RE_FINLINE void deallocate(void* p, size_t n) noexcept { mi_free(p); }
+  RE_FINLINE void deallocate(T* p, size_t n) noexcept { mi_free(p); }
 
   template <typename U>
   struct rebind {

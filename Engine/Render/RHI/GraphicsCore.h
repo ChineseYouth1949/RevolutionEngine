@@ -34,23 +34,23 @@ class RE_API GraphicsCore {
   GraphicsCore();
   virtual ~GraphicsCore();
 
-  RE_FINLE ID3D12Device* GetDevice() { return m_Device.Get(); }
-  RE_FINLE CommandListManager* GetCommandListManager() { return m_CommandListManager.get(); }
-  RE_FINLE ContextManager* GetContextManager() { return m_ContextManager.get(); }
-  RE_FINLE D3D_FEATURE_LEVEL GetFeatureLevel() { return m_D3DFeatureLevel; }
+  RE_FINLINE ID3D12Device* GetDevice() { return m_Device.Get(); }
+  RE_FINLINE CommandListManager* GetCommandListManager() { return m_CommandListManager.get(); }
+  RE_FINLINE ContextManager* GetContextManager() { return m_ContextManager.get(); }
+  RE_FINLINE D3D_FEATURE_LEVEL GetFeatureLevel() { return m_D3DFeatureLevel; }
 
   bool IsDeviceNvidia();
   bool IsDeviceAMD();
   bool IsDeviceIntel();
 
-  void SetAssetPath(const Alloc::wstring& assertPath) { m_AssetsPath = assertPath; }
-  Alloc::wstring GetAssetFullPath(const Alloc::wstring& assetName);
+  void SetAssetPath(const wstring& assertPath) { m_AssetsPath = assertPath; }
+  wstring GetAssetFullPath(const wstring& assetName);
 
   DXGI_FORMAT GetSwapChainForamt() {
     DXGI_SWAP_CHAIN_DESC1 desc;
     HRESULT hr = m_SwapChain->GetDesc1(&desc);
     if (SUCCEEDED(hr)) {
-      DXGI_FORMAT backBufferFormat = desc.Format;  // 这里就是后台缓冲区格式
+      DXGI_FORMAT backBufferFormat = desc.Format;
     }
     return desc.Format;
   }
@@ -64,7 +64,7 @@ class RE_API GraphicsCore {
 
  private:
   Microsoft::WRL::ComPtr<ID3D12Device> m_Device{nullptr};
-  Alloc::UniquePtr<CommandListManager> m_CommandListManager{nullptr};
+  unique_ptr<CommandListManager> m_CommandListManager{nullptr};
 
   ID3D12GraphicsCommandList* m_CommandList{nullptr};
   ID3D12CommandAllocator* m_CommandAllocator{nullptr};
@@ -73,20 +73,20 @@ class RE_API GraphicsCore {
   UINT m_FrameIndex;
   ComPtr<ID3D12DescriptorHeap> m_RtvHeap;
   UINT m_RtvDescriptorSize;
-  Alloc::vector<ComPtr<ID3D12Resource>> m_RenderTargets;
+  vector<ComPtr<ID3D12Resource>> m_RenderTargets;
   ComPtr<ID3D12Fence> m_Fence;
   UINT64 m_FrameFenceValues[10];
 
   CD3DX12_VIEWPORT m_Viewport;
   CD3DX12_RECT m_ScissorRect;
 
-  Alloc::UniquePtr<ContextManager> m_ContextManager{nullptr};
+  unique_ptr<ContextManager> m_ContextManager{nullptr};
   D3D_FEATURE_LEVEL m_D3DFeatureLevel;
 
   bool m_bTypedUAVLoadSupport_R11G11B10_FLOAT{false};
   bool m_bTypedUAVLoadSupport_R16G16B16A16_FLOAT{false};
 
-  Alloc::wstring m_AssetsPath;
+  wstring m_AssetsPath;
 };
 
 }  // namespace re::engine::render

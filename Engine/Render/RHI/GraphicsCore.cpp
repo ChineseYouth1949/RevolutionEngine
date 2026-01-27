@@ -250,7 +250,7 @@ void GraphicsCore::Initialize(GCInitInfo info) {
   }
 
   // Command
-  m_CommandListManager = Alloc::CreateUniquePtr<CommandListManager>();
+  m_CommandListManager = GAlloc::make_unique<CommandListManager>();
   m_CommandListManager->SetGraphicsCore(this);
   m_CommandListManager->Initialize();
 
@@ -351,7 +351,7 @@ void GraphicsCore::Release() {
   }
 }
 
-Alloc::wstring GraphicsCore::GetAssetFullPath(const Alloc::wstring& assetName) {
+wstring GraphicsCore::GetAssetFullPath(const wstring& assetName) {
   return m_AssetsPath + assetName;
 }
 

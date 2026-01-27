@@ -3,15 +3,26 @@
 #include <glm/glm.hpp>
 #include <glm/gtc/quaternion.hpp>
 
+#include "World.h"
+
 namespace re::engine::ecs {
+
 struct Transform {
   glm::vec3 position{0.0f};
   glm::quat rotation{1.0f, 0.0f, 0.0f, 0.0f};
   glm::vec3 scale{1.0f};
-
-  glm::mat4 worldMatrix{1.0f};
+  glm::mat4 localMatrix{1.0f};  // 可选，存储相对父节点的矩阵
+  glm::mat4 worldMatrix{1.0f};  // 最终渲染用的世界矩阵
 
   bool dirty{true};
+};
+
+struct Hierarchy {
+  Entity parent{entt::null};
+  Entity firstChild{entt::null};
+  Entity prevSibling{entt::null};
+  Entity nextSibling{entt::null};
+  uint32_t childrenCount{0};
 };
 
 // struct Component {

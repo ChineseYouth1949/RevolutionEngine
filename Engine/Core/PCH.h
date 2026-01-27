@@ -1,50 +1,45 @@
 #pragma once
 
-#include "STL/STL.h"
-#include <mutex>
-#include <thread>
-
-#include <assert.h>
-#include <tchar.h>
-#include <utility>
-#include <cinttypes>
-#include <typeindex>
-
-#include <memory>
-#include <malloc.h>
+#include "Macros.h"
 
 #if defined(_WIN32)
-// Use the C++ standard templated min/max
+#ifndef WIN32_LEAN_AND_MEAN
+#define WIN32_LEAN_AND_MEAN
+#endif
+#ifndef NOMINMAX
 #define NOMINMAX
-
-// DirectX apps don't need GDI
+#endif
 #define NODRAWTEXT
 #define NOGDI
 #define NOBITMAP
-
-// Include <mcx.h> if you need this
 #define NOMCX
-
-// Include <winsvc.h> if you need this
 #define NOSERVICE
-
-// WinHelp is deprecated
 #define NOHELP
-
-#define WIN32_LEAN_AND_MEAN
+#endif
 
 #include <Windows.h>
 #include <wrl/client.h>
 #include <wrl/event.h>
 
-#include <dxcapi.h>
+#include "STL/STL.h"
+#include <mutex>
+#include <thread>
+#include <assert.h>
+#include <tchar.h>
+#include <utility>
+#include <cinttypes>
+#include <typeindex>
+#include <memory>
+#include <malloc.h>
+
 #include <dxgi1_6.h>
-#include <d3dcompiler.h>
+#include <dxcapi.h>
+
 #include "directx/d3d12.h"
 #include "directx/d3dx12.h"
 
+#include <d3dcompiler.h>
 #include <dxgidebug.h>
-#endif  // _WIN32
 
 #include <entt/entt.hpp>
 #include <mimalloc.h>

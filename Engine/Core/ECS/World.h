@@ -1,44 +1,63 @@
 #pragma once
 
 #include "Engine/Core/Base.h"
-#include "Engine/Core/Memory/Allocator.h"
 
-#include "WorldBase.h"
-#include "Entity.h"
-#include "System.h"
+#include "StateCom.h"
 
 namespace re::engine::ecs {
-class RE_API World : public WorldBase {
+using Entity = entt::entity;
+using Registry = entt::basic_registry<Entity, GAllocSTL<Entity>>;
+
+class RE_API World {
  public:
   World();
-  ~World();
+  virtual ~World();
 
-  RE_FINLE Entity CreateEntity() { return Entity(m_Reg.create(), this); }
+  RE_FINLINE Registry& GetRegistry() { return m_Reg; }
+
+  RE_FINLINE Entity CreateEntity() { return m_Reg.create(); }
+  RE_FINLINE void DestryEntity(Entity e) { m_DestryEntitys.push_back(e); }
+  RE_FINLINE bool HasEntity(Entity e) { return m_Reg.valid(e); }
+
+  template <typename... T>
+  RE_FINLINE bool HasComponents(Entity e) const {
+    return m_Reg.all_of<T>(e);
+  }
+
+  template <typename T, typename... Args>
+  T& AddComponent(Entity e, Args&&... args) {
+    auto& wrapper = m_Reg.emplace_or_replace<AddComponent<T>>(e, std::forward<Args>(args)...);
+    return wrapper.data;
+  }
 
   template <typename T>
-  bool AddSystem(T* system) {
-    static_assert(std::is_base_of<System, T>::value, "T must derive from System");
-
-    auto index = std::type_index(typeid(T));
-    if (m_Systems.find(index) != m_Systems.end()) {
-      return false;
-    }
-
-    system->SetWorld(this);
-    m_Systems[index] = system;
-    return true;
+  RE_FINLINE T& GetComponent(Entity e) {
+    return m_Reg.get<T>(e);
   }
 
-  bool Initialize() {
-    for (auto [tag, sys] : m_Systems) {
-      if (sys->Initialize()) {
-        return false;
-      }
-    }
-    return true;
+  template <typename T>
+  RE_FINLINE const T& GetComponent(Entity e) const {
+    return m_Reg.get<T>(e);
   }
 
- private:
-  Alloc::map<uint32_t, System*> m_Systems;
+  template <typename T>
+  T& ChangeComponent(Entity e) {
+    m_Reg.emplace_or_replace<ChangeComponent<T>>(e);
+    return m_Reg.get<T>(e);
+  }
+
+  template <typename T>
+  bool RemoveComponent(Entity e) {
+    if (HasComponents<T>(e)) {
+      m_Reg.emplace_or_replace<DelComponent<T>>(e);
+      m_Reg.remove<AddComponent<T>>(e);
+      return true;
+    }
+    return false;
+  }
+
+ protected:
+  Registry m_Reg;
+  vector<Entity> m_DestryEntitys;
 };
 }  // namespace re::engine::ecs

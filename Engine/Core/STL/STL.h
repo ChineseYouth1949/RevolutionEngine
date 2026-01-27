@@ -5,12 +5,12 @@
 #ifdef RE_USE_EASTL
 #define STL_NAMESPACE eastl
 
-RE_FINLE void* operator new[](size_t size, const char* name, int flags, unsigned debugFlags, const char* file, int line);
-RE_FINLE void* operator new[](size_t size, size_t alignment, size_t alignmentOffset, const char* name, int flags, unsigned debugFlags,
+RE_FINLINE void* operator new[](size_t size, const char* name, int flags, unsigned debugFlags, const char* file, int line);
+RE_FINLINE void* operator new[](size_t size, size_t alignment, size_t alignmentOffset, const char* name, int flags, unsigned debugFlags,
+                                const char* file, int line);
+RE_FINLINE void* operator new(size_t size, const char* name, int flags, unsigned debugFlags, const char* file, int line);
+RE_FINLINE void* operator new(size_t size, size_t alignment, size_t alignmentOffset, const char* name, int flags, unsigned debugFlags,
                               const char* file, int line);
-RE_FINLE void* operator new(size_t size, const char* name, int flags, unsigned debugFlags, const char* file, int line);
-RE_FINLE void* operator new(size_t size, size_t alignment, size_t alignmentOffset, const char* name, int flags, unsigned debugFlags, const char* file,
-                            int line);
 
 #include <EASTL/vector.h>
 #include <EASTL/queue.h>
@@ -98,18 +98,18 @@ using namespace STL_NAMESPACE;
 }
 
 #ifdef RE_USE_EASTL
-RE_FINLE void* operator new(size_t size, const char* name, int flags, unsigned debugFlags, const char* file, int line) {
+RE_FINLINE void* operator new(size_t size, const char* name, int flags, unsigned debugFlags, const char* file, int line) {
   return ::operator new(size);
 }
-RE_FINLE void* operator new(size_t size, size_t alignment, size_t alignmentOffset, const char* name, int flags, unsigned debugFlags, const char* file,
-                            int line) {
+RE_FINLINE void* operator new(size_t size, size_t alignment, size_t alignmentOffset, const char* name, int flags, unsigned debugFlags,
+                              const char* file, int line) {
   return _aligned_malloc(size, alignment);
 }
-RE_FINLE void* operator new[](size_t size, const char* name, int flags, unsigned debugFlags, const char* file, int line) {
+RE_FINLINE void* operator new[](size_t size, const char* name, int flags, unsigned debugFlags, const char* file, int line) {
   return ::operator new[](size);
 }
-RE_FINLE void* operator new[](size_t size, size_t alignment, size_t alignmentOffset, const char* name, int flags, unsigned debugFlags,
-                              const char* file, int line) {
+RE_FINLINE void* operator new[](size_t size, size_t alignment, size_t alignmentOffset, const char* name, int flags, unsigned debugFlags,
+                                const char* file, int line) {
   return _aligned_malloc(size, alignment);
 }
 #endif

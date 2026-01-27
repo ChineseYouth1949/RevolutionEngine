@@ -1,10 +1,7 @@
 #include "Engine/Render/RHI/GraphicsCore.h"
 #include "RenderSystem.h"
 
-#include "Mesh.h"
-
-using namespace re::engine::render;
-using namespace re::engine::ecs;
+namespace re::engine::render {
 
 struct RenderSystem::Impl {
   GraphicsCore gc;
@@ -13,20 +10,18 @@ struct RenderSystem::Impl {
 RenderSystem::RenderSystem() {}
 RenderSystem::~RenderSystem() {}
 
-bool RenderSystem::Initialize() {
-  m_Impl = Alloc::CreateUniquePtr<Impl>();
+bool RenderSystem::OnAttach() {
+  m_Impl = GAlloc::make_unique<Impl>();
 
   GCInitInfo info;
   m_Impl->gc.Initialize(info);
 
-  SystemGroup::Initialize();
+  SystemGroup::OnAttach();
 
   return true;
 }
-bool RenderSystem::Release() {
-  SystemGroup::Release();
-  m_Impl = nullptr;
-  return true;
+bool RenderSystem::OnDetach() {
+  return SystemGroup::OnDetach();
 }
 
 void RenderSystem::OnEnable() {
@@ -36,12 +31,14 @@ void RenderSystem::OnDisable() {
   SystemGroup::OnDisable();
 }
 
-void RenderSystem::PreUpdate(const UpdateInfo& info) {
-  SystemGroup::PreUpdate(info);
+void RenderSystem::OnPreUpdate(const UpdateInfo& info) {
+  SystemGroup::OnPreUpdate(info);
 }
-void RenderSystem::Update(const UpdateInfo& info) {
-  SystemGroup::Update(info);
+void RenderSystem::OnUpdate(const UpdateInfo& info) {
+  SystemGroup::OnUpdate(info);
 }
-void RenderSystem::PostUpdate(const UpdateInfo& info) {
-  SystemGroup::PostUpdate(info);
+void RenderSystem::OnPostUpdate(const UpdateInfo& info) {
+  SystemGroup::OnPostUpdate(info);
 }
+
+}  // namespace re::engine::render
