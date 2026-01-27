@@ -24,6 +24,7 @@ void RenderSystem::OnDisable() {
 }
 
 void RenderSystem::OnPreUpdate(const UpdateInfo& info) {
+  m_GC->Begin();
   SystemGroup::OnPreUpdate(info);
 }
 void RenderSystem::OnUpdate(const UpdateInfo& info) {
@@ -31,6 +32,7 @@ void RenderSystem::OnUpdate(const UpdateInfo& info) {
 }
 void RenderSystem::OnPostUpdate(const UpdateInfo& info) {
   SystemGroup::OnPostUpdate(info);
+  m_GC->End();
 }
 
 }  // namespace re::engine::render

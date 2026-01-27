@@ -15,6 +15,7 @@ class RenderWindow : public QWindow {
   void Init();
 
  protected:
+  void Update();
   // void exposeEvent(QExposeEvent*) override;
   // void resizeEvent(QResizeEvent*) override;
   // void paintEvent(QPaintEvent*) override;

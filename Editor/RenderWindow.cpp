@@ -33,11 +33,15 @@ void RenderWindow::Init() {
     m_Scene->AddSystem(m_RenderSystem);
   }
 
-  connect(&m_RunTimer, &QTimer::timeout, this, [this]() { this->m_Scene->Run(); });
+  connect(&m_RunTimer, &QTimer::timeout, this, &RenderWindow::Update);
 
   m_RunTimer.start(1);
 
   m_Init = true;
+}
+
+void RenderWindow::Update() {
+  m_Scene->Run();
 }
 
 // void RenderWindow::exposeEvent(QExposeEvent*) {}
