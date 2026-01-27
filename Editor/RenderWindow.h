@@ -2,8 +2,9 @@
 
 #include <QWindow>
 
-namespace re::editor {
+#include <Engine/All.h>
 
+namespace re::editor {
 class RenderWindow : public QWindow {
   Q_OBJECT
  public:
@@ -11,7 +12,6 @@ class RenderWindow : public QWindow {
   ~RenderWindow();
 
   void Initialize();
-  void Release();
 
  protected:
   // void exposeEvent(QExposeEvent*) override;
@@ -31,6 +31,11 @@ class RenderWindow : public QWindow {
   // void mouseReleaseEvent(QMouseEvent*) override;
   // void mouseDoubleClickEvent(QMouseEvent*) override;
   // void mouseMoveEvent(QMouseEvent*) override;
+
+  bool m_Init{false};
+  engine::shared_ptr<engine::ecs::Scene> m_Scene;
+  engine::shared_ptr<engine::render::GraphicsCore> m_GC;
+  engine::shared_ptr<engine::render::RenderSystem> m_RenderSystem;
 };
 
 }  // namespace re::editor

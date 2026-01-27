@@ -2,23 +2,15 @@
 #include "RenderSystem.h"
 
 namespace re::engine::render {
-
-struct RenderSystem::Impl {
-  GraphicsCore gc;
-};
-
 RenderSystem::RenderSystem() {}
 RenderSystem::~RenderSystem() {}
 
+void RenderSystem::Init(shared_ptr<GraphicsCore> gc) {
+  m_GC = gc;
+}
+
 bool RenderSystem::OnAttach() {
-  m_Impl = GAlloc::make_unique<Impl>();
-
-  GCInitInfo info;
-  m_Impl->gc.Initialize(info);
-
-  SystemGroup::OnAttach();
-
-  return true;
+  return SystemGroup::OnAttach();
 }
 bool RenderSystem::OnDetach() {
   return SystemGroup::OnDetach();

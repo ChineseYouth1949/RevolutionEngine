@@ -1,17 +1,38 @@
 #include "RenderWindow.h"
 
-#include <Engine/All.h>
-
 namespace re::editor {
+using namespace re::engine;
+using namespace re::engine::render;
+using namespace re::engine::ecs;
+
 RenderWindow::RenderWindow(QWindow* parent) : QWindow(parent) {
   setFlags(flags() | Qt::FramelessWindowHint);
 }
 RenderWindow::~RenderWindow() {}
 
 void RenderWindow::Initialize() {
-  auto graphicsCore = engine::render::GraphicsCore();
+  if (m_Init) {
+    return;
+  }
+
+  // ECS scene init
+  { m_Scene = GAlloc::make_shared<Scene>(); }
+
+  // render system
+  {
+    m_GC = GAlloc::make_shared<GraphicsCore>();
+
+    GCInitInfo info;
+    m_GC->Initialize(info);
+
+    m_RenderSystem = GAlloc::make_shared<RenderSystem>();
+    m_RenderSystem->Init(m_GC);
+
+    m_Scene->AddSystem(m_RenderSystem);
+  }
+
+  m_Init = true;
 }
-void RenderWindow::Release() {}
 
 // void RenderWindow::exposeEvent(QExposeEvent*) {}
 // void RenderWindow::resizeEvent(QResizeEvent*) {}

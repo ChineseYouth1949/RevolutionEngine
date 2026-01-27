@@ -7,6 +7,7 @@
 #include "Memory/Mimalloc.h"
 
 #include "Utility/Assert.h"
+#include "Utility/Timer.h"
 
 namespace re::engine {
 // Global Dynamic memory allocation

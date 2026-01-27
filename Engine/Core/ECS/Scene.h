@@ -8,7 +8,7 @@ struct EntityInfo {
   string name;
 };
 
-class Scene {
+class RE_API Scene {
  public:
   Scene();
   ~Scene();
@@ -43,9 +43,14 @@ class Scene {
     return std::static_pointer_cast<T>(it->second);
   }
 
+  void Run();
+
  private:
   unique_ptr<World> m_World;
   map<std::type_index, shared_ptr<System>> m_Systems;
   unordered_map<Entity, EntityInfo> m_EntityInfo;
+  utility::Timer m_TimerDt;
+  utility::Timer m_TimerTotal;
+  bool m_FirstRun = true;
 };
 }  // namespace re::engine::ecs

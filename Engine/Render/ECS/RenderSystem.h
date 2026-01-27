@@ -1,14 +1,17 @@
 #pragma once
 
 #include "Engine/Core/Core.h"
+#include "Engine/Render/RHI/GraphicsCore.h"
 
 namespace re::engine::render {
 using namespace ecs;
 
-class RenderSystem : public SystemGroup {
+class RE_API RenderSystem : public SystemGroup {
  public:
   RenderSystem();
   ~RenderSystem();
+
+  void Init(shared_ptr<GraphicsCore> gc);
 
   bool OnAttach() override;
   bool OnDetach() override;
@@ -21,7 +24,6 @@ class RenderSystem : public SystemGroup {
   void OnPostUpdate(const UpdateInfo& info) override;
 
  private:
-  struct Impl;
-  unique_ptr<Impl> m_Impl{nullptr};
+  shared_ptr<GraphicsCore> m_GC;
 };
 }  // namespace re::engine::render

@@ -31,6 +31,7 @@
 #include <typeindex>
 #include <memory>
 #include <malloc.h>
+#include <chrono>
 
 #include <dxgi1_6.h>
 #include <dxcapi.h>
