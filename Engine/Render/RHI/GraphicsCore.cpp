@@ -361,6 +361,7 @@ void GraphicsCore::Begin() {
     for (size_t i = 0; i < 10; i++) {
       m_FrameFenceValues[i] = 0;
     }
+    RE_ASSERT_SUCCEEDED(m_CommandList->Close());
   }
 
   RE_ASSERT_SUCCEEDED(m_CommandList->Reset(m_CommandAllocator, nullptr));
@@ -385,8 +386,6 @@ void GraphicsCore::End() {
       CD3DX12_RESOURCE_BARRIER::Transition(m_RenderTargets[m_FrameIndex].Get(), D3D12_RESOURCE_STATE_RENDER_TARGET, D3D12_RESOURCE_STATE_PRESENT);
   m_CommandList->ResourceBarrier(1, &transition);
 
-  // 2. 关闭并提交
-  RE_ASSERT_SUCCEEDED(m_CommandList->Close());
   // 执行并返回当前任务的 Fence Value
   uint64_t currentFenceValue = m_CommandListManager->GetGraphicsQueue().ExecuteCommandList(m_CommandList);
 
