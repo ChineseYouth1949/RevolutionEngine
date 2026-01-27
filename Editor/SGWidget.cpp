@@ -32,5 +32,7 @@ SGWidget::SGWidget(const QString& title, QWidget* parent) : QDockWidget(title, p
     // 可以在此处暂停非活动视口的渲染以节省 GPU 资源
     qDebug() << "Active View:" << (isScene ? "Scene" : "Game");
   });
+
+  m_sceneWindow->Init();
 }
 }  // namespace re::editor

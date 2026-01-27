@@ -10,7 +10,7 @@ RenderWindow::RenderWindow(QWindow* parent) : QWindow(parent) {
 }
 RenderWindow::~RenderWindow() {}
 
-void RenderWindow::Initialize() {
+void RenderWindow::Init() {
   if (m_Init) {
     return;
   }
@@ -18,11 +18,13 @@ void RenderWindow::Initialize() {
   // ECS scene init
   { m_Scene = GAlloc::make_shared<Scene>(); }
 
-  // render system
+  // Render system
   {
     m_GC = GAlloc::make_shared<GraphicsCore>();
 
     GCInitInfo info;
+    HWND hwnd = reinterpret_cast<HWND>(winId());
+    info.swapChainHWND = hwnd;
     m_GC->Initialize(info);
 
     m_RenderSystem = GAlloc::make_shared<RenderSystem>();
@@ -30,6 +32,10 @@ void RenderWindow::Initialize() {
 
     m_Scene->AddSystem(m_RenderSystem);
   }
+
+  connect(&m_RunTimer, &QTimer::timeout, this, [this]() { this->m_Scene->Run(); });
+
+  m_RunTimer.start(1);
 
   m_Init = true;
 }

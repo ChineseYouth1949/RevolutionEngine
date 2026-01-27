@@ -1,6 +1,7 @@
 #pragma once
 
 #include <QWindow>
+#include <QTimer>
 
 #include <Engine/All.h>
 
@@ -11,7 +12,7 @@ class RenderWindow : public QWindow {
   explicit RenderWindow(QWindow* parent);
   ~RenderWindow();
 
-  void Initialize();
+  void Init();
 
  protected:
   // void exposeEvent(QExposeEvent*) override;
@@ -36,6 +37,8 @@ class RenderWindow : public QWindow {
   engine::shared_ptr<engine::ecs::Scene> m_Scene;
   engine::shared_ptr<engine::render::GraphicsCore> m_GC;
   engine::shared_ptr<engine::render::RenderSystem> m_RenderSystem;
+
+  QTimer m_RunTimer;
 };
 
 }  // namespace re::editor

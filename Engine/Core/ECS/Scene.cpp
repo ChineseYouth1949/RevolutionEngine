@@ -18,6 +18,7 @@ void Scene::Run() {
   info.total = m_TimerTotal.GetTimeMs();
 
   m_TimerDt.Update();
+
   for (auto& [key, sys] : m_Systems) {
     sys->OnPreUpdate(info);
   }
