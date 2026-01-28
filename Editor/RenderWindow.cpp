@@ -113,28 +113,20 @@ void RenderWindow::mouseMoveEvent(QMouseEvent* event) {
 
   if (event->buttons() & Qt::MiddleButton) {
     QPoint currentPos = event->pos();
-
-    // 1. 计算鼠标位移（单位：像素）
     float dx = static_cast<float>(currentPos.x() - mMouseMidPressLastPos.x());
     float dy = static_cast<float>(currentPos.y() - mMouseMidPressLastPos.y());
+    float sensitivity = 0.002f;
 
-    // 2. 定义平移灵敏度（建议根据距离或 Fov 调整）
-    float sensitivity = 0.05f;
+    // 使用構造函數 Quaternion(axis, angle) 代替缺失的 RotationX/Y
+    // 繞世界 Y 軸偏航 (Yaw)
+    Math::Quaternion yawRot(Math::Vector3(Math::kYUnitVector), -dx * sensitivity);
 
-    // 3. 获取摄像机当前的坐标系轴向 (Basis)
-    // MiniEngine 中：GetRightVec 为 +X, GetUpVec 为 +Y
-    Math::Vector3 right = camera.GetRightVec();
-    Math::Vector3 up = camera.GetUpVec();
+    // 繞相機自身右軸俯仰 (Pitch)
+    Math::Quaternion pitchRot(camera.GetRightVec(), -dy * sensitivity);
 
-    // 4. 计算世界空间下的位移矢量
-    // 鼠标向右移动(dx > 0) -> 摄像机向左平移 -> 减去 Right 向量
-    // 鼠标向下移动(dy > 0) -> 摄像机向上平移 -> 加上 Up 向量
-    Math::Vector3 offset = (right * -dx + up * dy) * sensitivity;
-
-    // 5. 更新位置
-    camera.SetPosition(camera.GetPosition() + offset);
-
-    // 6. 必须调用 Update 重新生成矩阵
+    // 結合旋轉：注意 MiniEngine 的 operator* 內部實現是 XMQuaternionMultiply(rhs, m_vec)
+    // 這意味著左乘和右乘的順序需要根據其庫的實現具體測試，通常是：
+    camera.SetRotation(Normalize(yawRot * camera.GetRotation() * pitchRot));
     camera.Update();
 
     mMouseMidPressLastPos = currentPos;
