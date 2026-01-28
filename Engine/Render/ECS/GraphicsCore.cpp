@@ -279,7 +279,7 @@ void GraphicsCore::Initialize(GCInitInfo info) {
 
   // config
   {
-    Graphics::g_SceneColorBuffer.SetClearColor({0.0f, 0.2f, 0.4f, 1.0f});
+    Graphics::g_SceneColorBuffer.SetClearColor({0.24, 0.24, 0.24, 1.0f});
     Graphics::g_DisplayWidth = info.swapChainWidth;
     Graphics::g_DisplayHeight = info.swapChainHeight;
   }
