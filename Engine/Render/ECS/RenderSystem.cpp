@@ -11,8 +11,8 @@ RenderSystem::~RenderSystem() {}
 
 void RenderSystem::Init(shared_ptr<GraphicsCore> gc) {
   m_GC = gc;
+
   auto renColorVertex = GAlloc::make_shared<RenderColorVertex>();
-  renColorVertex->SetWorld(m_World);
   renColorVertex->Init(m_GC);
 
   AddSystem(renColorVertex);

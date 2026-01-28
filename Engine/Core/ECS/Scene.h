@@ -1,7 +1,9 @@
 #pragma once
 
 #include "World.h"
+
 #include "System.h"
+#include "SystemGroup.h"
 
 namespace re::engine::ecs {
 struct EntityInfo {
@@ -28,6 +30,14 @@ class RE_API Scene {
 
     if (sys) {
       sys->SetWorld(m_World.get());
+
+      auto sysGroup = dynamic_cast<SystemGroup*>(sys.get());
+      if (sysGroup) {
+        for (auto childSys : sysGroup->GetChilds()) {
+          AddSystem(childSys);
+        }
+      }
+
       if (sys->OnAttach()) {
         m_Systems[std::type_index(typeid(T))] = sys;
         return true;

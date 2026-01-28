@@ -20,6 +20,8 @@ class SystemGroup : public System {
   void OnUpdate(const UpdateInfo& info) override;
   void OnPostUpdate(const UpdateInfo& info) override;
 
+  vector<shared_ptr<System>>& GetChilds() { return m_ChildSystem; }
+
  protected:
   vector<shared_ptr<System>> m_ChildSystem;
 };
