@@ -24,7 +24,7 @@ struct SharedInfo {
   void Reset() { dirty = false; }
 
  private:
-  bool dirty = false;
+  bool dirty = true;
 };
 
 }  // namespace re::engine::render
