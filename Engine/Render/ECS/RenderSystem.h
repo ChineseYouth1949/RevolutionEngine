@@ -1,12 +1,10 @@
 #pragma once
 
 #include "Engine/Core/Core.h"
-#include "Engine/Render/RHI/GraphicsCore.h"
+#include "GraphicsCore.h"
 
 namespace re::engine::render {
-using namespace ecs;
-
-class RE_API RenderSystem : public SystemGroup {
+class RE_API RenderSystem : public ecs::SystemGroup {
  public:
   RenderSystem();
   ~RenderSystem();
@@ -19,9 +17,9 @@ class RE_API RenderSystem : public SystemGroup {
   void OnEnable() override;
   void OnDisable() override;
 
-  void OnPreUpdate(const UpdateInfo& info) override;
-  void OnUpdate(const UpdateInfo& info) override;
-  void OnPostUpdate(const UpdateInfo& info) override;
+  void OnPreUpdate(const ecs::UpdateInfo& info) override;
+  void OnUpdate(const ecs::UpdateInfo& info) override;
+  void OnPostUpdate(const ecs::UpdateInfo& info) override;
 
  private:
   shared_ptr<GraphicsCore> m_GC;

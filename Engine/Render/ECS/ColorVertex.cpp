@@ -1,93 +1,149 @@
-// #include "Engine/Core/Core.h"
 
-// #include "Engine/Render/RHI/GraphicsCore.h"
-// #include "Engine/Render/RHI/VertexBuffer.h"
+#include "Engine/Core/Core.h"
+#include "ColorVertex.h"
 
-// #include "ColorVertex.h"
-// #include "Mesh.h"
+namespace re::engine::render {
+using namespace Microsoft::WRL;
 
-// using namespace re::engine::render;
-// using namespace re::engine::ecs;
-// using namespace re::engine;
+using namespace re::engine::ecs;
+using namespace re::engine;
 
-// struct EntityData {
-//   VertexBuffer vertexBuffer;
-// };
+RenderColorVertex::RenderColorVertex() {}
+RenderColorVertex::~RenderColorVertex() {}
 
-// struct RenderColorVertex::Impl {
-//   GraphicsCore* gc;
-//   unique_ptr<RootSignature> signature;
-//   wstring vertexShaderName;
-//   wstring fragmentShaderName;
-//   GraphicsPSO pso;
-//   unordered_map<EntityId, EntityData*> entityDataMap;
-// };
+void RenderColorVertex::Init(shared_ptr<GraphicsCore> gc) {
+  m_GC = gc;
 
-// RenderColorVertex::RenderColorVertex(GraphicsCore* gc) {
-//   m_Impl = GAlloc::make_unique<Impl>();
-//   m_Impl->gc = gc;
-// }
-// RenderColorVertex::~RenderColorVertex() {}
+  // RootSignature
+  m_RootSignature.Reset(1, 0);
+  m_RootSignature[0].InitAsConstantBuffer(0, D3D12_SHADER_VISIBILITY_VERTEX);
+  m_RootSignature.Finalize(L"MyRootSignature", D3D12_ROOT_SIGNATURE_FLAG_ALLOW_INPUT_ASSEMBLER_INPUT_LAYOUT);
 
-// bool RenderColorVertex::Initialize() {
-//   // Create an empty root signature.
-//   {
-//     m_Impl->signature = GAlloc::make_unique<RootSignature>(0, 0);
-//     m_Impl->signature->SetGraphicsCore(m_Impl->gc);
-//     m_Impl->signature->Finalize(L"Empty RootSignature");
-//   }
+  // INPUT_ELEMENT
+  D3D12_INPUT_ELEMENT_DESC vertElem[] = {{"POSITION", 0, DXGI_FORMAT_R32G32B32_FLOAT, 0, 0, D3D12_INPUT_CLASSIFICATION_PER_VERTEX_DATA, 0},
+                                         {"COLOR", 0, DXGI_FORMAT_R32G32B32A32_FLOAT, 0, 12, D3D12_INPUT_CLASSIFICATION_PER_VERTEX_DATA, 0}};
 
-//   // Create the pipeline state, which includes compiling and loading shaders.
-//   {
-//     ComPtr<ID3DBlob> vertexShader;
-//     ComPtr<ID3DBlob> pixelShader;
+  // PSO
+  GraphicsPSO m_PSO(L"MyColorPSO");
 
-// #if defined(_DEBUG)
-//     // Enable better shader debugging with the graphics debugging tools.
-//     UINT compileFlags = D3DCOMPILE_DEBUG | D3DCOMPILE_SKIP_OPTIMIZATION;
-// #else
-//     UINT compileFlags = 0;
-// #endif
+  // 1. 绑定之前创建好的根签名
+  m_PSO.SetRootSignature(m_RootSignature);
 
-//     RE_ASSERT_SUCCEEDED(D3DCompileFromFile(m_Impl->gc->GetAssetFullPath(m_Impl->vertexShaderName).c_str(), nullptr, nullptr, "VSMain", "vs_5_0",
-//                                            compileFlags, 0, &vertexShader, nullptr));
-//     RE_ASSERT_SUCCEEDED(D3DCompileFromFile(m_Impl->gc->GetAssetFullPath(m_Impl->fragmentShaderName).c_str(), nullptr, nullptr, "PSMain", "ps_5_0",
-//                                            compileFlags, 0, &pixelShader, nullptr));
+  // 2. 设置渲染状态 (使用 MiniEngine 默认的常用状态)
+  m_PSO.SetRasterizerState(Graphics::RasterizerDefault);      // 默认剔除和填充模式
+  m_PSO.SetBlendState(Graphics::BlendDisable);                // 不开启混合
+  m_PSO.SetDepthStencilState(Graphics::DepthStateReadWrite);  // 开启深度读写
 
-//     m_Impl->pso = GraphicsPSO(L"ColorVertex_PSO");
-//     m_Impl->pso.SetBlendState(CD3DX12_BLEND_DESC(D3D12_DEFAULT));
-//     m_Impl->pso.SetRasterizerState(CD3DX12_RASTERIZER_DESC(D3D12_DEFAULT));
-//     m_Impl->pso.SetDepthStencilState(CD3DX12_DEPTH_STENCIL_DESC(D3D12_DEFAULT));
-//     m_Impl->pso.SetPrimitiveTopologyType(D3D12_PRIMITIVE_TOPOLOGY_TYPE_TRIANGLE);
-//     m_Impl->pso.SetRenderTargetFormat(m_Impl->gc->GetSwapChainForamt(), DXGI_FORMAT_D24_UNORM_S8_UINT);
+  // 3. 配置输入布局和拓扑类型
+  m_PSO.SetInputLayout(_countof(vertElem), vertElem);
+  m_PSO.SetPrimitiveTopologyType(D3D12_PRIMITIVE_TOPOLOGY_TYPE_TRIANGLE);
 
-//     m_Impl->pso.SetVertexShader(vertexShader->GetBufferPointer(), vertexShader->GetBufferSize());
-//     m_Impl->pso.SetPixelShader(pixelShader->GetBufferPointer(), pixelShader->GetBufferSize());
+  // 4. 指定渲染目标格式 (需与你在应用中创建的 ColorBuffer 格式一致)
+  // MiniEngine 默认主颜色缓冲区通常是 DXGI_FORMAT_R11G11B10_FLOAT 或 R8G8B8A8_UNORM
+  m_PSO.SetRenderTargetFormat(Graphics::g_SceneColorBuffer.GetFormat(), Graphics::g_SceneDepthBuffer.GetFormat());
 
-//     // Define the vertex input layout.
-//     D3D12_INPUT_ELEMENT_DESC inputElementDescs[] = {
-//         {"POSITION", 0, DXGI_FORMAT_R32G32B32_FLOAT, 0, 0, D3D12_INPUT_CLASSIFICATION_PER_VERTEX_DATA, 0},
-//         {"COLOR", 0, DXGI_FORMAT_R32G32B32A32_FLOAT, 0, 12, D3D12_INPUT_CLASSIFICATION_PER_VERTEX_DATA, 0}};
-//     m_Impl->pso.SetInputLayout(2, inputElementDescs);
+  // 5. 绑定着色器字节码
+  // 这里的 g_pVS_Main 等通常由编译 .hlsl 生成的 .h 文件提供
+  ComPtr<ID3DBlob> vertexShader;
+  ComPtr<ID3DBlob> pixelShader;
 
-//     m_Impl->pso.Finalize();
-//   }
+#if defined(_DEBUG)
+  UINT compileFlags = D3DCOMPILE_DEBUG | D3DCOMPILE_SKIP_OPTIMIZATION;
+#else
+  UINT compileFlags = 0;
+#endif
 
-//   return true;
-// }
-// bool RenderColorVertex::Release() {
-//   m_Impl = nullptr;
-//   return true;
-// }
+  wstring vertexShaderPath = m_GC->GetResourceFilePath(L"HelloTriangle.hlsl");
+  RE_ASSERT_SUCCEEDED(D3DCompileFromFile(vertexShaderPath.c_str(), nullptr, nullptr, "VSMain", "vs_5_0", compileFlags, 0, &vertexShader, nullptr));
 
-// void RenderColorVertex::OnEnable() {}
-// void RenderColorVertex::OnDisable() {}
+  wstring pixelShaderPath = m_GC->GetResourceFilePath(L"HelloTriangle.hlsl");
+  RE_ASSERT_SUCCEEDED(D3DCompileFromFile(pixelShaderPath.c_str(), nullptr, nullptr, "PSMain", "ps_5_0", compileFlags, 0, &pixelShader, nullptr));
 
-// void RenderColorVertex::PreUpdate(const UpdateInfo& info) {
-//   // auto& reg = m_World->GetReg();
+  m_PSO.SetVertexShader(vertexShader->GetBufferPointer(), vertexShader->GetBufferSize());
+  m_PSO.SetPixelShader(pixelShader->GetBufferPointer(), pixelShader->GetBufferSize());
 
-//   // auto view = reg.view<AddComponent<Mesh<ColorVertex, uint32_t>>>();
-//   // for (auto [e, addCom] : view.each()) {}
-// }
-// void RenderColorVertex::Update(const UpdateInfo& info) {}
-// void RenderColorVertex::PostUpdate(const UpdateInfo& info) {}
+  // 6. 最终实例化
+  m_PSO.Finalize();
+}
+
+RenderColorVertex::Resource RenderColorVertex::GetResource(RenderColorVertex::SysComType& com) {
+  RenderColorVertex::Resource resource;
+
+  resource.vertexBuffer.Create(L"ColorVertex1", com.vertexs.size(), SysComType::s_VertexSize, com.vertexs.data());
+  resource.indexBuffer.Create(L"ColorVertex2", com.indexes.size(), SysComType::s_IndexSize, com.indexes.data());
+
+  return resource;
+}
+
+void RenderColorVertex::PollAddCom() {
+  auto& reg = m_World->GetRegistry();
+
+  auto& stateStorage = reg.storage<StateComponentAdd<SysComType>>();
+  for (auto [e, addCom] : stateStorage.each()) {
+    auto resource = GetResource(addCom.data);
+    m_EntityResrouce.insert({e, resource});
+  }
+
+  PollAddComponent<SysComType>();
+}
+
+void RenderColorVertex::PollDelCom() {
+  auto& reg = m_World->GetRegistry();
+
+  auto& stateStorage = reg.storage<StateComponentDel<SysComType>>();
+  for (auto [e] : stateStorage.each()) {
+    auto it = m_EntityResrouce.find(e);
+    m_EntityResrouce.erase(it);
+  }
+
+  PollDelComponent<SysComType>();
+}
+void RenderColorVertex::PollChangeCom() {
+  auto& reg = m_World->GetRegistry();
+
+  auto& stateStorage = reg.storage<StateComponentDel<SysComType>>();
+  for (auto [e] : stateStorage.each()) {
+    auto it = m_EntityResrouce.find(e);
+    auto& com = reg.get<SysComType>(e);
+    it->second = GetResource(com);
+  }
+  PollChangeComponent<SysComType>();
+}
+
+void RenderColorVertex::Render() {
+  auto pGfxContext = m_GC->GetGraphicsContext();
+
+  pGfxContext->SetRootSignature(m_RootSignature);
+  pGfxContext->SetPipelineState(m_PSO);
+  pGfxContext->SetPrimitiveTopology(D3D_PRIMITIVE_TOPOLOGY_TRIANGLELIST);
+
+  auto it = m_EntityResrouce.begin();
+  while (it != m_EntityResrouce.end()) {
+    pGfxContext->SetVertexBuffer(0, it->second.vertexBuffer.VertexBufferView());
+    pGfxContext->SetIndexBuffer(it->second.indexBuffer.IndexBufferView());
+    pGfxContext->DrawIndexed(it->second.indexBuffer.GetElementCount(), 0, 0);
+    it++;
+  }
+}
+
+bool RenderColorVertex::OnAttach() {
+  return true;
+}
+bool RenderColorVertex::OnDetach() {
+  return true;
+}
+
+void RenderColorVertex::OnEnable() {}
+void RenderColorVertex::OnDisable() {}
+
+void RenderColorVertex::OnPreUpdate(const ecs::UpdateInfo& info) {
+  PollDelCom();
+  PollChangeCom();
+  PollAddCom();
+}
+void RenderColorVertex::OnUpdate(const ecs::UpdateInfo& info) {
+  Render();
+}
+void RenderColorVertex::OnPostUpdate(const ecs::UpdateInfo& info) {}
+
+}  // namespace re::engine::render

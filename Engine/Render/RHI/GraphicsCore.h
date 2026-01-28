@@ -1,92 +1,50 @@
+//
+// Copyright (c) Microsoft. All rights reserved.
+// This code is licensed under the MIT License (MIT).
+// THIS CODE IS PROVIDED *AS IS* WITHOUT WARRANTY OF
+// ANY KIND, EITHER EXPRESS OR IMPLIED, INCLUDING ANY
+// IMPLIED WARRANTIES OF FITNESS FOR A PARTICULAR
+// PURPOSE, MERCHANTABILITY, OR NON-INFRINGEMENT.
+//
+// Developed by Minigraph
+//
+// Author:  James Stanard
+//
+
 #pragma once
 
-#include "GraphicsObject.h"
-#include "RootSignature.h"
 #include "PipelineState.h"
+#include "DescriptorHeap.h"
+#include "RootSignature.h"
+#include "GraphicsCommon.h"
 
-#include "Engine/Core/Core.h"
-
-namespace re::engine::render {
 class CommandListManager;
-class ContextManager {};
+class ContextManager;
 
-struct GCInitInfo {
-  bool enableDebugLayer = true;
-  bool enableGPUBasedValidation = true;
-  bool enableDXGIDebugInfo = true;
-  bool useWarpDriver = false;
-  bool requireDXRSupport = false;
-  D3D_FEATURE_LEVEL d3DFeatureLevel = D3D_FEATURE_LEVEL_11_0;
-  bool setStablePowerState = true;
+namespace Graphics {
+#ifndef RELEASE
+extern const GUID WKPDID_D3DDebugObjectName;
+#endif
 
-  int swapChainBufferCount = 3;
-  int swapChainWidth = 1280;
-  int swapChainHeight = 720;
-  DXGI_FORMAT swapChainFormat = DXGI_FORMAT_R8G8B8A8_UNORM;
-  DXGI_SWAP_EFFECT swapChainEffect = DXGI_SWAP_EFFECT_FLIP_DISCARD;
-  DXGI_SCALING swapChainScaling = DXGI_SCALING_NONE;
-  UINT swapChainFlags = DXGI_SWAP_CHAIN_FLAG_ALLOW_TEARING | DXGI_SWAP_CHAIN_FLAG_FRAME_LATENCY_WAITABLE_OBJECT;
-  HWND swapChainHWND;
-};
+using namespace Microsoft::WRL;
 
-class RE_API GraphicsCore {
- public:
-  GraphicsCore();
-  virtual ~GraphicsCore();
+void Initialize(bool RequireDXRSupport = false);
+void Shutdown(void);
 
-  RE_FINLINE ID3D12Device* GetDevice() { return m_Device.Get(); }
-  RE_FINLINE CommandListManager* GetCommandListManager() { return m_CommandListManager.get(); }
-  RE_FINLINE ContextManager* GetContextManager() { return m_ContextManager.get(); }
-  RE_FINLINE D3D_FEATURE_LEVEL GetFeatureLevel() { return m_D3DFeatureLevel; }
+bool IsDeviceNvidia(ID3D12Device* pDevice);
+bool IsDeviceAMD(ID3D12Device* pDevice);
+bool IsDeviceIntel(ID3D12Device* pDevice);
 
-  bool IsDeviceNvidia();
-  bool IsDeviceAMD();
-  bool IsDeviceIntel();
+extern ID3D12Device* g_Device;
+extern CommandListManager g_CommandManager;
+extern ContextManager g_ContextManager;
 
-  void SetAssetPath(const wstring& assertPath) { m_AssetsPath = assertPath; }
-  wstring GetAssetFullPath(const wstring& assetName);
+extern D3D_FEATURE_LEVEL g_D3DFeatureLevel;
+extern bool g_bTypedUAVLoadSupport_R11G11B10_FLOAT;
+extern bool g_bTypedUAVLoadSupport_R16G16B16A16_FLOAT;
 
-  DXGI_FORMAT GetSwapChainForamt() {
-    DXGI_SWAP_CHAIN_DESC1 desc;
-    HRESULT hr = m_SwapChain->GetDesc1(&desc);
-    if (SUCCEEDED(hr)) {
-      DXGI_FORMAT backBufferFormat = desc.Format;
-    }
-    return desc.Format;
-  }
-
-  void Initialize(GCInitInfo info);
-  void Release();
-
-  void Begin();
-  void End();
-  ID3D12GraphicsCommandList* GetCommandList() { return m_CommandList; }
-
- private:
-  Microsoft::WRL::ComPtr<ID3D12Device> m_Device{nullptr};
-  unique_ptr<CommandListManager> m_CommandListManager{nullptr};
-
-  ID3D12GraphicsCommandList* m_CommandList{nullptr};
-  ID3D12CommandAllocator* m_CommandAllocator{nullptr};
-
-  ComPtr<IDXGISwapChain3> m_SwapChain;
-  UINT m_FrameIndex;
-  ComPtr<ID3D12DescriptorHeap> m_RtvHeap;
-  UINT m_RtvDescriptorSize;
-  vector<ComPtr<ID3D12Resource>> m_RenderTargets;
-  ComPtr<ID3D12Fence> m_Fence;
-  UINT64 m_FrameFenceValues[10];
-
-  CD3DX12_VIEWPORT m_Viewport;
-  CD3DX12_RECT m_ScissorRect;
-
-  unique_ptr<ContextManager> m_ContextManager{nullptr};
-  D3D_FEATURE_LEVEL m_D3DFeatureLevel;
-
-  bool m_bTypedUAVLoadSupport_R11G11B10_FLOAT{false};
-  bool m_bTypedUAVLoadSupport_R16G16B16A16_FLOAT{false};
-
-  wstring m_AssetsPath;
-};
-
-}  // namespace re::engine::render
+extern DescriptorAllocator g_DescriptorAllocator[];
+RE_FINLINE D3D12_CPU_DESCRIPTOR_HANDLE AllocateDescriptor(D3D12_DESCRIPTOR_HEAP_TYPE Type, UINT Count = 1) {
+  return g_DescriptorAllocator[Type].Allocate(Count);
+}
+}  // namespace Graphics

@@ -1,9 +1,20 @@
+//
+// Copyright (c) Microsoft. All rights reserved.
+// This code is licensed under the MIT License (MIT).
+// THIS CODE IS PROVIDED *AS IS* WITHOUT WARRANTY OF
+// ANY KIND, EITHER EXPRESS OR IMPLIED, INCLUDING ANY
+// IMPLIED WARRANTIES OF FITNESS FOR A PARTICULAR
+// PURPOSE, MERCHANTABILITY, OR NON-INFRINGEMENT.
+//
+// Developed by Minigraph
+//
+// Author:  James Stanard
+//
+
 #pragma once
 
-#include "Engine/Core/Core.h"
-#include "GraphicsObject.h"
+#include "Engine/Render/RHI/pch.h"
 
-namespace re::engine::render {
 class DescriptorCache;
 
 class RootParameter {
@@ -83,7 +94,7 @@ class RootParameter {
 // Root descriptor (CBV, SRV, or UAV) = 2 DWORDs each
 // Descriptor table pointer = 1 DWORD
 // Static samplers = 0 DWORDS (compiled into shader)
-class RootSignature : public GraphicsObject {
+class RootSignature {
   friend class DynamicDescriptorHeap;
 
  public:
@@ -123,7 +134,7 @@ class RootSignature : public GraphicsObject {
   void InitStaticSampler(UINT Register, const D3D12_SAMPLER_DESC& NonStaticSamplerDesc,
                          D3D12_SHADER_VISIBILITY Visibility = D3D12_SHADER_VISIBILITY_ALL);
 
-  void Finalize(const stl::wstring& name, D3D12_ROOT_SIGNATURE_FLAGS Flags = D3D12_ROOT_SIGNATURE_FLAG_NONE);
+  void Finalize(const std::wstring& name, D3D12_ROOT_SIGNATURE_FLAGS Flags = D3D12_ROOT_SIGNATURE_FLAG_NONE);
 
   ID3D12RootSignature* GetSignature() const { return m_Signature; }
 
@@ -135,9 +146,7 @@ class RootSignature : public GraphicsObject {
   uint32_t m_DescriptorTableBitMap;    // One bit is set for root parameters that are non-sampler descriptor tables
   uint32_t m_SamplerTableBitMap;       // One bit is set for root parameters that are sampler descriptor tables
   uint32_t m_DescriptorTableSize[16];  // Non-sampler descriptor tables need to know their descriptor count
-  stl::unique_ptr<RootParameter[]> m_ParamArray;
-  stl::unique_ptr<D3D12_STATIC_SAMPLER_DESC[]> m_SamplerArray;
+  std::unique_ptr<RootParameter[]> m_ParamArray;
+  std::unique_ptr<D3D12_STATIC_SAMPLER_DESC[]> m_SamplerArray;
   ID3D12RootSignature* m_Signature;
 };
-
-}  // namespace re::engine::render

@@ -24,6 +24,10 @@ if(CMAKE_BUILD_TYPE STREQUAL "Debug")
     target_compile_definitions(${PROJECT_NAME} PUBLIC RE_DEBUG)
 endif()
 
+if(MSVC)
+    target_compile_options(${PROJECT_NAME} PRIVATE /permissive)
+endif()
+
 option(USE_EASTL "Enable verbose debug output" ON)
 if(USE_EASTL)
     target_compile_definitions(${PROJECT_NAME} PUBLIC RE_USE_EASTL)

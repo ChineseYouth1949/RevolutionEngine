@@ -1,12 +1,21 @@
 #include "Engine/Render/RHI/GraphicsCore.h"
 #include "RenderSystem.h"
 
+#include "ColorVertex.h"
+
 namespace re::engine::render {
+using namespace re::engine::ecs;
+
 RenderSystem::RenderSystem() {}
 RenderSystem::~RenderSystem() {}
 
 void RenderSystem::Init(shared_ptr<GraphicsCore> gc) {
   m_GC = gc;
+  auto renColorVertex = GAlloc::make_shared<RenderColorVertex>();
+  renColorVertex->SetWorld(m_World);
+  renColorVertex->Init(m_GC);
+
+  AddSystem(renColorVertex);
 }
 
 bool RenderSystem::OnAttach() {
@@ -24,10 +33,10 @@ void RenderSystem::OnDisable() {
 }
 
 void RenderSystem::OnPreUpdate(const UpdateInfo& info) {
-  m_GC->Begin();
   SystemGroup::OnPreUpdate(info);
 }
 void RenderSystem::OnUpdate(const UpdateInfo& info) {
+  m_GC->Begin();
   SystemGroup::OnUpdate(info);
 }
 void RenderSystem::OnPostUpdate(const UpdateInfo& info) {

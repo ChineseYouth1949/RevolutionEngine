@@ -2,7 +2,7 @@
 
 #include "Engine/Core/Base.h"
 
-#include "StateCom.h"
+#include "StateComponent.h"
 
 namespace re::engine::ecs {
 using Entity = entt::entity;
@@ -26,7 +26,7 @@ class RE_API World {
 
   template <typename T, typename... Args>
   T& AddComponent(Entity e, Args&&... args) {
-    auto& wrapper = m_Reg.emplace_or_replace<AddComponent<T>>(e, std::forward<Args>(args)...);
+    auto& wrapper = m_Reg.emplace_or_replace<StateComponentAdd<T>>(e, std::forward<Args>(args)...);
     return wrapper.data;
   }
 
@@ -42,15 +42,15 @@ class RE_API World {
 
   template <typename T>
   T& ChangeComponent(Entity e) {
-    m_Reg.emplace_or_replace<ChangeComponent<T>>(e);
+    m_Reg.emplace_or_replace<StateComponentChange<T>>(e);
     return m_Reg.get<T>(e);
   }
 
   template <typename T>
   bool RemoveComponent(Entity e) {
     if (HasComponents<T>(e)) {
-      m_Reg.emplace_or_replace<DelComponent<T>>(e);
-      m_Reg.remove<AddComponent<T>>(e);
+      m_Reg.emplace_or_replace<StateComponentDel<T>>(e);
+      m_Reg.remove<StateComponentAdd<T>>(e);
       return true;
     }
     return false;

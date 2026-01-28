@@ -1,12 +1,28 @@
+//
+// Copyright (c) Microsoft. All rights reserved.
+// This code is licensed under the MIT License (MIT).
+// THIS CODE IS PROVIDED *AS IS* WITHOUT WARRANTY OF
+// ANY KIND, EITHER EXPRESS OR IMPLIED, INCLUDING ANY
+// IMPLIED WARRANTIES OF FITNESS FOR A PARTICULAR
+// PURPOSE, MERCHANTABILITY, OR NON-INFRINGEMENT.
+//
+// Developed by Minigraph
+//
+// Author:  James Stanard
+
+#include "Engine/Render/RHI/pch.h"
 #include "GraphicsCore.h"
 #include "PipelineState.h"
 #include "RootSignature.h"
 #include "Hash.h"
+#include <map>
+#include <thread>
+#include <mutex>
 
-using namespace re::engine::render;
-using namespace re::engine;
-
+using Math::IsAligned;
+using namespace Graphics;
 using Microsoft::WRL::ComPtr;
+using namespace std;
 
 static map<size_t, ComPtr<ID3D12PipelineState>> s_GraphicsPSOHashMap;
 static map<size_t, ComPtr<ID3D12PipelineState>> s_ComputePSOHashMap;
@@ -75,7 +91,7 @@ void GraphicsPSO::SetInputLayout(UINT NumElements, const D3D12_INPUT_ELEMENT_DES
   m_PSODesc.InputLayout.NumElements = NumElements;
 
   if (NumElements > 0) {
-    D3D12_INPUT_ELEMENT_DESC* NewElements = (D3D12_INPUT_ELEMENT_DESC*)GAlloc::malloc(sizeof(D3D12_INPUT_ELEMENT_DESC) * NumElements);
+    D3D12_INPUT_ELEMENT_DESC* NewElements = (D3D12_INPUT_ELEMENT_DESC*)malloc(sizeof(D3D12_INPUT_ELEMENT_DESC) * NumElements);
     memcpy(NewElements, pInputElementDescs, NumElements * sizeof(D3D12_INPUT_ELEMENT_DESC));
     m_InputLayouts.reset((const D3D12_INPUT_ELEMENT_DESC*)NewElements);
   } else
@@ -88,15 +104,15 @@ void GraphicsPSO::Finalize() {
   RE_ASSERT(m_PSODesc.pRootSignature != nullptr);
 
   m_PSODesc.InputLayout.pInputElementDescs = nullptr;
-  size_t HashCode = utility::HashState(&m_PSODesc);
-  HashCode = utility::HashState(m_InputLayouts.get(), m_PSODesc.InputLayout.NumElements, HashCode);
+  size_t HashCode = Utility::HashState(&m_PSODesc);
+  HashCode = Utility::HashState(m_InputLayouts.get(), m_PSODesc.InputLayout.NumElements, HashCode);
   m_PSODesc.InputLayout.pInputElementDescs = m_InputLayouts.get();
 
   ID3D12PipelineState** PSORef = nullptr;
   bool firstCompile = false;
   {
-    static std::mutex s_HashMapMutex;
-    std::lock_guard<std::mutex> CS(s_HashMapMutex);
+    static mutex s_HashMapMutex;
+    lock_guard<mutex> CS(s_HashMapMutex);
     auto iter = s_GraphicsPSOHashMap.find(HashCode);
 
     // Reserve space so the next inquiry will find that someone got here first.
@@ -109,12 +125,12 @@ void GraphicsPSO::Finalize() {
 
   if (firstCompile) {
     RE_ASSERT(m_PSODesc.DepthStencilState.DepthEnable != (m_PSODesc.DSVFormat == DXGI_FORMAT_UNKNOWN));
-    RE_ASSERT_SUCCEEDED(RE_GCDevice->CreateGraphicsPipelineState(&m_PSODesc, IID_PPV_ARGS(&m_PSO)));
+    ASSERT_SUCCEEDED(g_Device->CreateGraphicsPipelineState(&m_PSODesc, MY_IID_PPV_ARGS(&m_PSO)));
     s_GraphicsPSOHashMap[HashCode].Attach(m_PSO);
     m_PSO->SetName(m_Name);
   } else {
     while (*PSORef == nullptr)
-      std::this_thread::yield();
+      this_thread::yield();
     m_PSO = *PSORef;
   }
 }
@@ -124,13 +140,13 @@ void ComputePSO::Finalize() {
   m_PSODesc.pRootSignature = m_RootSignature->GetSignature();
   RE_ASSERT(m_PSODesc.pRootSignature != nullptr);
 
-  size_t HashCode = utility::HashState(&m_PSODesc);
+  size_t HashCode = Utility::HashState(&m_PSODesc);
 
   ID3D12PipelineState** PSORef = nullptr;
   bool firstCompile = false;
   {
-    static std::mutex s_HashMapMutex;
-    std::lock_guard<std::mutex> CS(s_HashMapMutex);
+    static mutex s_HashMapMutex;
+    lock_guard<mutex> CS(s_HashMapMutex);
     auto iter = s_ComputePSOHashMap.find(HashCode);
 
     // Reserve space so the next inquiry will find that someone got here first.
@@ -142,12 +158,12 @@ void ComputePSO::Finalize() {
   }
 
   if (firstCompile) {
-    RE_ASSERT_SUCCEEDED(RE_GCDevice->CreateComputePipelineState(&m_PSODesc, IID_PPV_ARGS(&m_PSO)));
+    ASSERT_SUCCEEDED(g_Device->CreateComputePipelineState(&m_PSODesc, MY_IID_PPV_ARGS(&m_PSO)));
     s_ComputePSOHashMap[HashCode].Attach(m_PSO);
     m_PSO->SetName(m_Name);
   } else {
     while (*PSORef == nullptr)
-      std::this_thread::yield();
+      this_thread::yield();
     m_PSO = *PSORef;
   }
 }

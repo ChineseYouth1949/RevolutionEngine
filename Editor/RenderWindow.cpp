@@ -1,5 +1,7 @@
 #include "RenderWindow.h"
 
+#include <QCoreApplication>
+
 namespace re::editor {
 using namespace re::engine;
 using namespace re::engine::render;
@@ -21,6 +23,13 @@ void RenderWindow::Init() {
   // Render system
   {
     m_GC = GAlloc::make_shared<GraphicsCore>();
+
+    QString appPathQt = QCoreApplication::applicationDirPath();
+    std::wstring appPathStd = appPathQt.toStdWString();
+    engine::wstring appPathRE = appPathStd.c_str();
+    appPathRE = appPathRE + L"/Resource/Shader/";
+
+    m_GC->SetResourcePath(appPathRE);
 
     GCInitInfo info;
     HWND hwnd = reinterpret_cast<HWND>(winId());

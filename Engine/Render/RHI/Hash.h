@@ -1,6 +1,18 @@
+//
+// Copyright (c) Microsoft. All rights reserved.
+// This code is licensed under the MIT License (MIT).
+// THIS CODE IS PROVIDED *AS IS* WITHOUT WARRANTY OF
+// ANY KIND, EITHER EXPRESS OR IMPLIED, INCLUDING ANY
+// IMPLIED WARRANTIES OF FITNESS FOR A PARTICULAR
+// PURPOSE, MERCHANTABILITY, OR NON-INFRINGEMENT.
+//
+// Developed by Minigraph
+//
+// Author:  James Stanard
+
 #pragma once
 
-// #include "Math/Common.h"
+#include "Math/Common.h"
 
 // This requires SSE4.2 which is present on Intel Nehalem (Nov. 2008)
 // and AMD Bulldozer (Oct. 2011) processors.  I could put a runtime
@@ -17,31 +29,11 @@
 #pragma intrinsic(_mm_crc32_u64)
 #endif
 
-namespace re::engine::utility {
-template <typename T>
-RE_FINLINE T AlignUpWithMask(T value, size_t mask) {
-  return (T)(((size_t)value + mask) & ~mask);
-}
-
-template <typename T>
-RE_FINLINE T AlignDownWithMask(T value, size_t mask) {
-  return (T)((size_t)value & ~mask);
-}
-
-template <typename T>
-RE_FINLINE T AlignUp(T value, size_t alignment) {
-  return AlignUpWithMask(value, alignment - 1);
-}
-
-template <typename T>
-RE_FINLINE T AlignDown(T value, size_t alignment) {
-  return AlignDownWithMask(value, alignment - 1);
-}
-
-inline size_t HashRange(const uint32_t* const Begin, const uint32_t* const End, size_t Hash) {
+namespace Utility {
+RE_FINLINE size_t HashRange(const uint32_t* const Begin, const uint32_t* const End, size_t Hash) {
 #if ENABLE_SSE_CRC32
-  const uint64_t* Iter64 = (const uint64_t*)AlignUp(Begin, 8);
-  const uint64_t* const End64 = (const uint64_t* const)AlignDown(End, 8);
+  const uint64_t* Iter64 = (const uint64_t*)Math::AlignUp(Begin, 8);
+  const uint64_t* const End64 = (const uint64_t* const)Math::AlignDown(End, 8);
 
   // If not 64-bit aligned, start with a single u32
   if ((uint32_t*)Iter64 > Begin)
@@ -64,9 +56,9 @@ inline size_t HashRange(const uint32_t* const Begin, const uint32_t* const End, 
 }
 
 template <typename T>
-inline size_t HashState(const T* StateDesc, size_t Count = 1, size_t Hash = 2166136261U) {
+RE_FINLINE size_t HashState(const T* StateDesc, size_t Count = 1, size_t Hash = 2166136261U) {
   static_assert((sizeof(T) & 3) == 0 && alignof(T) >= 4, "State object is not word-aligned");
   return HashRange((uint32_t*)StateDesc, (uint32_t*)(StateDesc + Count), Hash);
 }
 
-}  // namespace re::engine::utility
+}  // namespace Utility

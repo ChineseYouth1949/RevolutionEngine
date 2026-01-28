@@ -1,12 +1,30 @@
+//
+// Copyright (c) Microsoft. All rights reserved.
+// This code is licensed under the MIT License (MIT).
+// THIS CODE IS PROVIDED *AS IS* WITHOUT WARRANTY OF
+// ANY KIND, EITHER EXPRESS OR IMPLIED, INCLUDING ANY
+// IMPLIED WARRANTIES OF FITNESS FOR A PARTICULAR
+// PURPOSE, MERCHANTABILITY, OR NON-INFRINGEMENT.
+//
+// Developed by Minigraph
+//
+// Author:  James Stanard
+//
+
 #pragma once
 
-#include "Engine/Core/Core.h"
-#include "GraphicsObject.h"
+#include "Engine/Render/RHI/pch.h"
 
-namespace re::engine::render {
+class CommandContext;
 class RootSignature;
+class VertexShader;
+class GeometryShader;
+class HullShader;
+class DomainShader;
+class PixelShader;
+class ComputeShader;
 
-class PSO : public GraphicsObject {
+class PSO {
  public:
   PSO(const wchar_t* Name) : m_Name(Name), m_RootSignature(nullptr), m_PSO(nullptr) {}
 
@@ -65,7 +83,7 @@ class GraphicsPSO : public PSO {
 
  private:
   D3D12_GRAPHICS_PIPELINE_STATE_DESC m_PSODesc;
-  shared_ptr<const D3D12_INPUT_ELEMENT_DESC> m_InputLayouts;
+  std::shared_ptr<const D3D12_INPUT_ELEMENT_DESC> m_InputLayouts;
 };
 
 class ComputePSO : public PSO {
@@ -82,5 +100,3 @@ class ComputePSO : public PSO {
  private:
   D3D12_COMPUTE_PIPELINE_STATE_DESC m_PSODesc;
 };
-
-}  // namespace re::engine::render

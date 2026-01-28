@@ -1,13 +1,29 @@
-#include "GraphicsCore.h"
+//
+// Copyright (c) Microsoft. All rights reserved.
+// This code is licensed under the MIT License (MIT).
+// THIS CODE IS PROVIDED *AS IS* WITHOUT WARRANTY OF
+// ANY KIND, EITHER EXPRESS OR IMPLIED, INCLUDING ANY
+// IMPLIED WARRANTIES OF FITNESS FOR A PARTICULAR
+// PURPOSE, MERCHANTABILITY, OR NON-INFRINGEMENT.
+//
+// Developed by Minigraph
+//
+// Author:  James Stanard
+//
+
+#include "Engine/Render/RHI/pch.h"
 #include "RootSignature.h"
+#include "GraphicsCore.h"
 #include "Hash.h"
+#include <map>
+#include <thread>
+#include <mutex>
 
-using namespace re::engine::render;
-using namespace re::engine;
-
+using namespace Graphics;
+using namespace std;
 using Microsoft::WRL::ComPtr;
 
-static stl::map<size_t, ComPtr<ID3D12RootSignature>> s_RootSignatureHashMap;
+static std::map<size_t, ComPtr<ID3D12RootSignature>> s_RootSignatureHashMap;
 
 void RootSignature::DestroyAll(void) {
   s_RootSignatureHashMap.clear();
@@ -33,7 +49,7 @@ void RootSignature::InitStaticSampler(UINT Register, const D3D12_SAMPLER_DESC& N
 
   if (StaticSamplerDesc.AddressU == D3D12_TEXTURE_ADDRESS_MODE_BORDER || StaticSamplerDesc.AddressV == D3D12_TEXTURE_ADDRESS_MODE_BORDER ||
       StaticSamplerDesc.AddressW == D3D12_TEXTURE_ADDRESS_MODE_BORDER) {
-    RE_ASSERT_SUCCEEDED(
+    RE_WARN_ONCE_IF_NOT(
         // Transparent Black
         NonStaticSamplerDesc.BorderColor[0] == 0.0f && NonStaticSamplerDesc.BorderColor[1] == 0.0f && NonStaticSamplerDesc.BorderColor[2] == 0.0f &&
                 NonStaticSamplerDesc.BorderColor[3] == 0.0f ||
@@ -55,11 +71,10 @@ void RootSignature::InitStaticSampler(UINT Register, const D3D12_SAMPLER_DESC& N
   }
 }
 
-void RootSignature::Finalize(const stl::wstring& name, D3D12_ROOT_SIGNATURE_FLAGS Flags) {
+void RootSignature::Finalize(const std::wstring& name, D3D12_ROOT_SIGNATURE_FLAGS Flags) {
   if (m_Finalized)
     return;
 
-  RE_ASSERT(RE_GCDevice != nullptr);
   RE_ASSERT(m_NumInitializedStaticSamplers == m_NumSamplers);
 
   D3D12_ROOT_SIGNATURE_DESC RootDesc;
@@ -72,8 +87,8 @@ void RootSignature::Finalize(const stl::wstring& name, D3D12_ROOT_SIGNATURE_FLAG
   m_DescriptorTableBitMap = 0;
   m_SamplerTableBitMap = 0;
 
-  size_t HashCode = utility::HashState(&RootDesc.Flags);
-  HashCode = utility::HashState(RootDesc.pStaticSamplers, m_NumSamplers, HashCode);
+  size_t HashCode = Utility::HashState(&RootDesc.Flags);
+  HashCode = Utility::HashState(RootDesc.pStaticSamplers, m_NumSamplers, HashCode);
 
   for (UINT Param = 0; Param < m_NumParameters; ++Param) {
     const D3D12_ROOT_PARAMETER& RootParam = RootDesc.pParameters[Param];
@@ -82,7 +97,7 @@ void RootSignature::Finalize(const stl::wstring& name, D3D12_ROOT_SIGNATURE_FLAG
     if (RootParam.ParameterType == D3D12_ROOT_PARAMETER_TYPE_DESCRIPTOR_TABLE) {
       RE_ASSERT(RootParam.DescriptorTable.pDescriptorRanges != nullptr);
 
-      HashCode = utility::HashState(RootParam.DescriptorTable.pDescriptorRanges, RootParam.DescriptorTable.NumDescriptorRanges, HashCode);
+      HashCode = Utility::HashState(RootParam.DescriptorTable.pDescriptorRanges, RootParam.DescriptorTable.NumDescriptorRanges, HashCode);
 
       // We keep track of sampler descriptor tables separately from CBV_SRV_UAV descriptor tables
       if (RootParam.DescriptorTable.pDescriptorRanges->RangeType == D3D12_DESCRIPTOR_RANGE_TYPE_SAMPLER)
@@ -93,14 +108,14 @@ void RootSignature::Finalize(const stl::wstring& name, D3D12_ROOT_SIGNATURE_FLAG
       for (UINT TableRange = 0; TableRange < RootParam.DescriptorTable.NumDescriptorRanges; ++TableRange)
         m_DescriptorTableSize[Param] += RootParam.DescriptorTable.pDescriptorRanges[TableRange].NumDescriptors;
     } else
-      HashCode = utility::HashState(&RootParam, 1, HashCode);
+      HashCode = Utility::HashState(&RootParam, 1, HashCode);
   }
 
   ID3D12RootSignature** RSRef = nullptr;
   bool firstCompile = false;
   {
-    static std::mutex s_HashMapMutex;
-    std::lock_guard<std::mutex> CS(s_HashMapMutex);
+    static mutex s_HashMapMutex;
+    lock_guard<mutex> CS(s_HashMapMutex);
     auto iter = s_RootSignatureHashMap.find(HashCode);
 
     // Reserve space so the next inquiry will find that someone got here first.
@@ -116,15 +131,15 @@ void RootSignature::Finalize(const stl::wstring& name, D3D12_ROOT_SIGNATURE_FLAG
 
     RE_ASSERT_SUCCEEDED(D3D12SerializeRootSignature(&RootDesc, D3D_ROOT_SIGNATURE_VERSION_1, pOutBlob.GetAddressOf(), pErrorBlob.GetAddressOf()));
 
-    RE_ASSERT_SUCCEEDED(RE_GCDevice->CreateRootSignature(1, pOutBlob->GetBufferPointer(), pOutBlob->GetBufferSize(), IID_PPV_ARGS(&m_Signature)));
+    RE_ASSERT_SUCCEEDED(g_Device->CreateRootSignature(1, pOutBlob->GetBufferPointer(), pOutBlob->GetBufferSize(), MY_IID_PPV_ARGS(&m_Signature)));
 
-    RE_D3D12_SetName(m_Signature, name.c_str());
+    m_Signature->SetName(name.c_str());
 
     s_RootSignatureHashMap[HashCode].Attach(m_Signature);
     RE_ASSERT(*RSRef == m_Signature);
   } else {
     while (*RSRef == nullptr)
-      std::this_thread::yield();
+      this_thread::yield();
     m_Signature = *RSRef;
   }
 

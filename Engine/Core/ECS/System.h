@@ -34,9 +34,22 @@ class System {
   virtual void OnPostUpdate(const UpdateInfo& info) {}
 
  protected:
-  World* m_World = nullptr;
+  template <typename ComponentType>
+  bool PollAddComponent();
+
+  template <typename ComponentType>
+  bool PollDelComponent();
+
+  template <typename ComponentType>
+  bool PollChangeComponent();
+
   bool m_Enabled = false;
   bool m_Attach = false;
+  World* m_World = nullptr;
 };
 
 }  // namespace re::engine::ecs
+
+namespace re::engine::ecs {}
+
+#include "System.inl"

@@ -1,8 +1,20 @@
+//
+// Copyright (c) Microsoft. All rights reserved.
+// This code is licensed under the MIT License (MIT).
+// THIS CODE IS PROVIDED *AS IS* WITHOUT WARRANTY OF
+// ANY KIND, EITHER EXPRESS OR IMPLIED, INCLUDING ANY
+// IMPLIED WARRANTIES OF FITNESS FOR A PARTICULAR
+// PURPOSE, MERCHANTABILITY, OR NON-INFRINGEMENT.
+//
+// Developed by Minigraph
+//
+// Author:  James Stanard
+//
+
 #pragma once
 
+#include "Engine/Render/RHI/pch.h"
 #include "GpuResource.h"
-
-namespace re::engine::render {
 
 class CommandContext;
 class EsramAllocator;
@@ -66,7 +78,7 @@ class GpuBuffer : public GpuResource {
   D3D12_RESOURCE_FLAGS m_ResourceFlags;
 };
 
-inline D3D12_VERTEX_BUFFER_VIEW GpuBuffer::VertexBufferView(size_t Offset, uint32_t Size, uint32_t Stride) const {
+RE_FINLINE D3D12_VERTEX_BUFFER_VIEW GpuBuffer::VertexBufferView(size_t Offset, uint32_t Size, uint32_t Stride) const {
   D3D12_VERTEX_BUFFER_VIEW VBView;
   VBView.BufferLocation = m_GpuVirtualAddress + Offset;
   VBView.SizeInBytes = Size;
@@ -74,7 +86,7 @@ inline D3D12_VERTEX_BUFFER_VIEW GpuBuffer::VertexBufferView(size_t Offset, uint3
   return VBView;
 }
 
-inline D3D12_INDEX_BUFFER_VIEW GpuBuffer::IndexBufferView(size_t Offset, uint32_t Size, bool b32Bit) const {
+RE_FINLINE D3D12_INDEX_BUFFER_VIEW GpuBuffer::IndexBufferView(size_t Offset, uint32_t Size, bool b32Bit) const {
   D3D12_INDEX_BUFFER_VIEW IBView;
   IBView.BufferLocation = m_GpuVirtualAddress + Offset;
   IBView.Format = b32Bit ? DXGI_FORMAT_R32_UINT : DXGI_FORMAT_R16_UINT;
@@ -118,5 +130,3 @@ class TypedBuffer : public GpuBuffer {
  protected:
   DXGI_FORMAT m_DataFormat;
 };
-
-}  // namespace re::engine::render

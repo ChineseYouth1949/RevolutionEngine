@@ -1,10 +1,19 @@
+//
+// Copyright (c) Microsoft. All rights reserved.
+// This code is licensed under the MIT License (MIT).
+// THIS CODE IS PROVIDED *AS IS* WITHOUT WARRANTY OF
+// ANY KIND, EITHER EXPRESS OR IMPLIED, INCLUDING ANY
+// IMPLIED WARRANTIES OF FITNESS FOR A PARTICULAR
+// PURPOSE, MERCHANTABILITY, OR NON-INFRINGEMENT.
+//
+// Developed by Minigraph
+//
+// Author:  James Stanard
+//
+
 #pragma once
 
-#include "GraphicsObject.h"
-
-namespace re::engine::render {
-
-class GpuResource : public GraphicsObject {
+class GpuResource {
   friend class CommandContext;
   friend class GraphicsContext;
   friend class ComputeContext;
@@ -21,9 +30,9 @@ class GpuResource : public GraphicsObject {
         m_UsageState(CurrentState),
         m_TransitioningState((D3D12_RESOURCE_STATES)-1) {}
 
-  ~GpuResource() { Release(); }
+  ~GpuResource() { Destroy(); }
 
-  virtual void Release() {
+  virtual void Destroy() {
     m_pResource = nullptr;
     m_GpuVirtualAddress = D3D12_GPU_VIRTUAL_ADDRESS_NULL;
     ++m_VersionID;
@@ -50,5 +59,3 @@ class GpuResource : public GraphicsObject {
   // Used to identify when a resource changes so descriptors can be copied etc.
   uint32_t m_VersionID = 0;
 };
-
-}  // namespace re::engine::render

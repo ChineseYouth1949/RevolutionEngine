@@ -1,10 +1,24 @@
-#include "GraphicsCore.h"
+//
+// Copyright (c) Microsoft. All rights reserved.
+// This code is licensed under the MIT License (MIT).
+// THIS CODE IS PROVIDED *AS IS* WITHOUT WARRANTY OF
+// ANY KIND, EITHER EXPRESS OR IMPLIED, INCLUDING ANY
+// IMPLIED WARRANTIES OF FITNESS FOR A PARTICULAR
+// PURPOSE, MERCHANTABILITY, OR NON-INFRINGEMENT.
+//
+// Developed by Minigraph
+//
+// Author:  James Stanard
+//
+
+#include "Engine/Render/RHI/pch.h"
 #include "UploadBuffer.h"
+#include "GraphicsCore.h"
 
-using namespace re::engine::render;
+using namespace Graphics;
 
-void UploadBuffer::Initialize(const std::wstring& name, size_t BufferSize) {
-  Release();
+void UploadBuffer::Create(const std::wstring& name, size_t BufferSize) {
+  Destroy();
 
   m_BufferSize = BufferSize;
 
@@ -30,22 +44,24 @@ void UploadBuffer::Initialize(const std::wstring& name, size_t BufferSize) {
   ResourceDesc.Layout = D3D12_TEXTURE_LAYOUT_ROW_MAJOR;
   ResourceDesc.Flags = D3D12_RESOURCE_FLAG_NONE;
 
-  RE_ASSERT_SUCCEEDED(RE_GCDevice->CreateCommittedResource(&HeapProps, D3D12_HEAP_FLAG_NONE, &ResourceDesc, D3D12_RESOURCE_STATE_GENERIC_READ,
-                                                           nullptr, IID_PPV_ARGS(&m_pResource)));
+  RE_ASSERT_SUCCEEDED(g_Device->CreateCommittedResource(&HeapProps, D3D12_HEAP_FLAG_NONE, &ResourceDesc, D3D12_RESOURCE_STATE_GENERIC_READ, nullptr,
+                                                        MY_IID_PPV_ARGS(&m_pResource)));
 
   m_GpuVirtualAddress = m_pResource->GetGPUVirtualAddress();
 
-  RE_D3D12_SetName(m_pResource, name.c_str());
+#ifdef RELEASE
+  (name);
+#else
+  m_pResource->SetName(name.c_str());
+#endif
 }
 
 void* UploadBuffer::Map(void) {
   void* Memory;
-  auto range = CD3DX12_RANGE(0, m_BufferSize);
-  m_pResource->Map(0, &range, &Memory);
+  m_pResource->Map(0, &CD3DX12_RANGE(0, m_BufferSize), &Memory);
   return Memory;
 }
 
 void UploadBuffer::Unmap(size_t begin, size_t end) {
-  auto range = CD3DX12_RANGE(begin, std::min(end, m_BufferSize));
-  m_pResource->Unmap(0, &range);
+  m_pResource->Unmap(0, &CD3DX12_RANGE(begin, std::min(end, m_BufferSize)));
 }
