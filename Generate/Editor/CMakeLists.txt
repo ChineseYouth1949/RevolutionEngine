@@ -80,3 +80,13 @@ add_custom_command(TARGET ${PROJECT_NAME} POST_BUILD
     COMMENT "Deploying REngine binaries and D3D12 Agility SDK..."
     VERBATIM
 )
+
+add_custom_target(DeployREngine
+    COMMAND ${CMAKE_COMMAND} -E copy_directory
+        "$<TARGET_FILE_DIR:REngine>" "${EDITOR_BIN_DIR}"
+    COMMENT "Deploying REngine binaries and D3D12 Agility SDK..."
+    VERBATIM
+)
+
+add_dependencies(${PROJECT_NAME} DeployREngine)
+add_dependencies(DeployREngine REngine)
