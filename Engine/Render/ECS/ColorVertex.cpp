@@ -1,7 +1,4 @@
-
-#include "Engine/Core/Core.h"
 #include "ColorVertex.h"
-#include "ConstBuffer.h"
 
 namespace re::engine::render {
 using namespace Microsoft::WRL;
@@ -12,8 +9,9 @@ using namespace re::engine;
 RenderColorVertex::RenderColorVertex() {}
 RenderColorVertex::~RenderColorVertex() {}
 
-void RenderColorVertex::Init(shared_ptr<GraphicsCore> gc) {
+void RenderColorVertex::Init(shared_ptr<GraphicsCore> gc, shared_ptr<SharedInfo> si) {
   m_GC = gc;
+  m_SharedInfo = si;
 
   // RootSignature
   m_RootSignature.Reset(2, 0);
@@ -118,6 +116,13 @@ void RenderColorVertex::Render() {
   pGfxContext->SetRootSignature(m_RootSignature);
   pGfxContext->SetPipelineState(m_PSO);
   pGfxContext->SetPrimitiveTopology(D3D_PRIMITIVE_TOPOLOGY_TRIANGLELIST);
+
+  CameraCB cameraCB;
+  cameraCB.view = m_SharedInfo->camera.GetViewMatrix();
+  cameraCB.proj = m_SharedInfo->camera.GetProjMatrix();
+  cameraCB.viewProj = m_SharedInfo->camera.GetViewProjMatrix();
+
+  pGfxContext->SetDynamicConstantBufferView(0, sizeof(cameraCB), &cameraCB);
 
   ModelCB modelCB;
   modelCB.model = Math::Matrix4(Math::EIdentityTag());

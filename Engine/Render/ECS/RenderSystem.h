@@ -3,7 +3,7 @@
 #include "Engine/Core/Core.h"
 
 #include "GraphicsCore.h"
-#include "Engine/Render/RHI/Camera.h"
+#include "Common.h"
 
 namespace re::engine::render {
 
@@ -26,6 +26,6 @@ class RE_API RenderSystem : public ecs::SystemGroup {
 
  private:
   shared_ptr<GraphicsCore> m_GC;
-  Math::Camera m_Camera;
+  shared_ptr<SharedInfo> m_SharedInfo;
 };
 }  // namespace re::engine::render

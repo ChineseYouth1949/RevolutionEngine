@@ -23,7 +23,7 @@ class RE_API Scene {
   }
 
   template <typename T>
-  bool AddSystem(shared_ptr<T> sys) {
+  bool AddSystem(shared_ptr<T> sys, bool isChild = false) {
     if (HasSystem<T>()) {
       return false;
     }
@@ -34,11 +34,11 @@ class RE_API Scene {
       auto sysGroup = dynamic_cast<SystemGroup*>(sys.get());
       if (sysGroup) {
         for (auto childSys : sysGroup->GetChilds()) {
-          AddSystem(childSys);
+          AddSystem(childSys, true);
         }
       }
 
-      if (sys->OnAttach()) {
+      if (sys->OnAttach() && isChild == false) {
         m_Systems[std::type_index(typeid(T))] = sys;
         return true;
       }

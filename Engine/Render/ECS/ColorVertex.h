@@ -3,10 +3,12 @@
 #include "Engine/Core/Core.h"
 
 #include "GraphicsCore.h"
-
+#include "Common.h"
 #include "Mesh.h"
 
 namespace re::engine::render {
+class RenderSystem;
+
 struct ColorVertex {
   glm::vec3 position;
   glm::vec4 color;
@@ -19,7 +21,7 @@ class RenderColorVertex : public ecs::System {
   RenderColorVertex();
   ~RenderColorVertex();
 
-  void Init(shared_ptr<GraphicsCore> gc);
+  void Init(shared_ptr<GraphicsCore> gc, shared_ptr<SharedInfo> si);
 
   bool OnAttach() override;
   bool OnDetach() override;
@@ -33,6 +35,8 @@ class RenderColorVertex : public ecs::System {
 
  private:
   shared_ptr<GraphicsCore> m_GC;
+  shared_ptr<SharedInfo> m_SharedInfo;
+
   GraphicsPSO m_PSO;
   RootSignature m_RootSignature;
 
