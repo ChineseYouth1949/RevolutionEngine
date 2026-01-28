@@ -70,7 +70,7 @@ void RenderAxis::Init(shared_ptr<GraphicsCore> gc, shared_ptr<SharedInfo> si) {
   // Vertex triangleVertices[] = {{-halfMax, -halfMax, 0.0f}, {halfMax, -halfMax, 0.0f}, {-halfMax, halfMax, 0.0f},
   //                              {halfMax, -halfMax, 0.0f},  {halfMax, halfMax, 0.0f},  {-halfMax, halfMax, 0.0f}};
   //   mAspectRatio = static_cast<float>(mWidth) / static_cast<float>(mHeight);
-  float mAspectRatio = 1.77777777778;
+  float mAspectRatio = static_cast<float>(m_SharedInfo->width) / static_cast<float>(m_SharedInfo->height);
 
   Vertex triangleVertices[] = {
       // triangle 1
