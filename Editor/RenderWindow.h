@@ -2,6 +2,7 @@
 
 #include <QWindow>
 #include <QTimer>
+#include <QPoint>
 
 #include <Engine/All.h>
 
@@ -27,12 +28,12 @@ class RenderWindow : public QWindow {
   // void hideEvent(QHideEvent*) override;
   // void closeEvent(QCloseEvent*) override;
 
-  // void keyPressEvent(QKeyEvent*) override;
+  void keyPressEvent(QKeyEvent*) override;
   // void keyReleaseEvent(QKeyEvent*) override;
   // void mousePressEvent(QMouseEvent*) override;
   // void mouseReleaseEvent(QMouseEvent*) override;
   // void mouseDoubleClickEvent(QMouseEvent*) override;
-  // void mouseMoveEvent(QMouseEvent*) override;
+  void mouseMoveEvent(QMouseEvent*) override;
 
   bool m_Init{false};
   engine::shared_ptr<engine::ecs::Scene> m_Scene;
@@ -40,6 +41,8 @@ class RenderWindow : public QWindow {
   engine::shared_ptr<engine::render::RenderSystem> m_RenderSystem;
 
   QTimer m_RunTimer;
+
+  QPoint mMouseMidPressLastPos;
 };
 
 }  // namespace re::editor

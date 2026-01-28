@@ -17,7 +17,7 @@
 #include "Math/Frustum.h"
 
 namespace Math {
-class BaseCamera {
+class RE_API BaseCamera {
  public:
   // Call this function once per frame and after you've changed any state.  This
   // regenerates all matrices.  Calling it more or less than once per frame will break
@@ -80,7 +80,7 @@ class BaseCamera {
   Frustum m_FrustumWS;  // World-space view frustum
 };
 
-class Camera : public BaseCamera {
+class RE_API Camera : public BaseCamera {
  public:
   Camera();
 

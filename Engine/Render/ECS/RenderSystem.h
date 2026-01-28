@@ -24,6 +24,8 @@ class RE_API RenderSystem : public ecs::SystemGroup {
   void OnUpdate(const ecs::UpdateInfo& info) override;
   void OnPostUpdate(const ecs::UpdateInfo& info) override;
 
+  shared_ptr<SharedInfo> GetSharedInfo() { return m_SharedInfo; }
+
  private:
   shared_ptr<GraphicsCore> m_GC;
   shared_ptr<SharedInfo> m_SharedInfo;
