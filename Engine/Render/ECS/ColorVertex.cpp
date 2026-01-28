@@ -15,8 +15,9 @@ void RenderColorVertex::Init(shared_ptr<GraphicsCore> gc) {
   m_GC = gc;
 
   // RootSignature
-  m_RootSignature.Reset(1, 0);
+  m_RootSignature.Reset(2, 0);
   m_RootSignature[0].InitAsConstantBuffer(0, D3D12_SHADER_VISIBILITY_VERTEX);
+  m_RootSignature[1].InitAsConstantBuffer(1, D3D12_SHADER_VISIBILITY_VERTEX);
   m_RootSignature.Finalize(L"MyRootSignature", D3D12_ROOT_SIGNATURE_FLAG_ALLOW_INPUT_ASSEMBLER_INPUT_LAYOUT);
 
   // INPUT_ELEMENT
