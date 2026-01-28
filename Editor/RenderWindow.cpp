@@ -69,39 +69,24 @@ void RenderWindow::keyPressEvent(QKeyEvent* event) {
   auto& camera = m_RenderSystem->GetSharedInfo()->camera;
   m_RenderSystem->GetSharedInfo()->Change();
 
-  // 定义移动速度
-  const float moveSpeed = 1.0f;
-
-  // 获取相机当前的朝向轴
-  // MiniEngine 约定：-Z 是 Forward，+X 是 Right
-  Math::Vector3 forward = camera.GetForwardVec();
-  Math::Vector3 right = camera.GetRightVec();
-  Math::Vector3 currentPos = camera.GetPosition();
-
   switch (event->key()) {
     case Qt::Key_W:
-      // 前进：位置 + 前向向量
-      camera.SetPosition(currentPos + forward * moveSpeed);
-      break;
-    case Qt::Key_S:
-      // 后退：位置 - 前向向量
-      camera.SetPosition(currentPos - forward * moveSpeed);
+      camera.Walk(1);
       break;
     case Qt::Key_A:
-      // 左横移：位置 - 右向向量
-      camera.SetPosition(currentPos - right * moveSpeed);
+      camera.Strafe(-1);
+      break;
+    case Qt::Key_S:
+      camera.Walk(-1);
       break;
     case Qt::Key_D:
-      // 右横移：位置 + 右向向量
-      camera.SetPosition(currentPos + right * moveSpeed);
+      camera.Strafe(1);
       break;
     default:
       QWindow::keyPressEvent(event);
-      return;  // 没按移动键则直接返回，不执行下面的 Update
   }
 
-  // 重要：修改位置后必须同步更新矩阵，否则渲染器无法感知相机移动
-  camera.Update();
+  camera.UpdateViewProj();
 }
 // void RenderWindow::keyReleaseEvent(QKeyEvent*) {}
 // void RenderWindow::mousePressEvent(QMouseEvent*) {}
@@ -113,24 +98,17 @@ void RenderWindow::mouseMoveEvent(QMouseEvent* event) {
 
   if (event->buttons() & Qt::MiddleButton) {
     QPoint currentPos = event->pos();
-    float dx = static_cast<float>(currentPos.x() - mMouseMidPressLastPos.x());
-    float dy = static_cast<float>(currentPos.y() - mMouseMidPressLastPos.y());
-    float sensitivity = 0.002f;
 
-    // 使用構造函數 Quaternion(axis, angle) 代替缺失的 RotationX/Y
-    // 繞世界 Y 軸偏航 (Yaw)
-    Math::Quaternion yawRot(Math::Vector3(Math::kYUnitVector), -dx * sensitivity);
+    float dx = (0.25f * (currentPos.x() - mMouseMidPressLastPos.x()));
+    float dy = (0.25f * (currentPos.y() - mMouseMidPressLastPos.y()));
 
-    // 繞相機自身右軸俯仰 (Pitch)
-    Math::Quaternion pitchRot(camera.GetRightVec(), -dy * sensitivity);
-
-    // 結合旋轉：注意 MiniEngine 的 operator* 內部實現是 XMQuaternionMultiply(rhs, m_vec)
-    // 這意味著左乘和右乘的順序需要根據其庫的實現具體測試，通常是：
-    camera.SetRotation(Normalize(yawRot * camera.GetRotation() * pitchRot));
-    camera.Update();
+    camera.Pitch(dy / 12.0f);
+    camera.RotateY(dx / 12.0f);
 
     mMouseMidPressLastPos = currentPos;
   }
+
+  camera.UpdateViewProj();
 }
 
 }  // namespace re::editor

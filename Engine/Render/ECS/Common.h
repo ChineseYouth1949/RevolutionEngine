@@ -3,19 +3,21 @@
 #include "Engine/Render/RHI/Math/Matrix4.h"
 #include "Engine/Render/RHI/Camera.h"
 
+#include "Camera.h"
+
 namespace re::engine::render {
 struct CameraCB {
-  Math::Matrix4 view;
-  Math::Matrix4 proj;
-  Math::Matrix4 viewProj;
+  glm::mat4 view;
+  glm::mat4 proj;
+  glm::mat4 viewProj;
 };
 
 struct ModelCB {
-  Math::Matrix4 model;
+  glm::mat4 model;
 };
 
 struct SharedInfo {
-  Math::Camera camera;
+  Camera camera;
   int width;
   int height;
 

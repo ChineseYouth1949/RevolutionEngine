@@ -123,7 +123,7 @@ void RenderColorVertex::Render() {
   pGfxContext->SetDynamicConstantBufferView(0, sizeof(cameraCB), &cameraCB);
 
   ModelCB modelCB;
-  modelCB.model = Math::Matrix4(Math::EIdentityTag());
+  modelCB.model = glm::identity<glm::mat4>();
   pGfxContext->SetDynamicConstantBufferView(1, sizeof(modelCB), &modelCB);
 
   auto it = m_EntityResrouce.begin();

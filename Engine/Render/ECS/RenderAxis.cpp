@@ -92,7 +92,7 @@ void RenderAxis::Init(shared_ptr<GraphicsCore> gc, shared_ptr<SharedInfo> si) {
 
 void RenderAxis::UpdateCB() {
   auto cameraPos = m_SharedInfo->camera.GetPosition();
-  m_ConstBuffer.cameraPos = {cameraPos.GetX(), cameraPos.GetY(), cameraPos.GetZ()};
+  m_ConstBuffer.cameraPos = {cameraPos.x, cameraPos.y, cameraPos.z};
   m_ConstBuffer.screenResolution[0] = m_SharedInfo->width;
   m_ConstBuffer.screenResolution[1] = m_SharedInfo->height;
   m_ConstBuffer.gridSize = 1.0;

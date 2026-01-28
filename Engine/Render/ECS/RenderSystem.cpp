@@ -16,9 +16,8 @@ void RenderSystem::Init(shared_ptr<GraphicsCore> gc) {
   m_SharedInfo->width = 1280;
   m_SharedInfo->height = 720;
 
-  m_SharedInfo->camera.SetEyeAtUp({0, 2, -5}, {0, 0, 0}, {0, 1, 0});
+  m_SharedInfo->camera.LookAt({0, 2, -5}, {0, 0, 0}, {0, 1, 0});
   float aspectHeightOverWidth = static_cast<float>(1280) / static_cast<float>(720);
-  m_SharedInfo->camera.SetPerspectiveMatrix(DirectX::XM_PIDIV4, aspectHeightOverWidth, 1.0f, 1000.0f);
 
   auto renColorVertex = GAlloc::make_shared<RenderColorVertex>();
   renColorVertex->Init(m_GC, m_SharedInfo);
