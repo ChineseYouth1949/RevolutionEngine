@@ -1,6 +1,7 @@
 
 #include "Engine/Core/Core.h"
 #include "ColorVertex.h"
+#include "ConstBuffer.h"
 
 namespace re::engine::render {
 using namespace Microsoft::WRL;
@@ -117,6 +118,10 @@ void RenderColorVertex::Render() {
   pGfxContext->SetRootSignature(m_RootSignature);
   pGfxContext->SetPipelineState(m_PSO);
   pGfxContext->SetPrimitiveTopology(D3D_PRIMITIVE_TOPOLOGY_TRIANGLELIST);
+
+  ModelCB modelCB;
+  modelCB.model = Math::Matrix4(Math::EIdentityTag());
+  pGfxContext->SetDynamicConstantBufferView(1, sizeof(modelCB), &modelCB);
 
   auto it = m_EntityResrouce.begin();
   while (it != m_EntityResrouce.end()) {

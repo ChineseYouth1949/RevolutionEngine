@@ -2,6 +2,7 @@
 #include "RenderSystem.h"
 
 #include "ColorVertex.h"
+#include "ConstBuffer.h"
 
 namespace re::engine::render {
 using namespace re::engine::ecs;
@@ -37,6 +38,15 @@ void RenderSystem::OnPreUpdate(const UpdateInfo& info) {
 }
 void RenderSystem::OnUpdate(const UpdateInfo& info) {
   m_GC->Begin();
+  auto pGfxContext = m_GC->GetGraphicsContext();
+
+  CameraCB cameraCB;
+  cameraCB.view = m_Camera.GetViewMatrix();
+  cameraCB.proj = m_Camera.GetProjMatrix();
+  cameraCB.viewProj = m_Camera.GetViewProjMatrix();
+
+  pGfxContext->SetDynamicConstantBufferView(0, sizeof(cameraCB), &cameraCB);
+
   SystemGroup::OnUpdate(info);
 }
 void RenderSystem::OnPostUpdate(const UpdateInfo& info) {

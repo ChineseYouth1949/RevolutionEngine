@@ -1,10 +1,11 @@
-cbuffer PerFrameConstants : register(b0) {
-    float4x4 viewMatrix;
-    float4x4 projMatrix;
+cbuffer CameraCB : register(b0) {
+    float4x4 view;
+    float4x4 proj;
+    float4x4 viewProj;
 };
 
-cbuffer PerObjectConstants : register(b1) {
-    float4x4 modelMatrix;
+cbuffer ModelCB : register(b1) {
+    float4x4 model;
 };
 
 struct VSInput {
@@ -21,9 +22,8 @@ PSInput VSMain(VSInput input) {
     PSInput result;
 
     float4 pos = float4(input.position, 1.0f);
-    pos = mul(modelMatrix, pos);
-    pos = mul(viewMatrix, pos);
-    pos = mul(projMatrix, pos);
+    pos = mul(model, pos);
+    pos = mul(viewProj, pos);
 
     result.pos = pos;
     result.color = input.color;
