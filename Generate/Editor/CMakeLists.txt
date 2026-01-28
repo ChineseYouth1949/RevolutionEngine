@@ -73,13 +73,13 @@ endif()
 
 set(EDITOR_BIN_DIR "$<TARGET_FILE_DIR:${PROJECT_NAME}>")
 
-add_custom_command(TARGET ${PROJECT_NAME} POST_BUILD
-    COMMAND ${CMAKE_COMMAND} -E copy_directory
-        "$<TARGET_FILE_DIR:REngine>" "${EDITOR_BIN_DIR}"
+# add_custom_command(TARGET ${PROJECT_NAME} POST_BUILD
+#     COMMAND ${CMAKE_COMMAND} -E copy_directory
+#         "$<TARGET_FILE_DIR:REngine>" "${EDITOR_BIN_DIR}"
         
-    COMMENT "Deploying REngine binaries and D3D12 Agility SDK..."
-    VERBATIM
-)
+#     COMMENT "Deploying REngine binaries and D3D12 Agility SDK..."
+#     VERBATIM
+# )
 
 add_custom_target(DeployREngine
     COMMAND ${CMAKE_COMMAND} -E copy_directory
