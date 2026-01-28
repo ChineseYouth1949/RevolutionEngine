@@ -7,17 +7,10 @@
 #include "Mesh.h"
 
 namespace re::engine::render {
-struct ColorVertex {
-  glm::vec3 position;
-  glm::vec4 color;
-};
-
-class RenderColorVertex : public ecs::System {
-  using SysComType = Mesh<ColorVertex, std::uint32_t>;
-
+class RenderAxis : public ecs::System {
  public:
-  RenderColorVertex();
-  ~RenderColorVertex();
+  RenderAxis();
+  ~RenderAxis();
 
   void Init(shared_ptr<GraphicsCore> gc, shared_ptr<SharedInfo> si);
 
@@ -38,18 +31,27 @@ class RenderColorVertex : public ecs::System {
   GraphicsPSO m_PSO;
   RootSignature m_RootSignature;
 
-  void PollAddCom();
-  void PollDelCom();
-  void PollChangeCom();
+  ByteAddressBuffer m_VertexBuffer;
 
-  struct Resource {
-    ByteAddressBuffer vertexBuffer;
-    ByteAddressBuffer indexBuffer;
+  struct Vertex {
+    glm::vec3 position;
   };
-  Resource GetResource(SysComType& com);
-  void Render();
 
-  unordered_map<ecs::Entity, Resource> m_EntityResrouce;
+  struct ConstBuffer {
+    glm::vec4 backgroundColor;
+    glm::vec4 gridColor;
+    glm::vec3 cameraPos;
+    float _padding1;
+    int32_t screenResolution[2];
+
+    float gridSize;
+    float lineWidth;
+    float lineSoftness;
+  };
+  ConstBuffer m_ConstBuffer;
+
+  void UpdateCB();
+  void Render();
 };
 
 }  // namespace re::engine::render

@@ -24,8 +24,6 @@ void RenderColorVertex::Init(shared_ptr<GraphicsCore> gc, shared_ptr<SharedInfo>
                                          {"COLOR", 0, DXGI_FORMAT_R32G32B32A32_FLOAT, 0, 12, D3D12_INPUT_CLASSIFICATION_PER_VERTEX_DATA, 0}};
 
   // PSO
-  GraphicsPSO m_PSO(L"MyColorPSO");
-
   // 1. 绑定之前创建好的根签名
   m_PSO.SetRootSignature(m_RootSignature);
 
@@ -153,7 +151,7 @@ void RenderColorVertex::OnPreUpdate(const ecs::UpdateInfo& info) {
   PollAddCom();
 }
 void RenderColorVertex::OnUpdate(const ecs::UpdateInfo& info) {
-  Render();
+  // Render();
 }
 void RenderColorVertex::OnPostUpdate(const ecs::UpdateInfo& info) {}
 

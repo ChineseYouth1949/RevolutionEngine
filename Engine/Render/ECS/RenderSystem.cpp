@@ -1,6 +1,7 @@
 #include "RenderSystem.h"
 
 #include "ColorVertex.h"
+#include "RenderAxis.h"
 
 namespace re::engine::render {
 using namespace re::engine::ecs;
@@ -14,8 +15,11 @@ void RenderSystem::Init(shared_ptr<GraphicsCore> gc) {
 
   auto renColorVertex = GAlloc::make_shared<RenderColorVertex>();
   renColorVertex->Init(m_GC, m_SharedInfo);
-
   AddSystem(renColorVertex);
+
+  auto renAxis = GAlloc::make_shared<RenderAxis>();
+  renAxis->Init(m_GC, m_SharedInfo);
+  AddSystem(renAxis);
 }
 
 bool RenderSystem::OnAttach() {

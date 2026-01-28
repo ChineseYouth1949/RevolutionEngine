@@ -16,6 +16,15 @@ struct ModelCB {
 
 struct SharedInfo {
   Math::Camera camera;
+  int width;
+  int height;
+
+  void Change() { dirty = true; }
+  bool Dirty() { return dirty; }
+  void Reset() { dirty = false; }
+
+ private:
+  bool dirty = false;
 };
 
 }  // namespace re::engine::render

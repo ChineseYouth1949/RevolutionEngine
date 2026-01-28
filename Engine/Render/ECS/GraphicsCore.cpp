@@ -308,8 +308,12 @@ void GraphicsCore::Begin() {
   GraphicsContext& gfxContext = GraphicsContext::Begin(L"Scene Render");
 
   gfxContext.TransitionResource(Graphics::g_SceneColorBuffer, D3D12_RESOURCE_STATE_RENDER_TARGET, true);
+  gfxContext.TransitionResource(Graphics::g_SceneDepthBuffer, D3D12_RESOURCE_STATE_DEPTH_WRITE, true);
+
   gfxContext.ClearColor(Graphics::g_SceneColorBuffer);
-  gfxContext.SetRenderTarget(Graphics::g_SceneColorBuffer.GetRTV());
+  gfxContext.ClearDepth(Graphics::g_SceneDepthBuffer);
+
+  gfxContext.SetRenderTargets(1, &Graphics::g_SceneColorBuffer.GetRTV(), Graphics::g_SceneDepthBuffer.GetDSV());
   gfxContext.SetViewportAndScissor(0, 0, Graphics::g_SceneColorBuffer.GetWidth(), Graphics::g_SceneColorBuffer.GetHeight());
 
   m_GraphicsContext = &gfxContext;
