@@ -1,3 +1,3 @@
-#include "Core/Core.h"
-
+#include "Base/All.h"
+#include "ECS/All.h"
 #include "Render/Render.h"

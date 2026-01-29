@@ -1,6 +1,7 @@
 #pragma once
 
-#include "Engine/Core/Core.h"
+#include "Engine/Base/All.h"
+#include "Engine/ECS/All.h"
 
 #include "GraphicsCore.h"
 #include "Common.h"

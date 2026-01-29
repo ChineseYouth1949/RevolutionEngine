@@ -1,8 +1,7 @@
 #pragma once
 
-#include "World.h"
-
 namespace re::engine::ecs {
+class World;
 
 struct UpdateInfo {
   float dt;

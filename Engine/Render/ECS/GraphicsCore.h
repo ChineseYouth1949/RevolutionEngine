@@ -1,6 +1,6 @@
 #pragma once
 
-#include "Engine/Core/Core.h"
+#include "Engine/Base/All.h"
 
 #include "Engine/Render/RHI/GraphicsCore.h"
 #include "Engine/Render/RHI/SystemTime.h"

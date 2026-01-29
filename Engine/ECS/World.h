@@ -1,8 +1,9 @@
 #pragma once
 
-#include "Engine/Core/Base.h"
+#include "Engine/Base/All.h"
 
 #include "StateComponent.h"
+#include "ResourceManager.h"
 
 namespace re::engine::ecs {
 using Entity = entt::entity;
@@ -13,11 +14,12 @@ class RE_API World {
   World();
   virtual ~World();
 
-  RE_FINLINE Registry& GetRegistry() { return m_Reg; }
+  RE_FINLINE Registry* GetRegistry() { return &m_Reg; }
+  RE_FINLINE ResourceManager* GetResourceManager() { return &m_ResourceManager; }
 
+  RE_FINLINE bool HasEntity(Entity e) { return m_Reg.valid(e); }
   RE_FINLINE Entity CreateEntity() { return m_Reg.create(); }
   RE_FINLINE void DestryEntity(Entity e) { m_DestryEntitys.push_back(e); }
-  RE_FINLINE bool HasEntity(Entity e) { return m_Reg.valid(e); }
 
   template <typename... T>
   RE_FINLINE bool HasComponents(Entity e) const {
@@ -59,5 +61,6 @@ class RE_API World {
  protected:
   Registry m_Reg;
   vector<Entity> m_DestryEntitys;
+  ResourceManager m_ResourceManager;
 };
 }  // namespace re::engine::ecs

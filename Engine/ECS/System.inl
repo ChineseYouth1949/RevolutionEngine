@@ -1,18 +1,19 @@
 #pragma once
 
 #include "System.h"
+#include "World.h"
 
 namespace re::engine::ecs {
 template <typename ComponentType>
 bool System::PollAddComponent() {
-  auto& reg = m_World->GetRegistry();
+  auto reg = m_World->GetRegistry();
 
-  auto& stateStorage = reg.storage<StateComponentAdd<ComponentType>>();
+  auto& stateStorage = reg->storage<StateComponentAdd<ComponentType>>();
   if (stateStorage.empty()) {
     return false;
   }
 
-  auto& comStorage = reg.storage<ComponentType>();
+  auto& comStorage = reg->storage<ComponentType>();
 
   vector<Entity> entities;
   vector<ComponentType> components;
@@ -32,14 +33,14 @@ bool System::PollAddComponent() {
 
 template <typename ComponentType>
 bool System::PollDelComponent() {
-  auto& reg = m_World->GetRegistry();
+  auto reg = m_World->GetRegistry();
 
-  auto& stateStorage = reg.storage<StateComponentDel<ComponentType>>();
+  auto& stateStorage = reg->storage<StateComponentDel<ComponentType>>();
   if (stateStorage.empty()) {
     return false;
   }
 
-  auto& comStorage = reg.storage<ComponentType>();
+  auto& comStorage = reg->storage<ComponentType>();
 
   comStorage.remove(stateStorage.begin(), stateStorage.end());
   stateStorage.clear();
@@ -49,9 +50,9 @@ bool System::PollDelComponent() {
 
 template <typename ComponentType>
 bool System::PollChangeComponent() {
-  auto& reg = m_World->GetRegistry();
+  auto reg = m_World->GetRegistry();
 
-  auto& stateStorage = reg.storage<StateComponentChange<ComponentType>>();
+  auto& stateStorage = reg->storage<StateComponentChange<ComponentType>>();
   if (stateStorage.empty()) {
     return false;
   }

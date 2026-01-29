@@ -51,10 +51,10 @@ void RenderColorVertex::Init(shared_ptr<GraphicsCore> gc, shared_ptr<SharedInfo>
   UINT compileFlags = 0;
 #endif
 
-  wstring vertexShaderPath = m_GC->GetResourceFilePath(L"HelloTriangle.hlsl");
+  wstring vertexShaderPath = m_GC->GetResourceFilePath(L"ColorVertex.hlsl");
   RE_ASSERT_SUCCEEDED(D3DCompileFromFile(vertexShaderPath.c_str(), nullptr, nullptr, "VSMain", "vs_5_0", compileFlags, 0, &vertexShader, nullptr));
 
-  wstring pixelShaderPath = m_GC->GetResourceFilePath(L"HelloTriangle.hlsl");
+  wstring pixelShaderPath = m_GC->GetResourceFilePath(L"ColorVertex.hlsl");
   RE_ASSERT_SUCCEEDED(D3DCompileFromFile(pixelShaderPath.c_str(), nullptr, nullptr, "PSMain", "ps_5_0", compileFlags, 0, &pixelShader, nullptr));
 
   m_PSO.SetVertexShader(vertexShader->GetBufferPointer(), vertexShader->GetBufferSize());
@@ -74,9 +74,9 @@ RenderColorVertex::Resource RenderColorVertex::GetResource(RenderColorVertex::Sy
 }
 
 void RenderColorVertex::PollAddCom() {
-  auto& reg = m_World->GetRegistry();
+  auto reg = m_World->GetRegistry();
 
-  auto& stateStorage = reg.storage<StateComponentAdd<SysComType>>();
+  auto& stateStorage = reg->storage<StateComponentAdd<SysComType>>();
   for (auto [e, addCom] : stateStorage.each()) {
     auto resource = GetResource(addCom.data);
     m_EntityResrouce.insert({e, resource});
@@ -86,9 +86,9 @@ void RenderColorVertex::PollAddCom() {
 }
 
 void RenderColorVertex::PollDelCom() {
-  auto& reg = m_World->GetRegistry();
+  auto reg = m_World->GetRegistry();
 
-  auto& stateStorage = reg.storage<StateComponentDel<SysComType>>();
+  auto& stateStorage = reg->storage<StateComponentDel<SysComType>>();
   for (auto [e] : stateStorage.each()) {
     auto it = m_EntityResrouce.find(e);
     m_EntityResrouce.erase(it);
@@ -97,12 +97,12 @@ void RenderColorVertex::PollDelCom() {
   PollDelComponent<SysComType>();
 }
 void RenderColorVertex::PollChangeCom() {
-  auto& reg = m_World->GetRegistry();
+  auto reg = m_World->GetRegistry();
 
-  auto& stateStorage = reg.storage<StateComponentDel<SysComType>>();
+  auto& stateStorage = reg->storage<StateComponentDel<SysComType>>();
   for (auto [e] : stateStorage.each()) {
     auto it = m_EntityResrouce.find(e);
-    auto& com = reg.get<SysComType>(e);
+    auto& com = reg->get<SysComType>(e);
     it->second = GetResource(com);
   }
   PollChangeComponent<SysComType>();

@@ -36,8 +36,8 @@ endif()
 # PCH file
 target_precompile_headers(${PROJECT_NAME}
     PUBLIC
-    "${CodePath}/Core/PCH.h"
-    "${CodePath}/Core/Base.h"
+    "${CodePath}/Base/PCH.h"
+    "${CodePath}/Base/All.h"
 )
 
 # include my head file

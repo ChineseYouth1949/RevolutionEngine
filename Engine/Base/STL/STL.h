@@ -1,6 +1,6 @@
 #pragma once
 
-#include "Engine/Core/Macros.h"
+#include "Engine/Base/Macros.h"
 
 #ifdef RE_USE_EASTL
 #define STL_NAMESPACE eastl

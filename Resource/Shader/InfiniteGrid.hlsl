@@ -37,35 +37,37 @@ cbuffer GridConstants : register(b1) {
 };
 
 float4 PSMain(PSInput input) : SV_TARGET {
-  // 获取世界坐标
-  float3 worldPos = input.worldPos;
-  
-  // 精确计算屏幕空间导数（关键改进）
-  float2 dx = ddx(worldPos.xz);
-  float2 dy = ddy(worldPos.xz);
-  float2 pixelSize = max(length(dx), length(dy)) * gridSize;
-  
-  // 网格线计算（与原ShaderToy完全一致）
-  float2 gridCoord = worldPos.xz / gridSize;
-  float2 fractional = abs(frac(gridCoord) - 0.5);
-  
-  // 使用fwidth计算距离，确保与ShaderToy一致
-  float2 fw = fwidth(gridCoord);
-  float2 gridDist = fractional / fw;
-  
-  // 计算到最近网格线的距离
-  float lineDist = min(gridDist.x, gridDist.y);
-  
-  // 使用与原ShaderToy完全相同的抗锯齿算法
-  float lineMask = 1.0 - smoothstep(lineWidth - lineSoftness, lineWidth + lineSoftness, lineDist);
-  
-  // 计算距离衰减（基于相机到像素的世界空间距离）
-  float3 viewDir = worldPos - cameraPos;
-  float distance = length(viewDir);
-  float fade = exp(-0.02 * distance);
-  
-  // 混合颜色
-  float3 finalColor = lerp(backgroundColor.rgb, gridColor.rgb, lineMask * fade);
-  
-  return float4(finalColor, 1.0);
+      float2 coord = input.worldPos.xz / gridSize;
+    
+    // 1. 使用 fwidth 获取当前像素在网格坐标系下的变化率
+    float2 derivative = fwidth(coord);
+    
+    // 2. 计算网格线逻辑：使用 fract 对齐并居中
+    // 这能确保 grid 值在网格线处趋近于 0
+    float2 grid = abs(frac(coord - 0.5) - 0.5) / derivative;
+    
+    // 3. 取 x 和 y 的最小值，即为到最近网格线的距离
+    float lineDist = min(grid.x, grid.y);
+    
+    // 4. 关键：抗锯齿平滑处理
+    // 这里的 1.0 代表 1 个像素宽度的抗锯齿过渡区
+    float lineMask = 1.0 - smoothstep(0.0, 1.0, lineDist);
+
+    // 5. 增强型距离衰减
+    float3 viewDir = input.worldPos - cameraPos;
+    float dist = length(viewDir);
+    
+    // 使用非线性衰减，让远方平滑消失，避免出现硬切边界
+    float fade = exp(-0.01 * dist); 
+    // 进一步限制：太远的地方直接不渲染网格，防止浮点数精度引起的闪烁
+    fade *= saturate(1.0 - dist / 500.0); 
+
+    // 6. 最终颜色混合
+    // 注意：网格通常需要开启 Alpha Blend 以达到最佳效果
+    float4 color = gridColor;
+    color.a *= lineMask * fade;
+    
+    // 如果不开启 Blend，则使用 lerp
+    float3 finalRGB = lerp(backgroundColor.rgb, gridColor.rgb, color.a);
+    return float4(finalRGB, 1.0);
 }
