@@ -76,7 +76,7 @@ RenderColorVertex::Resource RenderColorVertex::GetResource(RenderColorVertex::Sy
 void RenderColorVertex::PollAddCom() {
   auto reg = m_World->GetRegistry();
 
-  auto& stateStorage = reg->storage<StateComponentAdd<SysComType>>();
+  auto& stateStorage = reg->storage<AddComponentTag<SysComType>>();
   for (auto [e, addCom] : stateStorage.each()) {
     auto resource = GetResource(addCom.data);
     m_EntityResrouce.insert({e, resource});
@@ -88,7 +88,7 @@ void RenderColorVertex::PollAddCom() {
 void RenderColorVertex::PollDelCom() {
   auto reg = m_World->GetRegistry();
 
-  auto& stateStorage = reg->storage<StateComponentDel<SysComType>>();
+  auto& stateStorage = reg->storage<DelComponentTag<SysComType>>();
   for (auto [e] : stateStorage.each()) {
     auto it = m_EntityResrouce.find(e);
     m_EntityResrouce.erase(it);
@@ -99,7 +99,7 @@ void RenderColorVertex::PollDelCom() {
 void RenderColorVertex::PollChangeCom() {
   auto reg = m_World->GetRegistry();
 
-  auto& stateStorage = reg->storage<StateComponentDel<SysComType>>();
+  auto& stateStorage = reg->storage<DelComponentTag<SysComType>>();
   for (auto [e] : stateStorage.each()) {
     auto it = m_EntityResrouce.find(e);
     auto& com = reg->get<SysComType>(e);

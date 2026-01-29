@@ -8,7 +8,7 @@ template <typename ComponentType>
 bool System::PollAddComponent() {
   auto reg = m_World->GetRegistry();
 
-  auto& stateStorage = reg->storage<StateComponentAdd<ComponentType>>();
+  auto& stateStorage = reg->storage<AddComponentTag<ComponentType>>();
   if (stateStorage.empty()) {
     return false;
   }
@@ -35,7 +35,7 @@ template <typename ComponentType>
 bool System::PollDelComponent() {
   auto reg = m_World->GetRegistry();
 
-  auto& stateStorage = reg->storage<StateComponentDel<ComponentType>>();
+  auto& stateStorage = reg->storage<DelComponentTag<ComponentType>>();
   if (stateStorage.empty()) {
     return false;
   }
@@ -52,7 +52,7 @@ template <typename ComponentType>
 bool System::PollChangeComponent() {
   auto reg = m_World->GetRegistry();
 
-  auto& stateStorage = reg->storage<StateComponentChange<ComponentType>>();
+  auto& stateStorage = reg->storage<ChangeComponentTag<ComponentType>>();
   if (stateStorage.empty()) {
     return false;
   }

@@ -1,6 +1,6 @@
 #pragma once
 
-#include "StateComponent.h"
+#include "ComponentTag.h"
 #include "ResourceManager.h"
 
 namespace re::engine::ecs {
@@ -26,7 +26,7 @@ class RE_API World {
 
   template <typename T, typename... Args>
   T& AddComponent(Entity e, Args&&... args) {
-    auto& wrapper = m_Reg.emplace_or_replace<StateComponentAdd<T>>(e, std::forward<Args>(args)...);
+    auto& wrapper = m_Reg.emplace_or_replace<AddComponentTag<T>>(e, std::forward<Args>(args)...);
     return wrapper.data;
   }
 
@@ -42,15 +42,15 @@ class RE_API World {
 
   template <typename T>
   T& ChangeComponent(Entity e) {
-    m_Reg.emplace_or_replace<StateComponentChange<T>>(e);
+    m_Reg.emplace_or_replace<ChangeComponentTag<T>>(e);
     return m_Reg.get<T>(e);
   }
 
   template <typename T>
   bool RemoveComponent(Entity e) {
     if (HasComponents<T>(e)) {
-      m_Reg.emplace_or_replace<StateComponentDel<T>>(e);
-      m_Reg.remove<StateComponentAdd<T>>(e);
+      m_Reg.emplace_or_replace<DelComponentTag<T>>(e);
+      m_Reg.remove<AddComponentTag<T>>(e);
       return true;
     }
     return false;
