@@ -1,6 +1,6 @@
 #pragma once
 
-#include "Engine/Base/PCH.h"
+#include "Engine/Base/All.h"
 
 namespace re::engine::ecs {
 struct RE_API Resource {

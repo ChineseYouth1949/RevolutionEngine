@@ -2,16 +2,21 @@
 
 #include "Engine/Base/PCH.h"
 
-namespace re::engine::utility {
-class RE_API TypeId {
- public:
-  template <typename T>
-  RE_FINLINE static size_t Get() {
-    static const size_t id = Next();
-    return id;
-  }
+#define RE_DEFINE_TYPE_ID_FACTORY(Name)                \
+  class RE_API Name {                                  \
+   public:                                             \
+    using ValueType = size_t;                          \
+                                                       \
+    template <typename T>                              \
+    RE_FINLINE static ValueType Get() {                \
+      static const ValueType id = sCount.fetch_add(1); \
+      return id;                                       \
+    }                                                  \
+                                                       \
+   private:                                            \
+    static inline std::atomic<ValueType> sCount = 0;   \
+  };
 
- private:
-  static size_t Next();
-};
+namespace re::engine::utility {
+RE_DEFINE_TYPE_ID_FACTORY(TypeIdFactory)
 }  // namespace re::engine::utility

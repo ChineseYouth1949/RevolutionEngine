@@ -1,11 +1,12 @@
 #pragma once
 
-#include "Engine/Base/All.h"
-
 #include "Resource.h"
-#include "Engine/Base/Utility/TypeId.h"
 
 namespace re::engine::ecs {
+RE_DEFINE_TYPE_ID_FACTORY(ResTypeIdFactory)
+
+using ResouceId = ResTypeIdFactory::ValueType;
+
 class RE_API ResourceManager {
  public:
   ResourceManager() = default;
@@ -16,7 +17,7 @@ class RE_API ResourceManager {
 
   template <typename T, typename... Args>
   T* CreateResource(Args&&... args) {
-    const size_t id = TypeId<T>();
+    const ResouceId id = ResTypeIdFactory::Get<T>();
 
     if (id >= m_Resources.size()) {
       m_Resources.resize(id + 1);
@@ -30,7 +31,7 @@ class RE_API ResourceManager {
 
   template <typename T>
   RE_FINLINE T* GetResource() {
-    const size_t id = TypeId<T>();
+    const ResouceId id = ResTypeIdFactory::Get<T>();
     if (id < m_Resources.size()) {
       return m_Resources[id].Get<T>();
     }
@@ -39,7 +40,7 @@ class RE_API ResourceManager {
 
   template <typename T>
   void RemoveResource() {
-    const size_t id = TypeId<T>();
+    const ResouceId id = ResTypeIdFactory::Get<T>();
     if (id < m_Resources.size()) {
       m_Resources[id].Destroy();
     }
@@ -47,7 +48,7 @@ class RE_API ResourceManager {
 
   template <typename T>
   bool HasResource() {
-    const size_t id = TypeId<T>();
+    const ResouceId id = ResTypeIdFactory::Get<T>();
     return (id < m_Resources.size() && m_Resources[id].m_Ptr != nullptr);
   }
 

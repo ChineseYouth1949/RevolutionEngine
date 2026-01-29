@@ -1,7 +1,5 @@
 #pragma once
 
-#include "Engine/Base/All.h"
-
 #include "StateComponent.h"
 #include "ResourceManager.h"
 

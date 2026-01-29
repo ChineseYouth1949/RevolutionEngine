@@ -32,6 +32,7 @@
 #include <memory>
 #include <malloc.h>
 #include <chrono>
+#include <atomic>
 
 #include <dxgi1_6.h>
 #include <dxcapi.h>
