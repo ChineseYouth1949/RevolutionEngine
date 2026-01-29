@@ -1,2 +1,3 @@
 add_subdirectory(Memory)
 add_subdirectory(ECS)
+add_subdirectory(ResourceManager)
