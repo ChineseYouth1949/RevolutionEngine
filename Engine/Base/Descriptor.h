@@ -32,7 +32,7 @@ class RE_API DescriptorFactory {
 
   RE_FINLINE static Descriptor Create(const string& name = "") {
     size_t id = sIdCount.fetch_add(1);
-    return {id, 0, name.empty() ? string("DynamicID_") + Convert<string>(stl::to_string(id)) : name};
+    return {id, 0, name.empty() ? string("DynamicID : ") + Convert<string>(stl::to_string(id)) : name};
   }
 
   template <typename Type>
@@ -40,7 +40,7 @@ class RE_API DescriptorFactory {
     static const Descriptor handle = []() {
       Descriptor desc;
       desc.id = sIdCount.fetch_add(1);
-      desc.descrip = string(typeid(Type).name()) + string("_") + Convert<string>(stl::to_string(desc.id));
+      desc.descrip = string(typeid(Type).name()) + string(" : ") + Convert<string>(stl::to_string(desc.id));
       return desc;
     }();
     return handle;
@@ -53,7 +53,7 @@ class RE_API DescriptorFactory {
       desc.id = sIdCount.fetch_add(1);
       desc.tag = GetClassTag<TagClass>();
       desc.descrip =
-          string(typeid(TagClass).name()) + string("_") + string(typeid(Type).name()) + string("_") + Convert<string>(stl::to_string(desc.id));
+          string(typeid(TagClass).name()) + string(" : ") + string(typeid(Type).name()) + string(" : ") + Convert<string>(stl::to_string(desc.id));
       return desc;
     }();
     return handle;

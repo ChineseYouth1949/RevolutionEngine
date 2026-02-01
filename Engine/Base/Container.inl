@@ -36,4 +36,8 @@ template <typename DstType>
 RE_FINLINE DstType Convert(stl::string str) {
   return stringCopyTemp<stl::string, DstType>(str);
 }
+template <typename DstType>
+RE_FINLINE DstType Convert(string str) {
+  return stringCopyTemp<string, DstType>(str);
+}
 }  // namespace re::engine

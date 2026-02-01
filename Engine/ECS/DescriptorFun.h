@@ -17,11 +17,4 @@ RE_FINLINE static const utility::Descriptor& GetComDescriptor() {
   return utility::DescriptorFactory::GetAt<Component, Type>();
 }
 
-class Pass;
-
-template <typename Type>
-RE_FINLINE static const utility::Descriptor& GetPassDescriptor() {
-  return utility::DescriptorFactory::GetAt<Pass, Type>();
-}
-
 }  // namespace re::engine::ecs
