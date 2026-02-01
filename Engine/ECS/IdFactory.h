@@ -3,12 +3,12 @@
 #include "Engine/Base/All.h"
 
 namespace re::engine::ecs {
-RE_DEFINE_ID_FACTORY(ResIdFactory, 10000)
+RE_DEFINE_ID_FACTORY(ResIdFactory)
 using ResouceId = ResIdFactory::ValueType;
 
-using ComIdFactory = utility::IdFactory;
+RE_DEFINE_ID_FACTORY(ComIdFactory)
 using ComponentId = ComIdFactory::ValueType;
 
-using PassIdFactory = utility::IdFactory;
+RE_DEFINE_ID_FACTORY(PassIdFactory)
 using PassId = PassIdFactory::ValueType;
 }  // namespace re::engine::ecs

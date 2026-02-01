@@ -1,0 +1,35 @@
+#pragma once
+
+namespace re::engine {
+// Conversion between different types
+template <typename SrcType, typename DstType>
+RE_FINLINE DstType wstringToStringTemp(const SrcType& wstr) {
+  std::wstring_view sv(wstr);
+  if (sv.empty())
+    return {};
+
+  int size_needed = WideCharToMultiByte(CP_UTF8, 0, sv.data(), static_cast<int>(sv.size()), nullptr, 0, nullptr, nullptr);
+  if (size_needed <= 0)
+    return {};
+
+  DstType strTo(size_needed, '\0');
+  WideCharToMultiByte(CP_UTF8, 0, sv.data(), static_cast<int>(sv.size()), strTo.data(), size_needed, nullptr, nullptr);
+}
+#define wstringToString(str) wstringToStringTemp<string, wstring>(str)
+#define wstringToStringStl(str) wstringToStringTemp<stl::string, stl::wstring>(str)
+#define wstringToStringStd(str) wstringToStringTemp<std::string, std::wstring>(str)
+
+// Conversion between the same type
+template <typename SrcType, typename DstType>
+RE_FINLINE DstType stringCopyTemp(const SrcType& str) {
+  if (str.empty()) {
+    return DstType();
+  }
+  return DstType(str.data(), str.size());
+}
+
+template <typename DstType>
+RE_FINLINE DstType Convert(stl::wstring str) {
+  return stringCopyTemp<stl::wstring, DstType>(str);
+}
+}  // namespace re::engine

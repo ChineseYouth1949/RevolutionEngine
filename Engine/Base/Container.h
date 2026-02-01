@@ -17,7 +17,7 @@ using shared_ptr = memory::Allocator<GlobalAllocType>::shared_ptr<T>;
 template <typename T>
 using unique_ptr = memory::Allocator<GlobalAllocType>::unique_ptr<T>;
 
-// Global stl continaner
+// Global continaner type define
 const memory::AllocType GlobalAllocTypeSTL = memory::AllocType::MiMalloc;
 template <typename T>
 using GAllocSTL = memory::StlAllocator<GlobalAllocTypeSTL, T>;
@@ -70,26 +70,6 @@ using wstring = basic_string<wchar_t>;
 using u8string = basic_string<char8_t>;
 using u16string = basic_string<char16_t>;
 
-RE_FINLINE std::wstring toStd(const wstring& str) {
-  if (str.empty()) {
-    return std::wstring();
-  }
-  return std::wstring(str.data(), str.size());
-}
-
-RE_FINLINE std::string toStdString(const std::wstring& wstr) {
-  if (wstr.empty())
-    return "";
-
-  int size_needed = WideCharToMultiByte(CP_UTF8, 0, &wstr[0], (int)wstr.size(), NULL, 0, NULL, NULL);
-  std::string strTo(size_needed, 0);
-  WideCharToMultiByte(CP_UTF8, 0, &wstr[0], (int)wstr.size(), &strTo[0], size_needed, NULL, NULL);
-
-  return strTo;
-}
-
-RE_FINLINE std::string toStdString(const wstring& str) {
-  return toStdString(toStd(str));
-}
-
 }  // namespace re::engine
+
+#include "Container.inl"
