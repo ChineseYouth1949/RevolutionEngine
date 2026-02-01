@@ -1,122 +1,157 @@
 #pragma once
 
-#include "TypeId.h"
+#include "IdFactory.h"
 
 namespace re::engine::ecs {
-enum class Access { Read, Write };
 
-struct ResourceAccess {
-  ResourceId resId;
-  Access access;
+struct AccessId {
+  bool operator==(const AccessId& other) const { return value == other.value; }
+  size_t value;
 };
 
-struct ComponentAccess {
-  ComponentId compId;
-  Access access;
+struct Dependency {
+  AccessId id;
+  uint32_t priority;
+  bool canParallel;
 };
 
 class RE_API Pass {
  public:
+  Pass(PassId passId = PassIdFactory::Null, const wstring& name = L"") : m_PassId(passId), m_Name(name) {}
   virtual ~Pass() = default;
 
-  virtual PassId GetPassId() const = 0;
-  virtual const char* GetName() const { return "UnknownTask"; }
+  PassId GetPassId() const { return m_PassId; }
+  const wstring& GetName() const { return m_Name; }
 
-  virtual const std::vector<ResourceAccess>& GetResourceAccess() const = 0;
-  virtual const std::vector<ComponentAccess>& GetComponentAccess() const = 0;
-  virtual const std::vector<PassId>& GetBeforePass() const = 0;
-  virtual const std::vector<PassId>& GetAfterPass() const = 0;
+  virtual const vector<PassId>& GetBeforePass() const = 0;
+  virtual const vector<PassId>& GetAfterPass() const = 0;
+  virtual const vector<Dependency>& GetDependencies() const = 0;
 
   virtual void Execute() = 0;
 
-  tf::Task flowTask;
+ private:
+  PassId m_PassId;
+  wstring m_Name;
+  tf::Task m_FlowTask;
+
+  friend class Scheduler;
 };
 
 class Scheduler {
  public:
-  void Compile(const std::vector<std::shared_ptr<Pass>>& passArray) {
-    m_taskflow.clear();
-    m_idToTask.clear();
+  void Compile(const vector<std::shared_ptr<Pass>>& passArray) {
+    m_Taskflow.clear();
+    m_PassMap.clear();
 
     for (auto& pass : passArray) {
-      pass->flowTask = m_taskflow.emplace([pass]() { pass->Execute(); }).name(pass->GetName());
-      m_idToTask[pass->GetStageId()] = pass;
+      pass->m_FlowTask = m_Taskflow.emplace([pass]() { pass->Execute(); }).name(toStdString(pass->GetName()));
+      m_PassMap[pass->GetPassId()] = pass;
     }
 
-    for (auto& [id, PassId] : m_idToTask) {
-      for (auto beforeId : PassId->GetRunBefore()) {
-        if (m_idToTask.count(beforeId))
-          PassId->flowTask.precede(m_idToTask[beforeId]->flowTask);
+    for (auto& pass : passArray) {
+      for (auto bId : pass->GetBeforePass()) {
+        if (m_PassMap.count(bId))
+          pass->m_FlowTask.precede(m_PassMap[bId]->m_FlowTask);
       }
-      for (auto afterId : PassId->GetRunAfter()) {
-        if (m_idToTask.count(afterId))
-          m_idToTask[afterId]->flowTask.precede(PassId->flowTask);
+      for (auto aId : pass->GetAfterPass()) {
+        if (m_PassMap.count(aId))
+          m_PassMap[aId]->m_FlowTask.precede(pass->m_FlowTask);
       }
     }
 
-    BuildDataDependencies(tasks);
+    BuildPriorityDependencies(passArray);
   }
 
-  void Execute() { m_executor.run(m_taskflow).wait(); }
+  void Execute() { m_Executor.run(m_Taskflow).wait(); }
+
+  void DumpGraph(const wstring& path) {
+    std::filesystem::path fsPath(toStd(path));
+    if (fsPath.has_parent_path()) {
+      std::filesystem::create_directories(fsPath.parent_path());
+    }
+
+    std::ofstream ofs(fsPath);
+
+    if (ofs.is_open()) {
+      m_Taskflow.dump(ofs);
+      ofs.close();
+    } else {
+      // 这里可以根据你的项目规范抛出异常或记录日志
+      // RE_LOG_ERROR(L"Failed to open file for dumping graph: " + path);
+    }
+  }
 
  private:
-  void BuildDataDependencies(const std::vector<std::shared_ptr<Task>>& tasks) {
-    // 记录每个资源最后一次的写入者，后续读者必须在写入者之后
-    std::unordered_map<ResourceId, tf::Task> lastWriters;
+  void BuildPriorityDependencies(const vector<std::shared_ptr<Pass>>& passArray) {
+    struct TaskInfo {
+      tf::Task task;
+      bool canParallel;
+    };
+    // AccessId -> Priority -> Tasks
+    std::unordered_map<size_t, std::map<uint32_t, vector<TaskInfo>>> depGroups;
 
-    for (auto& PassId : tasks) {
-      for (const auto& access : PassId->GetResourceAccess()) {
-        if (access.access == Access::Write) {
-          // 如果有之前的写入者，建立依赖
-          if (lastWriters.count(access.resId)) {
-            lastWriters[access.resId].precede(PassId->flowTask);
-          }
-          lastWriters[access.resId] = PassId->flowTask;
-        } else {
-          // 如果是读取，必须在最近一次写入之后
-          if (lastWriters.count(access.resId)) {
-            lastWriters[access.resId].precede(PassId->flowTask);
+    for (auto& pass : passArray) {
+      for (const auto& dep : pass->GetDependencies()) {
+        depGroups[dep.id.value][dep.priority].push_back({pass->m_FlowTask, dep.canParallel});
+      }
+    }
+
+    for (auto& [accessId, priorityMap] : depGroups) {
+      tf::Task lastLevelExit;
+
+      for (auto& [priority, tasks] : priorityMap) {
+        vector<tf::Task> currentParallelTasks;
+        vector<tf::Task> currentSerialTasks;
+
+        for (const auto& info : tasks) {
+          if (info.canParallel)
+            currentParallelTasks.push_back(info.task);
+          else
+            currentSerialTasks.push_back(info.task);
+        }
+
+        if (!lastLevelExit.empty()) {
+          for (auto& info : tasks) {
+            lastLevelExit.precede(info.task);
           }
         }
+
+        tf::Task currentLayerMidSync;
+        if (!currentSerialTasks.empty() && currentParallelTasks.size() > 1) {
+          std::string syncName = std::to_string(accessId) + "_" + std::to_string(priority) + "_mid_sync";
+          currentLayerMidSync = m_Taskflow.placeholder().name(syncName);
+
+          for (auto& pTask : currentParallelTasks) {
+            pTask.precede(currentLayerMidSync);
+          }
+          currentLayerMidSync.precede(currentSerialTasks.front());
+        } else if (!currentSerialTasks.empty() && currentParallelTasks.size() == 1) {
+          currentParallelTasks[0].precede(currentSerialTasks.front());
+        }
+
+        if (!currentSerialTasks.empty()) {
+          for (size_t i = 0; i + 1 < currentSerialTasks.size(); ++i) {
+            currentSerialTasks[i].precede(currentSerialTasks[i + 1]);
+          }
+        }
+
+        if (!currentSerialTasks.empty()) {
+          lastLevelExit = currentSerialTasks.back();
+        } else if (currentParallelTasks.size() > 1) {
+          std::string syncName = std::to_string(accessId) + "_" + std::to_string(priority) + "_end_sync";
+          lastLevelExit = m_Taskflow.placeholder().name(syncName);
+          for (auto& pTask : currentParallelTasks) {
+            pTask.precede(lastLevelExit);
+          }
+        } else if (currentParallelTasks.size() == 1) {
+          lastLevelExit = currentParallelTasks[0];
+        }
       }
-      // ComponentAccess 的逻辑同理...
     }
   }
 
-  tf::Executor m_executor;
-  tf::Taskflow m_taskflow;
-  std::unordered_map<PassId, std::shared_ptr<Task>> m_idToTask;
+  tf::Executor m_Executor;
+  tf::Taskflow m_Taskflow;
+  std::unordered_map<PassId, std::shared_ptr<Pass>> m_PassMap;
 };
-
-// template <typename T>
-// class BaseTask : public Task {
-//  public:
-//   const vector<ResourceAccess>& GetResourceAccess() const override { return m_Resources; }
-//   const vector<std::type_index>& GetRunBefore() const override { return m_Before; }
-//   const vector<std::type_index>& GetRunAfter() const override { return m_After; }
-
-//  protected:
-//   template <typename Res>
-//   void Read() {
-//     m_Resources.push_back({TypeCounter::Next<Res>(), Access::Read});
-//   }
-//   template <typename Res>
-//   void Write() {
-//     m_Resources.push_back({TypeCounter::Next<Res>(), Access::Write});
-//   }
-//   template <typename TargetTask>
-//   void Before() {
-//     m_Before.push_back(typeid(TargetTask));
-//   }
-//   template <typename TargetTask>
-//   void After() {
-//     m_After.push_back(typeid(TargetTask));
-//   }
-
-//  private:
-//   vector<ResourceAccess> m_Resources;
-//   vector<std::type_index> m_Before;
-//   vector<std::type_index> m_After;
-// };
-
 }  // namespace re::engine::ecs

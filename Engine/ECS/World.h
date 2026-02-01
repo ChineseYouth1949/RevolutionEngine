@@ -13,11 +13,14 @@ class RE_API World {
   virtual ~World();
 
   RE_FINLINE Registry* GetRegistry() { return &m_Reg; }
-  RE_FINLINE ResourceManager* GetResourceManager() { return &m_ResourceManager; }
+  RE_FINLINE ResourceManager* GetResourceManager() { return m_ResourceManager.get(); }
 
   RE_FINLINE bool HasEntity(Entity e) { return m_Reg.valid(e); }
   RE_FINLINE Entity CreateEntity() { return m_Reg.create(); }
-  RE_FINLINE void DestryEntity(Entity e) { m_DestryEntitys.push_back(e); }
+  RE_FINLINE void DestryEntity(Entity e) {
+    std::lock_guard<std::mutex> lock(m_DestroyMutex);
+    m_DestryEntitys.push_back(e);
+  }
 
   template <typename... T>
   RE_FINLINE bool HasComponents(Entity e) const {
@@ -59,6 +62,7 @@ class RE_API World {
  protected:
   Registry m_Reg;
   vector<Entity> m_DestryEntitys;
-  ResourceManager m_ResourceManager;
+  std::mutex m_DestroyMutex;
+  unique_ptr<ResourceManager> m_ResourceManager;
 };
 }  // namespace re::engine::ecs

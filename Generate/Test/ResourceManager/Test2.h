@@ -2,18 +2,9 @@
 
 #include <shared_mutex>
 
-// 方案 A: 标准容器 + 读写锁
-struct MutexVectorManager {
-  vector<void*> data;
-  std::shared_mutex mtx;
-  MutexVectorManager() { data.resize(1000, nullptr); }
-  void* Get(size_t id) {
-    std::shared_lock lock(mtx);
-    return data[id];
-  }
-};
+using namespace re::engine::ecs;
 
-// 方案 B: Map + Any (典型的脚本系统实现)
+// --- 对照组 B: Map + Any ---
 struct AnyMapManager {
   std::unordered_map<std::type_index, std::any> data;
   std::mutex mtx;
@@ -22,103 +13,55 @@ struct AnyMapManager {
   T* Get() {
     std::lock_guard<std::mutex> lock(mtx);
     auto it = data.find(typeid(T));
-    if (it != data.end()) {
-      // 正确用法：直接取出存储在 any 里的指针值
-      return std::any_cast<T*>(it->second);
-    }
-    return nullptr;
+    return (it != data.end()) ? std::any_cast<T*>(it->second) : nullptr;
+  }
+
+  template <typename T>
+  void Put(T* ptr) {
+    std::lock_guard<std::mutex> lock(mtx);
+    data[typeid(T)] = ptr;
   }
 };
-// --- 测试你的 ResourceManager ---
+
+// --- 基准测试：热点读取性能 ---
+
 static void BM_YourAtomicManager_Get(benchmark::State& state) {
-  static ResourceManager rm;
-  rm.CreateResource<TestComp>();
+  auto rm = std::make_unique<ResourceManager>();
+  rm->CreateResource<TestComp<1>>();
+
   for (auto _ : state) {
-    benchmark::DoNotOptimize(rm.GetResource<TestComp>());
+    // 这一步包含了：IdFactory查表 + 数组索引 + Atomic Load
+    benchmark::DoNotOptimize(rm->GetResource<TestComp<1>>());
   }
 }
+// 测试单线程与 8 线程并发竞争下的表现
 BENCHMARK(BM_YourAtomicManager_Get)->Threads(1)->Threads(8);
 
-// --- 测试 Mutex + Vector ---
-static void BM_MutexVector_Get(benchmark::State& state) {
-  static MutexVectorManager mvm;
-  for (auto _ : state) {
-    benchmark::DoNotOptimize(mvm.Get(10));
-  }
-}
-BENCHMARK(BM_MutexVector_Get)->Threads(1)->Threads(8);
-
-// --- 测试 Map + Any ---
 static void BM_AnyMap_Get(benchmark::State& state) {
-  static AnyMapManager amm;
+  AnyMapManager amm;
+  amm.Put<TestComp<1>>(new TestComp<1>());
+
   for (auto _ : state) {
-    benchmark::DoNotOptimize(amm.Get<TestComp>());
+    // 这一步包含了：Mutex Lock + Hash Map Find
+    benchmark::DoNotOptimize(amm.Get<TestComp<1>>());
   }
 }
 BENCHMARK(BM_AnyMap_Get)->Threads(1)->Threads(8);
 
-#include <random>
-#include <numeric>
+// --- 基准测试：内存分布与伪共享效应 ---
 
-// 模拟资源
-struct BenchResource {
-  float data[16];  // 64 bytes, 刚好一个 Cache Line
-};
-
-// 预准备随机索引，排除随机数生成对性能的影响
-static vector<size_t> GenerateRandomIndices(size_t size, size_t count) {
-  vector<size_t> indices(count);
-  std::mt19937 gen(42);
-  std::uniform_int_distribution<size_t> dist(0, size - 1);
-  for (size_t i = 0; i < count; ++i)
-    indices[i] = dist(gen);
-  return indices;
-}
-
-// 方案 1: 你的 ResourceManager 方案
-static void BM_ResourceManager_RandomGet(benchmark::State& state) {
-  ResourceManager rm;
-  const size_t num_elements = ResIdFactory::sMaxId;
-  // 填充资源
-  for (size_t i = 0; i < 100; ++i)
-    rm.CreateResource<BenchResource>();
-
-  auto indices = GenerateRandomIndices(100, 10000);
-  size_t i = 0;
+static void BM_ResourceManager_RandomAccess(benchmark::State& state) {
+  auto rm = std::make_unique<ResourceManager>();
+  // 模拟填充一些资源
+  rm->CreateResource<TestComp<1>>();
+  rm->CreateResource<TestComp<10>>();
+  rm->CreateResource<TestComp<50>>();
 
   for (auto _ : state) {
-    // 模拟随机获取
-    auto* res = rm.GetResource<BenchResource>();  // 实际逻辑会根据类型获取固定ID
-    benchmark::DoNotOptimize(res);
-    if (++i >= indices.size())
-      i = 0;
+    // 在多个不同 ID 之间跳转访问
+    benchmark::DoNotOptimize(rm->GetResource<TestComp<1>>());
+    benchmark::DoNotOptimize(rm->GetResource<TestComp<10>>());
+    benchmark::DoNotOptimize(rm->GetResource<TestComp<50>>());
   }
 }
-BENCHMARK(BM_ResourceManager_RandomGet);
-
-// 方案 2: 原生 vector 方案 (预分配)
-static void BM_StdVector_RandomGet(benchmark::State& state) {
-  struct ResourceStub {
-    void* ptr;
-  };
-  const size_t num_elements = ResIdFactory::sMaxId;
-  vector<ResourceStub> v(num_elements);
-
-  // 模拟填充
-  BenchResource* mock_ptr = new BenchResource();
-  for (size_t i = 0; i < 100; ++i)
-    v[i].ptr = mock_ptr;
-
-  auto indices = GenerateRandomIndices(100, 10000);
-  size_t i = 0;
-
-  for (auto _ : state) {
-    // 直接下标访问
-    auto* res = v[indices[i]].ptr;
-    benchmark::DoNotOptimize(res);
-    if (++i >= indices.size())
-      i = 0;
-  }
-  delete mock_ptr;
-}
-BENCHMARK(BM_StdVector_RandomGet);
+BENCHMARK(BM_ResourceManager_RandomAccess)->Threads(4);

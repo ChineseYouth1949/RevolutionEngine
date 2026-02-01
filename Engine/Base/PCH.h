@@ -33,6 +33,7 @@
 #include <malloc.h>
 #include <chrono>
 #include <atomic>
+#include <filesystem>
 
 #include <dxgi1_6.h>
 #include <dxcapi.h>
@@ -46,3 +47,4 @@
 #include <entt/entt.hpp>
 #include <mimalloc.h>
 #include <glm/glm.hpp>
+#include <taskflow/taskflow.hpp>

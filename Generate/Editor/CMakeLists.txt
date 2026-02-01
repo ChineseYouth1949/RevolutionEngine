@@ -32,11 +32,6 @@ if(CMAKE_BUILD_TYPE STREQUAL "Debug")
     target_compile_definitions(${PROJECT_NAME} PUBLIC _DEBUG)
 endif()
 
-add_dependencies(${PROJECT_NAME} REngine)
-target_link_libraries(${PROJECT_NAME} PUBLIC
-    REngine
-)
-
 find_package(Qt${QT_VERSION_MAJOR} COMPONENTS Gui Quick Qml Core Widgets REQUIRED)
 
 target_link_libraries(${PROJECT_NAME} PRIVATE 
@@ -44,16 +39,6 @@ target_link_libraries(${PROJECT_NAME} PRIVATE
     Qt${QT_VERSION_MAJOR}::Core
     Qt${QT_VERSION_MAJOR}::Gui
     Qt${QT_VERSION_MAJOR}::Widgets
-)
-
-add_custom_command(TARGET ${PROJECT_NAME} POST_BUILD
-    COMMAND ${CMAKE_COMMAND} -E make_directory "${CMAKE_SOURCE_DIR}/Resource/"
-    COMMAND ${CMAKE_COMMAND} -E make_directory "$<TARGET_FILE_DIR:${PROJECT_NAME}>/Resource/"
-    COMMAND ${CMAKE_COMMAND} -E copy_directory
-        "${CMAKE_SOURCE_DIR}/Resource/"
-        "$<TARGET_FILE_DIR:${PROJECT_NAME}>/Resource/"
-    COMMENT "Copying Runtime Resources"
-    VERBATIM
 )
 
 if(WIN32)
@@ -71,22 +56,4 @@ if(WIN32)
     )
 endif()
 
-set(EDITOR_BIN_DIR "$<TARGET_FILE_DIR:${PROJECT_NAME}>")
-
-# add_custom_command(TARGET ${PROJECT_NAME} POST_BUILD
-#     COMMAND ${CMAKE_COMMAND} -E copy_directory
-#         "$<TARGET_FILE_DIR:REngine>" "${EDITOR_BIN_DIR}"
-        
-#     COMMENT "Deploying REngine binaries and D3D12 Agility SDK..."
-#     VERBATIM
-# )
-
-add_custom_target(DeployREngine
-    COMMAND ${CMAKE_COMMAND} -E copy_directory
-        "$<TARGET_FILE_DIR:REngine>" "${EDITOR_BIN_DIR}"
-    COMMENT "Deploying REngine binaries and D3D12 Agility SDK..."
-    VERBATIM
-)
-
-add_dependencies(${PROJECT_NAME} DeployREngine)
-add_dependencies(DeployREngine REngine)
+LinkEngine(${PROJECT_NAME})
