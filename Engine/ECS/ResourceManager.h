@@ -6,8 +6,8 @@
 namespace re::engine::ecs {
 class RE_API ResourceManager {
  public:
-  ResourceManager() {}
-  ~ResourceManager() { Clear(); }
+  ResourceManager() = default;
+  ~ResourceManager() = default;
 
   ResourceManager(const ResourceManager&) = delete;
   ResourceManager& operator=(const ResourceManager&) = delete;
