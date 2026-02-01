@@ -7,8 +7,21 @@ struct RE_API Resource {
   Resource() = default;
   ~Resource() { Destroy(); }
 
-  Resource(const Resource&) = delete;
-  Resource& operator=(const Resource&) = delete;
+  Resource(Resource&& other) noexcept : m_Ptr(other.m_Ptr), m_Deleter(other.m_Deleter) {
+    other.m_Ptr = nullptr;
+    other.m_Deleter = nullptr;
+  }
+
+  Resource& operator=(Resource&& other) noexcept {
+    if (this != &other) {
+      Destroy();
+      m_Ptr = other.m_Ptr;
+      m_Deleter = other.m_Deleter;
+      other.m_Ptr = nullptr;
+      other.m_Deleter = nullptr;
+    }
+    return *this;
+  }
 
   template <typename T>
   void Create(T* ptr) {
