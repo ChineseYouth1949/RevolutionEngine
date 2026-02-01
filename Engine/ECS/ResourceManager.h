@@ -1,12 +1,12 @@
 #pragma once
 
 #include "Resource.h"
-#include "IdFactory.h"
+#include "DescriptorFun.h"
 
 namespace re::engine::ecs {
 class RE_API ResourceManager {
  public:
-  ResourceManager() { m_Resource.reserve(1000); }
+  ResourceManager() = default;
   ~ResourceManager() = default;
 
   ResourceManager(const ResourceManager&) = delete;
@@ -14,7 +14,7 @@ class RE_API ResourceManager {
 
   template <typename T>
   bool HasResource() {
-    const ResouceId id = ResIdFactory::GetTypeConstId<T>();
+    const auto id = GetResDescriptor<T>().Id();
     if (id >= m_Resources.size())
       return false;
     return m_Resources[id].Get<T>() != nullptr;
@@ -22,7 +22,7 @@ class RE_API ResourceManager {
 
   template <typename T>
   RE_FINLINE T* GetResource() {
-    const ResouceId id = ResIdFactory::GetTypeConstId<T>();
+    const auto id = GetResDescriptor<T>().Id();
     if (id >= m_Resources.size())
       return nullptr;
     return m_Resources[id].Get<T>();
@@ -30,7 +30,7 @@ class RE_API ResourceManager {
 
   template <typename T, typename... Args>
   T* CreateResource(Args&&... args) {
-    const ResouceId id = ResIdFactory::GetTypeConstId<T>();
+    const auto id = GetResDescriptor<T>().Id();
     if (id >= m_Resources.size()) {
       m_Resources.resize(id + 1);
     }
@@ -45,7 +45,7 @@ class RE_API ResourceManager {
 
   template <typename T>
   void RemoveResource() {
-    const ResouceId id = ResIdFactory::GetTypeConstId<T>();
+    const auto id = GetResDescriptor<T>().Id();
     if (id < m_Resources.size()) {
       m_Resources[id].Destroy();
     }

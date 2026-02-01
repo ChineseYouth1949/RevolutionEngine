@@ -1,19 +1,10 @@
 #pragma once
 
-#include "IdFactory.h"
+#include "Engine/Base/All.h"
+
+#include "DescriptorFun.h"
 
 namespace re::engine::ecs {
-
-struct AccessId {
-  bool operator==(const AccessId& other) const { return value == other.value; }
-  size_t value;
-};
-
-struct Dependency {
-  AccessId id;
-  uint32_t priority;
-  bool canParallel;
-};
 
 class RE_API Pass {
  public:
@@ -25,12 +16,11 @@ class RE_API Pass {
 
   virtual const vector<PassId>& GetBeforePass() const = 0;
   virtual const vector<PassId>& GetAfterPass() const = 0;
-  virtual const vector<Dependency>& GetDependencies() const = 0;
 
   virtual void Execute() = 0;
 
  private:
-  PassId m_PassId;
+  PassHandle m_PassId;
   wstring m_Name;
   tf::Task m_FlowTask;
 
