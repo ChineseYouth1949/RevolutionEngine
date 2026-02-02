@@ -65,19 +65,19 @@ void SystemGroup::OnDisable() {
   }
 }
 
-void SystemGroup::OnPreUpdate(const UpdateInfo& info) {
+void SystemGroup::OnPreUpdate() {
   for (auto sys : m_ChildSystem) {
-    sys->OnPreUpdate(info);
+    sys->OnPreUpdate();
   }
 }
-void SystemGroup::OnUpdate(const UpdateInfo& info) {
+void SystemGroup::OnUpdate() {
   for (auto sys : m_ChildSystem) {
-    sys->OnUpdate(info);
+    sys->OnUpdate();
   }
 }
-void SystemGroup::OnPostUpdate(const UpdateInfo& info) {
+void SystemGroup::OnPostUpdate() {
   for (auto sys : m_ChildSystem) {
-    sys->OnPostUpdate(info);
+    sys->OnPostUpdate();
   }
 }
 

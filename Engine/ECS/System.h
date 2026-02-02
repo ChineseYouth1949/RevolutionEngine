@@ -3,11 +3,6 @@
 namespace re::engine::ecs {
 class World;
 
-struct UpdateInfo {
-  float dt;
-  double total;
-};
-
 class System {
  public:
   System() = default;
@@ -28,9 +23,9 @@ class System {
   virtual void OnEnable() = 0;
   virtual void OnDisable() = 0;
 
-  virtual void OnPreUpdate(const UpdateInfo& info) {}
-  virtual void OnUpdate(const UpdateInfo& info) = 0;
-  virtual void OnPostUpdate(const UpdateInfo& info) {}
+  virtual void OnPreUpdate() {}
+  virtual void OnUpdate() = 0;
+  virtual void OnPostUpdate() {}
 
  protected:
   template <typename ComponentType>

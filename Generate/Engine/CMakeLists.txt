@@ -24,6 +24,10 @@ if(CMAKE_BUILD_TYPE STREQUAL "Debug")
     target_compile_definitions(${PROJECT_NAME} PUBLIC RE_DEBUG)
 endif()
 
+target_compile_definitions(${PROJECT_NAME} PUBLIC 
+    EASTL_EASTDC_VSNPRINTF=0
+)
+
 if(MSVC)
     target_compile_options(${PROJECT_NAME} PRIVATE /permissive)
 endif()

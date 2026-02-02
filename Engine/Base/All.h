@@ -8,6 +8,7 @@
 
 #include "Utility/Assert.h"
 #include "Utility/Timer.h"
+#include "Utility/Descriptor.h"
+#include "Utility/Class.h"
 
 #include "Container.h"
-#include "Descriptor.h"

@@ -19,6 +19,7 @@ RE_FINLINE void* operator new(size_t size, size_t alignment, size_t alignmentOff
 #include <EASTL/list.h>
 #include <EASTL/stack.h>
 #include <EASTL/array.h>
+#include <EASTL/string.h>
 #include <EASTL/fixed_vector.h>
 #include <EASTL/fixed_string.h>
 
@@ -111,5 +112,49 @@ RE_FINLINE void* operator new[](size_t size, const char* name, int flags, unsign
 RE_FINLINE void* operator new[](size_t size, size_t alignment, size_t alignmentOffset, const char* name, int flags, unsigned debugFlags,
                                 const char* file, int line) {
   return _aligned_malloc(size, alignment);
+}
+#endif
+
+#include <cstdio>
+#include <cwchar>
+#include <stdarg.h>
+
+RE_FINLINE int Vsnprintf8(char* pDestination, size_t n, const char* pFormat, va_list arguments) {
+  return vsnprintf(pDestination, n, pFormat, arguments);
+}
+
+RE_FINLINE int Vsnprintf16(char16_t* pDestination, size_t n, const char16_t* pFormat, va_list arguments) {
+#ifdef _MSC_VER
+  return _vsnwprintf((wchar_t*)pDestination, n, (const wchar_t*)pFormat, arguments);
+#else
+  return vswprintf((wchar_t*)pDestination, n, (const wchar_t*)pFormat, arguments);
+#endif
+}
+
+RE_FINLINE int Vsnprintf32(char32_t* pDestination, size_t n, const char32_t* pFormat, va_list arguments) {
+// 32位版本通常映射到本地的宽字符处理
+// 如果是 Windows 且使用 MSVC，wchar_t 是 16 位的，需根据需求实现
+// 简单实现可以调用针对 char32 的处理，或者在 Windows 下暂时强转
+#ifdef _MSC_VER
+  // Windows 下 wchar_t 只有 16 位，若要支持 32 位可能需要转换，这里提供占位实现
+  return -1;
+#else
+  return vswprintf((wchar_t*)pDestination, n, (const wchar_t*)pFormat, arguments);
+#endif
+}
+
+#if defined(EA_CHAR8_UNIQUE) && EA_CHAR8_UNIQUE
+RE_FINLINE int Vsnprintf8(char8_t* pDestination, size_t n, const char8_t* pFormat, va_list arguments) {
+  return vsnprintf((char*)pDestination, n, (const char*)pFormat, arguments);
+}
+#endif
+
+#if defined(EA_WCHAR_UNIQUE) && EA_WCHAR_UNIQUE
+RE_FINLINE int VsnprintfW(wchar_t* pDestination, size_t n, const wchar_t* pFormat, va_list arguments) {
+#ifdef _MSC_VER
+  return _vsnwprintf(pDestination, n, pFormat, arguments);
+#else
+  return vswprintf(pDestination, n, pFormat, arguments);
+#endif
 }
 #endif

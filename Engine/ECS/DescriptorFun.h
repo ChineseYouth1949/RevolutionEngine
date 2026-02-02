@@ -3,12 +3,12 @@
 #include "Engine/Base/All.h"
 
 namespace re::engine::ecs {
-class Resocue;
+// class Resocue;
 
-template <typename Type>
-RE_FINLINE static const utility::Descriptor& GetResDescriptor() {
-  return utility::DescriptorFactory::GetAt<Resource, Type>();
-}
+// template <typename Type>
+// RE_FINLINE static const utility::Descriptor& GetResDescriptor() {
+//   return utility::DescriptorFactory::GetAt<Resource, Type>();
+// }
 
 struct Component {};
 

@@ -16,9 +16,9 @@ class SystemGroup : public System {
   void OnEnable() override;
   void OnDisable() override;
 
-  void OnPreUpdate(const UpdateInfo& info) override;
-  void OnUpdate(const UpdateInfo& info) override;
-  void OnPostUpdate(const UpdateInfo& info) override;
+  void OnPreUpdate() override;
+  void OnUpdate() override;
+  void OnPostUpdate() override;
 
   vector<shared_ptr<System>>& GetChilds() { return m_ChildSystem; }
 
