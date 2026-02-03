@@ -1,27 +1,16 @@
 #pragma once
 
-#include "Command.h"
-#include "Engine/Base/All.h"
+#include "Engine/Base/Macros.h"
 
 namespace re::engine::ecs {
+class CommandQueue;
 
-class CommandBuffer {
+class RE_API CommandBuffer {
  public:
-  template <typename T, typename... Args>
-  void Enqueue(Args&&... args) {
-    m_queue.emplace_back(GAlloc::make_unique<T>(std::forward<Args>(args)...));
-  }
+  CommandBuffer() = default;
+  virtual ~CommandBuffer() = default;
 
-  RE_FINLINE void EnqueueLua(sol::function func) { m_queue.emplace_back(GAlloc::make_unique<LuaCommand>(std::move(func))); }
-
-  void Flush() {
-    for (auto& cmd : m_queue)
-      cmd->Execute();
-    m_queue.clear();
-  }
-
- private:
-  vector<unique_ptr<Command>> m_queue;
+ virtual Sumbit private : CommandQueue* m_queue;
 };
 
 }  // namespace re::engine::ecs

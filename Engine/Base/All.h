@@ -10,5 +10,6 @@
 #include "Utility/Timer.h"
 #include "Utility/Descriptor.h"
 #include "Utility/Class.h"
+#include "Utility/IdFactory.h"
 
 #include "Container.h"
