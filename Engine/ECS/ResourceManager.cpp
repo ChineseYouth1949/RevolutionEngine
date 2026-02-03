@@ -6,6 +6,23 @@ void ResourceManager::Submit(ResCommandBuffer& buffer) {
   m_CommandBuffers.push_back(std::move(buffer));
 }
 
+ResourceId ResourceManager::AddResource(Resource& res) {
+  ResourceId id;
+  if (m_FreeResIds.empty()) {
+    id = m_Resources.size();
+    m_Resources.push_back(std::move(res));
+  } else {
+    id = m_FreeResIds.back();
+    m_FreeResIds.pop_back();
+    m_Resources[id] = std::move(res);
+  }
+  return id;
+}
+void ResourceManager::RemoveResource(ResourceId id) {
+  m_FreeResIds.push_back(id);
+  m_Resources[id].Destroy();
+}
+
 void ResourceManager::Flush() {
   uint32_t addResNum = 0;
   uint32_t removeResNum = 0;
@@ -28,7 +45,7 @@ void ResourceManager::Flush() {
     auto& opOrders = cmb.GetOpOrders();
     for (auto& op : opOrders) {
       if (op.first == ResCommandBuffer::OpType::Add) {
-        AddResource(addResArray[op.second]);
+        addResArray[op.second].first->value = AddResource(addResArray[op.second].second);
       } else if (op.first == ResCommandBuffer::OpType::Change) {
         ChangeResource(changeResArray[op.second]);
       } else if (op.first == ResCommandBuffer::OpType::Remove) {
@@ -42,31 +59,14 @@ void ResourceManager::Flush() {
   m_CommandBuffers.clear();
 }
 
+void ResourceManager::ChangeResource(stl::pair<ResourceId, ResOperate>& changeRes) {
+  changeRes.second(m_Resources[changeRes.first]);
+}
+
 void ResourceManager::Reset() {
   m_Resources.clear();
   m_FreeResIds.clear();
   m_CommandBuffers.clear();
-}
-
-void ResourceManager::AddResource(stl::pair<shared_ptr<ResourceId>, Resource>& addRes) {
-  if (m_FreeResIds.empty()) {
-    addRes.first->value = m_Resources.size();
-    m_Resources.push_back(std::move(addRes.second));
-  } else {
-    auto id = m_FreeResIds.back();
-    m_FreeResIds.pop_back();
-
-    addRes.first->value = id;
-    m_Resources[id] = std::move(addRes.second);
-  }
-}
-
-void ResourceManager::ChangeResource(stl::pair<ResourceId, ResOperate>& changeRes) {
-  changeRes.second(m_Resources[changeRes.first]);
-}
-void ResourceManager::RemoveResource(ResourceId id) {
-  m_FreeResIds.push_back(id);
-  m_Resources[id].Destroy();
 }
 
 }  // namespace re::engine::ecs

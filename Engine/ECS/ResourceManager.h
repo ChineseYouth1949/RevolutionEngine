@@ -12,8 +12,12 @@ class RE_API ResourceManager {
   ResourceManager(const ResourceManager&) = delete;
   ResourceManager& operator=(const ResourceManager&) = delete;
 
-  bool HasResource(ResourceId id) const { return (id < m_Resources.size() && m_Resources[id].Valid()); }
-  const Resource& GetResource(ResourceId id) const { return m_Resources[id]; }
+  RE_FINLINE bool HasResource(ResourceId id) const { return (id < m_Resources.size() && m_Resources[id].Valid()); }
+  RE_FINLINE const Resource& GetResource(ResourceId id) const { return m_Resources[id]; }
+
+  ResourceId AddResource(Resource&);
+  RE_FINLINE Resource& GetResource(ResourceId id) { return m_Resources[id]; }
+  void RemoveResource(ResourceId);
 
   template <typename T>
   void SetTypeResource(ResourceId id) {
@@ -33,9 +37,7 @@ class RE_API ResourceManager {
   void Reset();
 
  private:
-  void AddResource(stl::pair<shared_ptr<ResourceId>, Resource>& addRes);
   void ChangeResource(stl::pair<ResourceId, ResOperate>& changeRes);
-  void RemoveResource(ResourceId id);
 
   vector<Resource> m_Resources;
   vector<ResourceId> m_FreeResIds;

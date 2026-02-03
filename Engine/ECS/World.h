@@ -15,8 +15,12 @@ class RE_API World {
   RE_FINLINE Registry* GetRegistry() { return &m_Reg; }
   RE_FINLINE ResourceManager* GetResourceManager() { return m_ResourceManager.get(); }
 
-  RE_FINLINE bool HasEntity(Entity e) { return m_Reg.valid(e); }
-  RE_FINLINE Entity CreateEntity() { return m_Reg.create(); }
+  RE_FINLINE bool HasEntity(Entity e) const { return m_Reg.valid(e); }
+  RE_FINLINE shared_ptr<Entity> CreateEntity() const {
+    auto ePtr = GAlloc::make_shared<Entity>();
+    m_AddEntitys.push_back(ePtr);
+    return ePtr;
+  }
   RE_FINLINE void DestryEntity(Entity e) {
     std::lock_guard<std::mutex> lock(m_DestroyMutex);
     m_DestryEntitys.push_back(e);
@@ -61,8 +65,10 @@ class RE_API World {
 
  protected:
   Registry m_Reg;
+
+  vector<shared_ptr<Entity>> m_AddEntitys;
   vector<Entity> m_DestryEntitys;
-  std::mutex m_DestroyMutex;
+
   unique_ptr<ResourceManager> m_ResourceManager;
 };
 }  // namespace re::engine::ecs
