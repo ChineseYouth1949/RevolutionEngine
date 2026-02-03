@@ -15,6 +15,19 @@ class RE_API ResourceManager {
   bool HasResource(ResourceId id) const { return (id < m_Resources.size() && m_Resources[id].Valid()); }
   const Resource& GetResource(ResourceId id) const { return m_Resources[id]; }
 
+  template <typename T>
+  void SetTypeResource(ResourceId id) {
+    static const auto type_index = std::type_index(typeid(T));
+    m_TypeResIdMap[type_index] = id;
+  }
+
+  template <typename T>
+  const T* GetTypeResource() {
+    static const auto type_index = std::type_index(typeid(T));
+    const auto id = m_TypeResIdMap[type_index];
+    return m_Resources[id].Get<T>();
+  }
+
   void Submit(ResCommandBuffer& buffer);
   void Flush();
   void Reset();
@@ -28,5 +41,7 @@ class RE_API ResourceManager {
   vector<ResourceId> m_FreeResIds;
   vector<ResCommandBuffer> m_CommandBuffers;
   std::mutex m_Mutex;
+
+  unordered_map<std::type_index, ResourceId> m_TypeResIdMap;
 };
 }  // namespace re::engine::ecs
