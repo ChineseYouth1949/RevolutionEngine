@@ -1,45 +1,48 @@
-#include "TaskScheduler.h"
+#include "Scheduler.h"
 
 namespace re::engine::ecs {
-struct TaskInfo {
-  shared_ptr<Task> task;
+struct StageInfo {
+  shared_ptr<Stage> stage;
   tf::Task flowTask;
 };
 
-struct TaskScheduler::Impl {
+struct Scheduler::Impl {
   tf::Executor executor;
   tf::Taskflow taskflow;
-  std::unordered_map<TaskId, TaskInfo> infoMap;
+  std::unordered_map<StageId, StageInfo> infoMap;
 };
 
-TaskScheduler::TaskScheduler() {
+Scheduler::Scheduler() {
   m_pImpl = GAlloc::make_unique<Impl>();
 }
 
-TaskScheduler::~TaskScheduler() {
+Scheduler::~Scheduler() {
   d()->infoMap.clear();
 }
 
-void TaskScheduler::Compile(const vector<shared_ptr<Task>>& taskArray) {
+void Scheduler::Compile(const vector<shared_ptr<Stage>>& stages) {
   d()->taskflow.clear();
   d()->infoMap.clear();
 
-  d()->infoMap.reserve(taskArray.size());
-  TaskInfo info;
-  for (auto task : taskArray) {
-    info.task = task;
-    info.flowTask = d()->taskflow.emplace([task]() { task->Execute(); }).name(Convert<std::string>(task->Name()));
-    d()->infoMap.insert({task->Id(), std::move(info)});
+  d()->infoMap.reserve(stages.size());
+  StageInfo info;
+
+  for (auto st : stages) {
+    if (st.GetId() != StageIdFactory::Null) {
+      info.stage = st;
+      info.flowTask = d()->taskflow.emplace([st]() { st->Execute(); }).name(Convert<std::string>(st->GetName()));
+      d()->infoMap.insert({st->GetId(), std::move(info)});
+    }
   }
 
-  for (auto& task : taskArray) {
-    auto& info = d()->infoMap[task->Id()];
-    for (auto bId : task->Predecessors()) {
+  for (auto& st : stages) {
+    auto& info = d()->infoMap[st->Id()];
+    for (auto bId : st->Predecessors()) {
       if (d()->infoMap.count(bId)) {
-        d()->infoMap[bId].flowTask.precede(info.task);
+        d()->infoMap[bId].flowTask.precede(info.flowTask);
       }
     }
-    for (auto aId : task->Successors()) {
+    for (auto aId : st->Successors()) {
       if (d()->infoMap.count(aId)) {
         info.flowTask.succeed(d()->infoMap[aId].flowTask);
       }
@@ -47,11 +50,11 @@ void TaskScheduler::Compile(const vector<shared_ptr<Task>>& taskArray) {
   }
 }
 
-void TaskScheduler::Execute() {
+void Scheduler::Execute() {
   d()->executor.run(d()->taskflow).wait();
 }
 
-void TaskScheduler::DumpGraph(const string& path) {
+void Scheduler::DumpGraph(const string& path) {
   std::filesystem::path fsPath(Convert<std::string>(path));
   if (fsPath.has_parent_path()) {
     std::filesystem::create_directories(fsPath.parent_path());

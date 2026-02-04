@@ -6,8 +6,8 @@ void ResourceManager::Submit(ResCommandBuffer& buffer) {
   m_CommandBuffers.push_back(std::move(buffer));
 }
 
-ResourceId ResourceManager::AddResource(Resource& res) {
-  ResourceId id;
+ResId ResourceManager::AddResource(Resource& res) {
+  ResId id;
   if (m_FreeResIds.empty()) {
     id = m_Resources.size();
     m_Resources.push_back(std::move(res));
@@ -18,9 +18,13 @@ ResourceId ResourceManager::AddResource(Resource& res) {
   }
   return id;
 }
-void ResourceManager::RemoveResource(ResourceId id) {
+void ResourceManager::RemoveResource(ResId id) {
   m_FreeResIds.push_back(id);
   m_Resources[id].Destroy();
+}
+
+void ResourceManager::ChangeResourceImpl(stl::pair<ResId, ResOperate>& changeRes) {
+  changeRes.second(m_Resources[changeRes.first]);
 }
 
 void ResourceManager::Flush() {
@@ -47,7 +51,7 @@ void ResourceManager::Flush() {
       if (op.first == ResCommandBuffer::OpType::Add) {
         addResArray[op.second].first->value = AddResource(addResArray[op.second].second);
       } else if (op.first == ResCommandBuffer::OpType::Change) {
-        ChangeResource(changeResArray[op.second]);
+        ChangeResourceImpl(changeResArray[op.second]);
       } else if (op.first == ResCommandBuffer::OpType::Remove) {
         RemoveResource(removeResArray[op.second]);
       }
@@ -56,16 +60,6 @@ void ResourceManager::Flush() {
     cmb.Reset();
   }
 
-  m_CommandBuffers.clear();
-}
-
-void ResourceManager::ChangeResource(stl::pair<ResourceId, ResOperate>& changeRes) {
-  changeRes.second(m_Resources[changeRes.first]);
-}
-
-void ResourceManager::Reset() {
-  m_Resources.clear();
-  m_FreeResIds.clear();
   m_CommandBuffers.clear();
 }
 

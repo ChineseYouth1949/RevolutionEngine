@@ -1,7 +1,8 @@
 #pragma once
 
 #include "System.h"
-#include "World.h"
+
+#include "Engine/ECS/World/World.h"
 
 namespace re::engine::ecs {
 template <typename ComponentType>

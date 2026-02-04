@@ -10,15 +10,13 @@ class SystemGroup : public System {
 
   void AddSystem(shared_ptr<System> sys);
 
-  bool OnAttach() override;
-  bool OnDetach() override;
+  void OnAttach(World* world) override;
+  void OnDetach() override;
 
   void OnEnable() override;
   void OnDisable() override;
 
-  void OnPreUpdate() override;
   void OnUpdate() override;
-  void OnPostUpdate() override;
 
   vector<shared_ptr<System>>& GetChilds() { return m_ChildSystem; }
 

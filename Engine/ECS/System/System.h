@@ -1,5 +1,7 @@
 #pragma once
 
+#include "WorldStage.h"
+
 namespace re::engine::ecs {
 class World;
 
@@ -11,21 +13,18 @@ class System {
   System(const System&) = delete;
   System& operator=(const System&) = delete;
 
-  void SetWorld(World* world) { m_World = world; }
-  World* GetWorld() const { return m_World; }
+  RE_FINLINE bool IsAttach() const { return m_Attach; }
+  RE_FINLINE bool IsEnabled() const { return m_Enabled; }
 
-  bool IsAttach() const { return m_Attach; }
-  bool IsEnabled() const { return m_Enabled; }
-
-  virtual bool OnAttach() = 0;
-  virtual bool OnDetach() = 0;
+  virtual void OnAttach(World* world) = 0;
+  virtual void OnDetach() = 0;
 
   virtual void OnEnable() = 0;
   virtual void OnDisable() = 0;
 
-  virtual void OnPreUpdate() {}
   virtual void OnUpdate() = 0;
-  virtual void OnPostUpdate() {}
+
+  RE_FINLINE vector<shared_ptr<WorldStage>>& GetAllStage() { return m_Stages; }
 
  protected:
   template <typename ComponentType>
@@ -37,9 +36,11 @@ class System {
   template <typename ComponentType>
   bool PollChangeComponent();
 
+  World* m_World = nullptr;
   bool m_Enabled = false;
   bool m_Attach = false;
-  World* m_World = nullptr;
+
+  vector<shared_ptr<WorldStage>> m_Stages;
 };
 
 }  // namespace re::engine::ecs

@@ -1,35 +1,34 @@
 #pragma once
 
+#include "Engine/ECS/Resource/ResourceManager.h"
+
+#include "WorldCommandBuffer.h"
 #include "ComponentTag.h"
-#include "ResourceManager.h"
 
 namespace re::engine::ecs {
-using Entity = entt::entity;
-using Registry = entt::basic_registry<Entity, GAllocSTL<Entity>>;
-
 class RE_API World {
  public:
   World();
   virtual ~World();
 
+  std::lock_guard<std::mutex> Lock() { return std::lock_guard<std::mutex>(m_Mutex); }
+
   RE_FINLINE Registry* GetRegistry() { return &m_Reg; }
   RE_FINLINE ResourceManager* GetResourceManager() { return m_ResourceManager.get(); }
 
   RE_FINLINE bool HasEntity(Entity e) const { return m_Reg.valid(e); }
-  RE_FINLINE shared_ptr<Entity> CreateEntity() const {
-    auto ePtr = GAlloc::make_shared<Entity>();
-    m_AddEntitys.push_back(ePtr);
-    return ePtr;
-  }
-  RE_FINLINE void DestryEntity(Entity e) {
-    std::lock_guard<std::mutex> lock(m_DestroyMutex);
-    m_DestryEntitys.push_back(e);
-  }
 
   template <typename... T>
   RE_FINLINE bool HasComponents(Entity e) const {
     return m_Reg.all_of<T>(e);
   }
+
+  void Submit(WorldCommandBuffer& buffer);
+
+  // Do not use in multi-threaded environments
+  RE_FINLINE Entity CreateEntity() { return m_Reg.create(); }
+  RE_FINLINE void DestryEntity(Entity e) { m_Reg.destry(e); }
+  RE_FINLINE void DestryEntityDelay(Entity e) { m_DestryEntitys.push_back(e); }
 
   template <typename T, typename... Args>
   T& AddComponent(Entity e, Args&&... args) {
@@ -63,12 +62,14 @@ class RE_API World {
     return false;
   }
 
+  void Flush();
+
  protected:
   Registry m_Reg;
-
-  vector<shared_ptr<Entity>> m_AddEntitys;
   vector<Entity> m_DestryEntitys;
-
   unique_ptr<ResourceManager> m_ResourceManager;
+
+  std::mutex m_SumbitMutex;
+  vector<WorldCommandBuffer> m_CommandBuffers;
 };
 }  // namespace re::engine::ecs

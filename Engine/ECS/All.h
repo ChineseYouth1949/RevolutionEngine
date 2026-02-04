@@ -1,6 +1,0 @@
-#include "Resource.h"
-#include "ResourceManager.h"
-#include "World.h"
-#include "System.h"
-#include "SystemGroup.h"
-#include "Scene.h"

@@ -3,17 +3,7 @@
 #include "Resource.h"
 
 namespace re::engine::ecs {
-struct RE_API ResourceId {
-  static constexpr uint32_t Null = std::numeric_limits<uint32_t>::max();
-
-  ResourceId(uint32_t _value = Null) : value(_value) {}
-
-  RE_FINLINE bool valid() const { return value != Null; }
-  RE_FINLINE operator uint32_t() const { return value; }
-
-  uint32_t value;
-};
-
+using ResId = uint32_t;
 using ResOperate = std::function<void(Resource&)>;
 
 class RE_API ResCommandBuffer {
@@ -21,7 +11,7 @@ class RE_API ResCommandBuffer {
   enum struct OpType : uint8_t { Add = 0, Change, Remove };
 
   ResCommandBuffer() = default;
-  ~ResCommandBuffer() { Reset(); }
+  ~ResCommandBuffer() = default;
 
   ResCommandBuffer(const ResCommandBuffer&) = delete;
   ResCommandBuffer& operator=(const ResCommandBuffer&) = delete;
@@ -42,20 +32,20 @@ class RE_API ResCommandBuffer {
     return *this;
   }
 
-  shared_ptr<ResourceId> AddResocue(Resource& res) {
-    auto idPtr = GAlloc::make_shared<ResourceId>(0);
+  shared_ptr<ResId> AddResocue(Resource& res) {
+    auto idPtr = GAlloc::make_shared<ResId>(0);
     m_Orders.push_back({OpType::Add, m_AddResources.size()});
     m_AddResources.emplace_back(idPtr, std::move(res));
     return idPtr;
   }
 
   template <typename F>
-  void ChangeResocue(ResourceId id, F&& op) {
+  void ChangeResocue(ResId id, F&& op) {
     m_Orders.push_back({OpType::Change, m_ChangeResources.size()});
     m_ChangeResources.emplace_back(id, std::forward<F>(op));
   }
 
-  void RemoveResocue(ResourceId id) {
+  void RemoveResocue(ResId id) {
     m_Orders.push_back({OpType::Remove, m_RemoveResources.size()});
     m_RemoveResources.push_back(id);
   }
@@ -67,15 +57,15 @@ class RE_API ResCommandBuffer {
     m_Orders.clear();
   }
 
-  RE_FINLINE vector<stl::pair<shared_ptr<ResourceId>, Resource>>& GetAddResources() { return m_AddResources; }
-  RE_FINLINE vector<stl::pair<ResourceId, ResOperate>>& GetChangeResources() { return m_ChangeResources; }
-  RE_FINLINE vector<ResourceId>& GetRemoveResources() { return m_RemoveResources; }
+  RE_FINLINE vector<stl::pair<shared_ptr<ResId>, Resource>>& GetAddResources() { return m_AddResources; }
+  RE_FINLINE vector<stl::pair<ResId, ResOperate>>& GetChangeResources() { return m_ChangeResources; }
+  RE_FINLINE vector<ResId>& GetRemoveResources() { return m_RemoveResources; }
   RE_FINLINE vector<stl::pair<OpType, uint32_t>>& GetOpOrders() { return m_Orders; }
 
  private:
-  vector<stl::pair<shared_ptr<ResourceId>, Resource>> m_AddResources;
-  vector<stl::pair<ResourceId, ResOperate>> m_ChangeResources;
-  vector<ResourceId> m_RemoveResources;
+  vector<stl::pair<shared_ptr<ResId>, Resource>> m_AddResources;
+  vector<stl::pair<ResId, ResOperate>> m_ChangeResources;
+  vector<ResId> m_RemoveResources;
   vector<stl::pair<OpType, uint32_t>> m_Orders;
 };
 }  // namespace re::engine::ecs

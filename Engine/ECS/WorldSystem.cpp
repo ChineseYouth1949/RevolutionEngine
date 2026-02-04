@@ -1,12 +1,12 @@
-#include "Scene.h"
+#include "WorldSystem.h"
 
 namespace re::engine::ecs {
-Scene::Scene() {
+WorldSystem::WorldSystem() {
   m_World = GAlloc::make_unique<World>();
 }
-Scene::~Scene() {}
+WorldSystem::~WorldSystem() {}
 
-void Scene::Run() {
+void WorldSystem::Run() {
   if (m_FirstRun) {
     m_TimerDt.Update();
     m_TimerTotal.Update();
