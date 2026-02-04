@@ -6,16 +6,17 @@
 
 #include "System/System.h"
 #include "System/SystemGroup.h"
+#include "System/Scheduler.h"
 
 namespace re::engine::ecs {
 struct EntityInfo {
   string name;
 };
 
-class RE_API WorldSystem {
+class RE_API Scene {
  public:
-  WorldSystem();
-  ~WorldSystem();
+  Scene();
+  ~Scene();
 
   World* GetWorld() { return m_World.get(); }
 
@@ -49,6 +50,7 @@ class RE_API WorldSystem {
   unordered_map<Entity, EntityInfo> m_EntityInfo;
 
   unordered_map<std::type_index, shared_ptr<System>> m_Systems;
+  unique_ptr<Scheduler> m_Scheduler;
 
   utility::Timer m_TimerDt;
   utility::Timer m_TimerTotal;

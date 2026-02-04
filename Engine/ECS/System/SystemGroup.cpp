@@ -11,12 +11,12 @@ void SystemGroup::OnAttach(World* world) {
   }
 
   for (auto sys : m_ChildSystem) {
-    sys->OnAttach(world)
+    sys->OnAttach(world);
   }
 
   m_Attach = true;
 }
-bool SystemGroup::OnDetach() {
+void SystemGroup::OnDetach() {
   if (!IsAttach()) {
     return;
   }

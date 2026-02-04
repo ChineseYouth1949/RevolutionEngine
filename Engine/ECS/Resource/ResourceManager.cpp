@@ -49,7 +49,7 @@ void ResourceManager::Flush() {
     auto& opOrders = cmb.GetOpOrders();
     for (auto& op : opOrders) {
       if (op.first == ResCommandBuffer::OpType::Add) {
-        addResArray[op.second].first->value = AddResource(addResArray[op.second].second);
+        *(addResArray[op.second].first) = AddResource(addResArray[op.second].second);
       } else if (op.first == ResCommandBuffer::OpType::Change) {
         ChangeResourceImpl(changeResArray[op.second]);
       } else if (op.first == ResCommandBuffer::OpType::Remove) {

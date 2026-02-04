@@ -28,7 +28,7 @@ void Scheduler::Compile(const vector<shared_ptr<Stage>>& stages) {
   StageInfo info;
 
   for (auto st : stages) {
-    if (st.GetId() != StageIdFactory::Null) {
+    if (st->GetId() != StageIdFactory::Null) {
       info.stage = st;
       info.flowTask = d()->taskflow.emplace([st]() { st->Execute(); }).name(Convert<std::string>(st->GetName()));
       d()->infoMap.insert({st->GetId(), std::move(info)});
@@ -36,13 +36,13 @@ void Scheduler::Compile(const vector<shared_ptr<Stage>>& stages) {
   }
 
   for (auto& st : stages) {
-    auto& info = d()->infoMap[st->Id()];
-    for (auto bId : st->Predecessors()) {
+    auto& info = d()->infoMap[st->GetId()];
+    for (auto bId : st->GetPredecessors()) {
       if (d()->infoMap.count(bId)) {
         d()->infoMap[bId].flowTask.precede(info.flowTask);
       }
     }
-    for (auto aId : st->Successors()) {
+    for (auto aId : st->GetSuccessors()) {
       if (d()->infoMap.count(aId)) {
         info.flowTask.succeed(d()->infoMap[aId].flowTask);
       }

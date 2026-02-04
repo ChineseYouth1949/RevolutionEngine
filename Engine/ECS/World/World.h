@@ -11,8 +11,6 @@ class RE_API World {
   World();
   virtual ~World();
 
-  std::lock_guard<std::mutex> Lock() { return std::lock_guard<std::mutex>(m_Mutex); }
-
   RE_FINLINE Registry* GetRegistry() { return &m_Reg; }
   RE_FINLINE ResourceManager* GetResourceManager() { return m_ResourceManager.get(); }
 
@@ -27,7 +25,7 @@ class RE_API World {
 
   // Do not use in multi-threaded environments
   RE_FINLINE Entity CreateEntity() { return m_Reg.create(); }
-  RE_FINLINE void DestryEntity(Entity e) { m_Reg.destry(e); }
+  RE_FINLINE void DestryEntity(Entity e) { m_Reg.destroy(e); }
   RE_FINLINE void DestryEntityDelay(Entity e) { m_DestryEntitys.push_back(e); }
 
   template <typename T, typename... Args>

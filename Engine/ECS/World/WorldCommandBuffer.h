@@ -29,8 +29,8 @@ class RE_API WorldCommandBuffer {
   }
 
   shared_ptr<Entity> CreateEntity() {
-    m_Orders.push_back({OpType::Create, m_AddEntitys.size()});
-    auto& ePtr = m_AddEntitys.emplace_back();
+    m_Orders.push_back({OpType::Create, m_CreateEntitys.size()});
+    auto& ePtr = m_CreateEntitys.emplace_back();
     ePtr = GAlloc::make_shared<Entity>(entt::null);
     return ePtr;
   }
