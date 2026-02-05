@@ -3,6 +3,7 @@
 namespace re::engine::ecs {
 Scene::Scene() {
   m_World = GAlloc::make_unique<World>();
+  m_Scheduler = GAlloc::make_unique<PassScheduler>();
 }
 Scene::~Scene() {}
 
@@ -33,6 +34,7 @@ void Scene::Run() {
   }
 
   m_Scheduler->Execute();
+  m_World->Flush();
 
   for (auto& [key, sys] : m_Systems) {
     sys->OnPostUpdate();

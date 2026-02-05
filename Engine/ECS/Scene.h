@@ -13,10 +13,6 @@
 #include "System/SystemGroup.h"
 
 namespace re::engine::ecs {
-struct EntityInfo {
-  string name;
-};
-
 class RE_API Scene {
  public:
   Scene();
@@ -51,7 +47,6 @@ class RE_API Scene {
 
  private:
   unique_ptr<World> m_World;
-  unordered_map<Entity, EntityInfo> m_EntityInfo;
 
   unordered_map<std::type_index, shared_ptr<System>> m_Systems;
   unique_ptr<PassScheduler> m_Scheduler;
