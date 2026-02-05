@@ -25,20 +25,20 @@ void SystemGroup::OnDetach() {
     sys->OnDetach();
   }
 
-  System::OnDetach(world);
+  System::OnDetach();
 }
 
 void SystemGroup::OnEnable() {
   for (auto sys : m_ChildSystem) {
     sys->OnEnable();
   }
-  System::OnEnable(world);
+  System::OnEnable();
 }
 void SystemGroup::OnDisable() {
   for (auto sys : m_ChildSystem) {
     sys->OnDisable();
   }
-  System::OnDisable(world);
+  System::OnDisable();
 }
 
 void SystemGroup::OnPreUpdate() {
@@ -54,11 +54,12 @@ void SystemGroup::OnPostUpdate() {
 }
 
 vector<shared_ptr<SystemPass>> SystemGroup::GetAllPass() {
-  vector<shared_ptr<SystemPass>> allPass;
+  vector<shared_ptr<SystemPass>> allPass = m_Passes;
   for (auto sys : m_ChildSystem) {
     auto sysPasses = sys->GetAllPass();
     allPass.insert(allPass.end(), sysPasses.begin(), sysPasses.end());
   }
+  return allPass;
 }
 
 vector<shared_ptr<System>>& SystemGroup::GetChilds() {
