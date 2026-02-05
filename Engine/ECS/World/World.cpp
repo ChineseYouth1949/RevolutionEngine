@@ -1,4 +1,5 @@
 #include "World.h"
+#include "RegistryVisitor.h"
 
 namespace re::engine::ecs {
 World::World() {
@@ -6,7 +7,7 @@ World::World() {
 }
 World::~World() {}
 
-void World::Submit(WorldCommandBuffer& buffer) {
+void World::Submit(RegistryCommandBuffer&& buffer) {
   std::lock_guard lock(m_SumbitMutex);
   m_CommandBuffers.push_back(std::move(buffer));
 }
@@ -18,11 +19,11 @@ void World::Flush() {
 
     auto& opOrders = cmb.GetOpOrders();
     for (auto& op : opOrders) {
-      if (op.first == WorldCommandBuffer::OpType::Create) {
+      if (op.first == RegistryCommandBuffer::OpType::Create) {
         *(createEntitys[op.second]) = CreateEntity();
-      } else if (op.first == WorldCommandBuffer::OpType::Destroy) {
+      } else if (op.first == RegistryCommandBuffer::OpType::Destroy) {
         DestryEntity(destryEntitys[op.second]);
-      } else if (op.first == WorldCommandBuffer::OpType::DestryDelay) {
+      } else if (op.first == RegistryCommandBuffer::OpType::DestryDelay) {
         DestryEntityDelay(destryDelyEntitys[op.second]);
       }
     }
@@ -31,6 +32,10 @@ void World::Flush() {
   }
 
   m_CommandBuffers.clear();
+}
+
+RegistryVisitor World::RequestRegistryVisitor() {
+  return RegistryVisitor(this);
 }
 
 }  // namespace re::engine::ecs

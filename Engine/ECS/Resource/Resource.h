@@ -13,6 +13,11 @@ struct RE_API Resource {
   Resource(Resource&& other) noexcept : m_Ptr(other.m_Ptr), m_Deleter(other.m_Deleter) {
     other.m_Ptr = nullptr;
     other.m_Deleter = nullptr;
+
+#if defined(RE_DEBUG)
+    m_TypeInfo = other.m_TypeInfo;
+    other.m_TypeInfo = typeid(void);
+#endif
   }
 
   Resource& operator=(Resource&& other) noexcept {
@@ -22,46 +27,58 @@ struct RE_API Resource {
       m_Deleter = other.m_Deleter;
       other.m_Ptr = nullptr;
       other.m_Deleter = nullptr;
+
+#if defined(RE_DEBUG)
+      m_TypeInfo = other.m_TypeInfo;
+      other.m_TypeInfo = typeid(void);
+#endif
     }
     return *this;
   }
 
   template <typename T>
-  void Create(T* ptr, bool needFree = true) {
+  void SetPtr(T* ptr, bool needFree = true) {
     Destroy();
 
-    if (needFree && ptr != nullptr) {
-      m_Deleter = [](void* p) {
-        if (p) {
-          GAlloc::destroy<T>(static_cast<T*>(p));
-        }
-      };
-    }
+    if (ptr != nullptr) {
+#if defined(RE_DEBUG)
+      m_TypeInfo = typeid(T);
+#endif
 
-    m_Ptr = ptr;
+      if (needFree) {
+        m_Deleter = [](void* p) {
+          if (p) {
+            GAlloc::destroy<T>(static_cast<T*>(p));
+          }
+        };
+      }
+
+      m_Ptr = ptr;
+    }
   }
 
   template <typename T, typename... Args>
-  T* Emplace(Args&&... args) {
+  T* Create(Args&&... args) {
     T* ptr = GAlloc::create<T>(std::forward<Args>(args)...);
-    Create(ptr, true);
+    SetPtr<T>(ptr, true);
     return ptr;
   }
 
   bool Valid() const { return m_Ptr != nullptr; }
 
   template <typename T>
-  T* Get() {
-    return static_cast<T*>(m_Ptr);
-  }
-
-  template <typename T>
   const T* Get() const {
+    RE_ASSERT(Valid() && m_TypeInfo == typeid(T), "Type mismatch!");
     return static_cast<const T*>(m_Ptr);
   }
 
-  RE_FINLINE void* GetPtr() { return m_Ptr; }
+  template <typename T>
+  T* Get() {
+    return const_cast<T*>(static_cast<const Resource*>(this)->Get<T>());
+  }
+
   RE_FINLINE const void* GetPtr() const { return m_Ptr; }
+  RE_FINLINE void* GetPtr() { return const_cast<void*>(static_cast<const Resource*>(this)->GetPtr()); }
 
   RE_FINLINE void Destroy() {
     if (m_Ptr && m_Deleter) {
@@ -69,10 +86,16 @@ struct RE_API Resource {
     }
     m_Ptr = nullptr;
     m_Deleter = nullptr;
+#if defined(RE_DEBUG)
+    m_TypeInfo = typeid(void);
+#endif
   }
 
  private:
   void* m_Ptr{nullptr};
   void (*m_Deleter)(void*) = nullptr;
+#if defined(RE_DEBUG)
+  std::type_index m_TypeInfo = typeid(void);
+#endif
 };
 }  // namespace re::engine::ecs

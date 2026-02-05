@@ -1,7 +1,8 @@
 #include "ResourceManager.h"
+#include "ResourceVisitor.h"
 
 namespace re::engine::ecs {
-void ResourceManager::Submit(ResCommandBuffer& buffer) {
+void ResourceManager::Submit(ResCommandBuffer&& buffer) {
   std::lock_guard lock(m_Mutex);
   m_CommandBuffers.push_back(std::move(buffer));
 }
@@ -11,16 +12,19 @@ ResId ResourceManager::AddResource(Resource& res) {
   if (m_FreeResIds.empty()) {
     id = m_Resources.size();
     m_Resources.push_back(std::move(res));
+    m_ResIdVersions.push_back(0);
   } else {
     id = m_FreeResIds.back();
     m_FreeResIds.pop_back();
     m_Resources[id] = std::move(res);
+    id.version = m_ResIdVersions[id];
   }
   return id;
 }
 void ResourceManager::RemoveResource(ResId id) {
   m_FreeResIds.push_back(id);
   m_Resources[id].Destroy();
+  m_ResIdVersions[id] += 1;
 }
 
 void ResourceManager::ChangeResourceImpl(stl::pair<ResId, ResOperate>& changeRes) {
@@ -61,6 +65,10 @@ void ResourceManager::Flush() {
   }
 
   m_CommandBuffers.clear();
+}
+
+ResourceVisitor ResourceManager::RequestResourceVisitor() {
+  return ResourceVisitor(this);
 }
 
 }  // namespace re::engine::ecs

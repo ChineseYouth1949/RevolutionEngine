@@ -1,6 +1,6 @@
 #pragma once
 
-#include "WorldStage.h"
+#include "SystemPass.h"
 
 namespace re::engine::ecs {
 class World;
@@ -22,9 +22,10 @@ class System {
   virtual void OnEnable() = 0;
   virtual void OnDisable() = 0;
 
-  virtual void OnUpdate() = 0;
+  virtual void OnPreUpdate() = 0;
+  virtual void OnPostUpdate() = 0;
 
-  RE_FINLINE vector<shared_ptr<WorldStage>>& GetAllStage() { return m_Stages; }
+  RE_FINLINE vector<shared_ptr<SystemPass>>& GetAllStage() { return m_Passes; }
 
  protected:
   template <typename ComponentType>
@@ -40,7 +41,7 @@ class System {
   bool m_Enabled = false;
   bool m_Attach = false;
 
-  vector<shared_ptr<WorldStage>> m_Stages;
+  vector<shared_ptr<SystemPass>> m_Passes;
 };
 
 }  // namespace re::engine::ecs

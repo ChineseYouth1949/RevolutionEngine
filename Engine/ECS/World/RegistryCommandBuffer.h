@@ -3,22 +3,22 @@
 #include "Entity.h"
 
 namespace re::engine::ecs {
-class RE_API WorldCommandBuffer {
+class RE_API RegistryCommandBuffer {
  public:
   enum struct OpType : uint8_t { Create = 0, Destroy, DestryDelay };
 
-  WorldCommandBuffer() = default;
+  RegistryCommandBuffer() = default;
 
-  WorldCommandBuffer(const WorldCommandBuffer&) = delete;
-  WorldCommandBuffer& operator=(const WorldCommandBuffer&) = delete;
+  RegistryCommandBuffer(const RegistryCommandBuffer&) = delete;
+  RegistryCommandBuffer& operator=(const RegistryCommandBuffer&) = delete;
 
-  WorldCommandBuffer(WorldCommandBuffer&& other) noexcept
+  RegistryCommandBuffer(RegistryCommandBuffer&& other) noexcept
       : m_CreateEntitys(std::move(other.m_CreateEntitys)),
         m_DestroyEntitys(std::move(other.m_DestroyEntitys)),
         m_DestroyDelayEntitys(std::move(other.m_DestroyDelayEntitys)),
         m_Orders(std::move(other.m_Orders)) {}
 
-  WorldCommandBuffer& operator=(WorldCommandBuffer&& other) noexcept {
+  RegistryCommandBuffer& operator=(RegistryCommandBuffer&& other) noexcept {
     if (this != &other) {
       m_CreateEntitys = std::move(other.m_CreateEntitys);
       m_DestroyEntitys = std::move(other.m_DestroyEntitys);
@@ -53,6 +53,7 @@ class RE_API WorldCommandBuffer {
   void Reset() {
     m_CreateEntitys.clear();
     m_DestroyEntitys.clear();
+    m_DestroyDelayEntitys.clear();
     m_Orders.clear();
   }
 
