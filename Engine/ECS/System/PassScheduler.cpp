@@ -62,7 +62,7 @@ void PassScheduler::Compile(const vector<shared_ptr<Pass>>& paaes) {
 
     for (auto passId : mutexInfo.passsIds) {
       auto& task = d()->infoMap[passId].flowTask;
-      task.acquire(*(mutexInfo.sem), 1).release(*(mutexInfo.sem), 1);
+      task.acquire(*(mutexInfo.sem)).release(*(mutexInfo.sem));
     }
   }
 }

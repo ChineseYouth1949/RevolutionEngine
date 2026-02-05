@@ -23,5 +23,5 @@ class RE_API RegistryVisitor {
  private:
   RegistryCommandBuffer m_RegistryCommandBuffer;
   World* m_World;
-}
+};
 }  // namespace re::engine::ecs

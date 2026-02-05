@@ -1,12 +1,16 @@
 #pragma once
 
 #include "Resource/ResourceManager.h"
+#include "Resource/ResourceVisitor.h"
 
 #include "World/World.h"
+#include "World/RegistryVisitor.h"
+
+#include "System/Pass.h"
+#include "System/PassScheduler.h"
 
 #include "System/System.h"
 #include "System/SystemGroup.h"
-#include "System/Scheduler.h"
 
 namespace re::engine::ecs {
 struct EntityInfo {
@@ -50,7 +54,7 @@ class RE_API Scene {
   unordered_map<Entity, EntityInfo> m_EntityInfo;
 
   unordered_map<std::type_index, shared_ptr<System>> m_Systems;
-  unique_ptr<Scheduler> m_Scheduler;
+  unique_ptr<PassScheduler> m_Scheduler;
 
   utility::Timer m_TimerDt;
   utility::Timer m_TimerTotal;

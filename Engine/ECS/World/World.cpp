@@ -24,7 +24,7 @@ void World::Flush() {
       } else if (op.first == RegistryCommandBuffer::OpType::Destroy) {
         DestryEntity(destryEntitys[op.second]);
       } else if (op.first == RegistryCommandBuffer::OpType::DestryDelay) {
-        DestryEntityDelay(destryDelyEntitys[op.second]);
+        DestryEntity(destryDelyEntitys[op.second], true);
       }
     }
 

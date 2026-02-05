@@ -33,7 +33,7 @@ class RE_API Pass {
   RE_FINLINE const vector<PassId>& GetPredecessors() const { return m_Predecessors; }
 
   RE_FINLINE void AddMutexId(PassMutexId id) { return m_MutexIds.push_back(id); }
-  RE_FINLINE const vector<PassMutex>& GetMutexIds() const { return m_MutexIds; }
+  RE_FINLINE const vector<PassMutexId>& GetMutexIds() const { return m_MutexIds; }
 
   template <typename T>
   void SetIdToType();
