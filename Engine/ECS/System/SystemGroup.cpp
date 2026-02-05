@@ -14,7 +14,7 @@ void SystemGroup::OnAttach(World* world) {
     sys->OnAttach(world);
   }
 
-  m_Attach = true;
+  System::OnAttach(world);
 }
 void SystemGroup::OnDetach() {
   if (!IsAttach()) {
@@ -25,24 +25,44 @@ void SystemGroup::OnDetach() {
     sys->OnDetach();
   }
 
-  m_Attach = false;
+  System::OnDetach(world);
 }
 
 void SystemGroup::OnEnable() {
   for (auto sys : m_ChildSystem) {
     sys->OnEnable();
   }
+  System::OnEnable(world);
 }
 void SystemGroup::OnDisable() {
   for (auto sys : m_ChildSystem) {
     sys->OnDisable();
   }
+  System::OnDisable(world);
 }
 
-void SystemGroup::OnUpdate() {
+void SystemGroup::OnPreUpdate() {
   for (auto sys : m_ChildSystem) {
-    sys->OnUpdate();
+    sys->OnPreUpdate();
   }
+}
+
+void SystemGroup::OnPostUpdate() {
+  for (auto sys : m_ChildSystem) {
+    sys->OnPostUpdate();
+  }
+}
+
+vector<shared_ptr<SystemPass>> SystemGroup::GetAllPass() {
+  vector<shared_ptr<SystemPass>> allPass;
+  for (auto sys : m_ChildSystem) {
+    auto sysPasses = sys->GetAllPass();
+    allPass.insert(allPass.end(), sysPasses.begin(), sysPasses.end());
+  }
+}
+
+vector<shared_ptr<System>>& SystemGroup::GetChilds() {
+  return m_ChildSystem;
 }
 
 }  // namespace re::engine::ecs

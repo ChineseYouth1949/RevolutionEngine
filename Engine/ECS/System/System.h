@@ -16,16 +16,25 @@ class System {
   RE_FINLINE bool IsAttach() const { return m_Attach; }
   RE_FINLINE bool IsEnabled() const { return m_Enabled; }
 
-  virtual void OnAttach(World* world) = 0;
-  virtual void OnDetach() = 0;
+  virtual void OnAttach(World* world) {
+    m_World = world;
+    m_Attach = true;
+    for (auto& pass : m_Passes) {
+      pass->Init(world);
+    }
+  }
+  virtual void OnDetach() {
+    m_World = nullptr;
+    m_Attach = false;
+  }
 
-  virtual void OnEnable() = 0;
-  virtual void OnDisable() = 0;
+  virtual void OnEnable() { m_Enabled = true; }
+  virtual void OnDisable() { m_Enabled = false; }
 
-  virtual void OnPreUpdate() = 0;
-  virtual void OnPostUpdate() = 0;
+  virtual void OnPreUpdate() {}
+  virtual void OnPostUpdate() {}
 
-  RE_FINLINE vector<shared_ptr<SystemPass>>& GetAllStage() { return m_Passes; }
+  RE_FINLINE vector<shared_ptr<SystemPass>> GetAllPass() { return m_Passes; }
 
  protected:
   template <typename ComponentType>

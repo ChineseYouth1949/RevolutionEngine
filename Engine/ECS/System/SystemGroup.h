@@ -16,9 +16,11 @@ class SystemGroup : public System {
   void OnEnable() override;
   void OnDisable() override;
 
-  void OnUpdate() override;
+  void OnPreUpdate() override;
+  void OnPostUpdate() override;
 
-  vector<shared_ptr<System>>& GetChilds() { return m_ChildSystem; }
+  vector<shared_ptr<SystemPass>> GetAllPass();
+  vector<shared_ptr<System>>& GetChilds();
 
  protected:
   vector<shared_ptr<System>> m_ChildSystem;
