@@ -30,18 +30,34 @@ class RE_API World {
 
   template <typename T, typename... Args>
   T& AddComponent(Entity e, Args&&... args) {
+    return m_Reg.emplace_or_replace<T>(e, std::forward<Args>(args)...);
+  }
+
+  template <typename T, typename... Args>
+  T& AddComponentDely(Entity e, Args&&... args) {
     auto& wrapper = m_Reg.emplace_or_replace<AddComponentTag<T>>(e, std::forward<Args>(args)...);
     return wrapper.data;
   }
 
-  template <typename T>
-  T& ChangeComponent(Entity e) {
-    m_Reg.emplace_or_replace<ChangeComponentTag<T>>(e);
+  template <typename T, typename... Args>
+  T& ChangeComponent(Entity e, Args&&... args) {
+    m_Reg.emplace_or_replace<T>(e, std::forward<Args>(args)...);
     return m_Reg.get<T>(e);
+  }
+
+  template <typename T, typename... Args>
+  T& ChangeComponentDely(Entity e, Args&&... args) {
+    auto& wrapper = m_Reg.emplace_or_replace<ChangeComponentTag<T>>(e, std::forward<Args>(args)...);
+    return wrapper.data;
   }
 
   template <typename T>
   bool RemoveComponent(Entity e) {
+    return m_Reg.remove<T>(e) > 0;
+  }
+
+  template <typename T>
+  bool RemoveComponentDely(Entity e) {
     if (HasComponents<T>(e)) {
       m_Reg.emplace_or_replace<DelComponentTag<T>>(e);
       m_Reg.remove<AddComponentTag<T>>(e);

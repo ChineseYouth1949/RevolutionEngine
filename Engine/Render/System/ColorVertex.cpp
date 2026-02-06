@@ -99,11 +99,10 @@ void RenderColorVertex::PollDelCom() {
 void RenderColorVertex::PollChangeCom() {
   auto reg = m_World->GetRegistry();
 
-  auto& stateStorage = reg->storage<DelComponentTag<SysComType>>();
-  for (auto [e] : stateStorage.each()) {
+  auto& stateStorage = reg->storage<ChangeComponentTag<SysComType>>();
+  for (auto [e, com] : stateStorage.each()) {
     auto it = m_EntityResrouce.find(e);
-    auto& com = reg->get<SysComType>(e);
-    it->second = GetResource(com);
+    it->second = GetResource(com.data);
   }
   PollChangeComponent<SysComType>();
 }
@@ -169,7 +168,6 @@ void RenderColorVertex::OnAttach(ecs::World* world) {
 
   com.vertexs.reserve(vertices.size());
   for (auto vertex : vertices) {
-    vertex.position += glm::vec3(0.0f, 2.0f, 0.0f);
     com.vertexs.push_back(vertex);
   }
 
@@ -179,7 +177,7 @@ void RenderColorVertex::OnAttach(ecs::World* world) {
   }
 
   auto e = m_World->CreateEntity();
-  m_World->AddComponent<SysComType>(e, com);
+  m_World->AddComponentDely<SysComType>(e, com);
 }
 void RenderColorVertex::OnDetach() {
   System::OnDetach();
@@ -192,6 +190,13 @@ void RenderColorVertex::OnPreUpdate() {
   PollDelCom();
   PollChangeCom();
   PollAddCom();
+
+  for (auto& [e, sysCom] : m_World->GetRegistry()->view<SysComType>().each()) {
+    auto& newCom = m_World->ChangeComponentDely<SysComType>(e, sysCom);
+    for (auto& vertex : newCom.vertexs) {
+      vertex.position += glm::vec3(0.005f, 0.005f, 0.005f);
+    }
+  }
 }
 void RenderColorVertex::OnPostUpdate() {
   Render();

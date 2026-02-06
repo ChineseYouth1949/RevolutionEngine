@@ -54,6 +54,12 @@ bool System::PollChangeComponent() {
   auto reg = m_World->GetRegistry();
 
   auto& stateStorage = reg->storage<ChangeComponentTag<ComponentType>>();
+
+  auto& comStorage = reg->storage<ComponentType>();
+  for (auto& [e, com] : stateStorage.each()) {
+    reg->get<ComponentType>(e) = std::move(com.data);
+  }
+
   if (stateStorage.empty()) {
     return false;
   }
