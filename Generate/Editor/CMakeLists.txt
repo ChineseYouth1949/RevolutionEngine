@@ -31,11 +31,11 @@ if(CMAKE_BUILD_TYPE STREQUAL "Debug")
     target_compile_definitions(${PROJECT_NAME} PUBLIC _DEBUG)
 endif()
 
-# Add Qt paths from QT_ROOT if defined
-if(DEFINED RE_QT_ROOT)
-    list(APPEND CMAKE_PREFIX_PATH "${RE_QT_ROOT}")
-endif()
 
+# Add Qt paths from QT_ROOT if defined
+if(DEFINED QT_ROOT)
+    list(APPEND CMAKE_PREFIX_PATH "${QT_ROOT}")
+endif()
 
 find_package(Qt${QT_VERSION_MAJOR} COMPONENTS Gui Quick Qml Core Widgets REQUIRED)
 
