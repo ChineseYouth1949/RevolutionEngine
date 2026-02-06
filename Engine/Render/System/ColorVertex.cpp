@@ -194,7 +194,7 @@ void RenderColorVertex::OnPreUpdate() {
   for (auto& [e, sysCom] : m_World->GetRegistry()->view<SysComType>().each()) {
     auto& newCom = m_World->ChangeComponentDely<SysComType>(e, sysCom);
     for (auto& vertex : newCom.vertexs) {
-      vertex.position += glm::vec3(0.005f, 0.005f, 0.005f);
+      vertex.position += glm::vec3(0.01f, 0.01f, 0.001f);
     }
   }
 }
