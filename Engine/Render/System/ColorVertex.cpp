@@ -151,23 +151,18 @@ void RenderColorVertex::OnAttach(ecs::World* world) {
 
   m_DefaultVertexBuffer.Create(L"DefaultColorVertexVB", vertices.size(), sizeof(ColorVertex), vertices.data());
 
-  array<uint32_t, 36> indices = {// 前
-                                 0, 1, 2, 0, 2, 3,
-
-                                 // 后
-                                 4, 6, 5, 4, 7, 6,
-
+  array<uint32_t, 36> indices = {// 前 (0, 1, 2 -> 0, 2, 1)
+                                 0, 2, 1, 0, 3, 2,
+                                 // 后 (4, 6, 5 -> 4, 5, 6)
+                                 4, 5, 6, 4, 6, 7,
                                  // 左
-                                 4, 5, 1, 4, 1, 0,
-
+                                 4, 1, 5, 4, 0, 1,
                                  // 右
-                                 3, 2, 6, 3, 6, 7,
-
+                                 3, 6, 2, 3, 7, 6,
                                  // 上
-                                 1, 5, 6, 1, 6, 2,
-
+                                 1, 6, 5, 1, 2, 6,
                                  // 下
-                                 4, 0, 3, 4, 3, 7};
+                                 4, 3, 0, 4, 7, 3};
 
   // test data
   SysComType com;

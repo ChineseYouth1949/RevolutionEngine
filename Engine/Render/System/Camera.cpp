@@ -11,7 +11,7 @@ Camera::Camera()
       mUp(0.0f, 1.0f, 0.0f),
       mLook(0.0f, 0.0f, 1.0f),
       mNearZ(0.1f),
-      mFarZ(1000.0f),
+      mFarZ(std::numeric_limits<float>::max()),
       mAspect(1.0f),
       mFovY(XM_PIDIV4),  // 45度
       mNearWindowHeight(0.0f),

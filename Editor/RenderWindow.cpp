@@ -94,21 +94,32 @@ void RenderWindow::keyPressEvent(QKeyEvent* event) {
 // void RenderWindow::mouseDoubleClickEvent(QMouseEvent*) {}
 void RenderWindow::mouseMoveEvent(QMouseEvent* event) {
   auto& camera = m_RenderCoreSystem->GetSharedInfo()->camera;
-  m_RenderCoreSystem->GetSharedInfo()->Change();
+  QPoint currentPos = event->pos();
 
+  // 逻辑 1: 必须先检查按钮状态，再计算差值
   if (event->buttons() & Qt::MiddleButton) {
-    QPoint currentPos = event->pos();
+    m_RenderCoreSystem->GetSharedInfo()->Change();
 
-    float dx = (0.25f * (currentPos.x() - mMouseMidPressLastPos.x()));
-    float dy = (0.25f * (currentPos.y() - mMouseMidPressLastPos.y()));
+    // 逻辑 2: 弧度转换。Win32 代码使用了 DirectX::XMConvertToRadians
+    // 公式：radians = degrees * (PI / 180.0f)
+    auto toRadians = [](float degrees) {
+      return degrees * 0.0174532925f * 2.4;
+    };
 
-    camera.Pitch(dy / 12.0f);
-    camera.RotateY(dx / 12.0f);
+    // 逻辑 3: 严格对标 Win32 的计算公式 (dx * 0.25f 后再转弧度，最后除以 2)
+    float dx = toRadians(0.25f * static_cast<float>(currentPos.x() - mMouseMidPressLastPos.x()));
+    float dy = toRadians(0.25f * static_cast<float>(currentPos.y() - mMouseMidPressLastPos.y()));
 
-    mMouseMidPressLastPos = currentPos;
+    // 对标 Win32 的 dy / 2 和 dx / 2
+    camera.Pitch(dy / 2.0f);
+    camera.RotateY(dx / 2.0f);
+
+    camera.UpdateViewProj();
   }
 
-  camera.UpdateViewProj();
+  // 逻辑 4: 无论是否按下，都要更新 LastPos (对应 Win32 的 mousePosx = LOWORD...)
+  // 否则下次按下时 dx/dy 会因为巨大的跨度导致摄像机“瞬移”
+  mMouseMidPressLastPos = currentPos;
 }
 
 }  // namespace re::editor
