@@ -17,7 +17,7 @@ void RenderColorVertex::Init(shared_ptr<GraphicsCore> gc, shared_ptr<SharedInfo>
   m_RootSignature.Reset(2, 0);
   m_RootSignature[0].InitAsConstantBuffer(0, D3D12_SHADER_VISIBILITY_VERTEX);
   m_RootSignature[1].InitAsConstantBuffer(1, D3D12_SHADER_VISIBILITY_VERTEX);
-  m_RootSignature.Finalize(L"MyRootSignature", D3D12_ROOT_SIGNATURE_FLAG_ALLOW_INPUT_ASSEMBLER_INPUT_LAYOUT);
+  m_RootSignature.Finalize(L"RenderColorVertex", D3D12_ROOT_SIGNATURE_FLAG_ALLOW_INPUT_ASSEMBLER_INPUT_LAYOUT);
 
   // INPUT_ELEMENT
   D3D12_INPUT_ELEMENT_DESC vertElem[] = {{"POSITION", 0, DXGI_FORMAT_R32G32B32_FLOAT, 0, 0, D3D12_INPUT_CLASSIFICATION_PER_VERTEX_DATA, 0},
@@ -130,13 +130,61 @@ void RenderColorVertex::Render() {
   while (it != m_EntityResrouce.end()) {
     pGfxContext->SetVertexBuffer(0, it->second.vertexBuffer.VertexBufferView());
     pGfxContext->SetIndexBuffer(it->second.indexBuffer.IndexBufferView());
-    pGfxContext->DrawIndexed(it->second.indexBuffer.GetElementCount(), 0, 0);
+    pGfxContext->DrawIndexedInstanced(it->second.indexBuffer.GetElementCount(), 1, 0, 0, 0);
     it++;
   }
 }
 
 void RenderColorVertex::OnAttach(ecs::World* world) {
   System::OnAttach(world);
+
+  array<ColorVertex, 8> vertices = {
+      ColorVertex{glm::vec3(-1.0f, -1.0f, -1.0f), glm::vec4(1.0f, 1.0f, 1.0f, 1.0f)},  // White
+      ColorVertex{glm::vec3(-1.0f, +1.0f, -1.0f), glm::vec4(0.0f, 0.0f, 0.0f, 1.0f)},  // Black
+      ColorVertex{glm::vec3(+1.0f, +1.0f, -1.0f), glm::vec4(1.0f, 0.0f, 0.0f, 1.0f)},  // Red
+      ColorVertex{glm::vec3(+1.0f, -1.0f, -1.0f), glm::vec4(0.0f, 1.0f, 0.0f, 1.0f)},  // Green
+      ColorVertex{glm::vec3(-1.0f, -1.0f, +1.0f), glm::vec4(0.0f, 0.0f, 1.0f, 1.0f)},  // Blue
+      ColorVertex{glm::vec3(-1.0f, +1.0f, +1.0f), glm::vec4(1.0f, 1.0f, 0.0f, 1.0f)},  // Yellow
+      ColorVertex{glm::vec3(+1.0f, +1.0f, +1.0f), glm::vec4(0.0f, 1.0f, 1.0f, 1.0f)},  // Cyan
+      ColorVertex{glm::vec3(+1.0f, -1.0f, +1.0f), glm::vec4(1.0f, 0.0f, 1.0f, 1.0f)}   // Magenta
+  };
+
+  m_DefaultVertexBuffer.Create(L"DefaultColorVertexVB", vertices.size(), sizeof(ColorVertex), vertices.data());
+
+  array<uint32_t, 36> indices = {// 前
+                                 0, 1, 2, 0, 2, 3,
+
+                                 // 后
+                                 4, 6, 5, 4, 7, 6,
+
+                                 // 左
+                                 4, 5, 1, 4, 1, 0,
+
+                                 // 右
+                                 3, 2, 6, 3, 6, 7,
+
+                                 // 上
+                                 1, 5, 6, 1, 6, 2,
+
+                                 // 下
+                                 4, 0, 3, 4, 3, 7};
+
+  // test data
+  SysComType com;
+
+  com.vertexs.reserve(vertices.size());
+  for (auto vertex : vertices) {
+    vertex.position += glm::vec3(30.0f, 20.0f, 15.0f);
+    com.vertexs.push_back(vertex);
+  }
+
+  com.indexes.reserve(indices.size());
+  for (const auto& index : indices) {
+    com.indexes.push_back(index);
+  }
+
+  auto e = m_World->CreateEntity();
+  m_World->AddComponent<SysComType>(e, com);
 }
 void RenderColorVertex::OnDetach() {
   System::OnDetach();
@@ -151,7 +199,7 @@ void RenderColorVertex::OnPreUpdate() {
   PollAddCom();
 }
 void RenderColorVertex::OnPostUpdate() {
-  // Render();
+  Render();
 }
 
 }  // namespace re::engine::render

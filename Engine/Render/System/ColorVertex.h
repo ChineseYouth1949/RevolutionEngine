@@ -14,7 +14,7 @@ struct ColorVertex {
 };
 
 class RenderColorVertex : public ecs::System {
-  using SysComType = Mesh<ColorVertex, std::uint32_t>;
+  using SysComType = Mesh<ColorVertex, uint32_t>;
 
  public:
   RenderColorVertex();
@@ -41,6 +41,9 @@ class RenderColorVertex : public ecs::System {
   void PollAddCom();
   void PollDelCom();
   void PollChangeCom();
+
+  ByteAddressBuffer m_DefaultVertexBuffer;
+  ByteAddressBuffer m_DefaultIndexBuffer;
 
   struct Resource {
     ByteAddressBuffer vertexBuffer;
