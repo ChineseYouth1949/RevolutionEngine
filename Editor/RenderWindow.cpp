@@ -54,6 +54,20 @@ void RenderWindow::Update() {
   m_Scene->Run();
 }
 
+void RenderWindow::OnResize(int width, int height) {
+  if (m_Init) {
+    m_RenderCoreSystem->GetSharedInfo()->width = width;
+    m_RenderCoreSystem->GetSharedInfo()->height = height;
+    m_RenderCoreSystem->GetSharedInfo()->Change();
+
+    m_RenderCoreSystem->GetSharedInfo()->camera.SetLens(45.0f, static_cast<float>(width) / static_cast<float>(height), 0.1f,
+                                                        std::numeric_limits<float>::max());
+    m_RenderCoreSystem->GetSharedInfo()->camera.UpdateProj();
+
+    m_GC->Resize(width, height);
+  }
+}
+
 // void RenderWindow::exposeEvent(QExposeEvent*) {}
 // void RenderWindow::resizeEvent(QResizeEvent*) {}
 // void RenderWindow::paintEvent(QPaintEvent*) {}
@@ -120,6 +134,17 @@ void RenderWindow::mouseMoveEvent(QMouseEvent* event) {
   // 逻辑 4: 无论是否按下，都要更新 LastPos (对应 Win32 的 mousePosx = LOWORD...)
   // 否则下次按下时 dx/dy 会因为巨大的跨度导致摄像机“瞬移”
   mMouseMidPressLastPos = currentPos;
+}
+
+void RenderWindow::resizeEvent(QResizeEvent* event) {
+  qreal ratio = this->devicePixelRatio();
+
+  int physicalWidth = qRound(event->size().width() * ratio);
+  int physicalHeight = qRound(event->size().height() * ratio);
+
+  OnResize(physicalWidth, physicalHeight);
+
+  QWindow::resizeEvent(event);
 }
 
 }  // namespace re::editor

@@ -49,6 +49,8 @@ void CoreSystem::OnDisable() {
 
 void CoreSystem::OnPreUpdate() {
   m_GC->Begin();
+  auto ctx = m_GC->GetGraphicsContext();
+  ctx->SetViewportAndScissor(0, 0, m_SharedInfo->width, m_SharedInfo->height);
   SystemGroup::OnPreUpdate();
 }
 void CoreSystem::OnPostUpdate() {

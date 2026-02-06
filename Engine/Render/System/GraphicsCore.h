@@ -57,6 +57,8 @@ class RE_API GraphicsCore {
   void Begin();
   void End();
 
+  void Resize(int width, int height);
+
  private:
   Microsoft::WRL::ComPtr<ID3D12Device> m_Device;
 

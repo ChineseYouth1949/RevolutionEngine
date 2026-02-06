@@ -17,8 +17,10 @@ class RenderWindow : public QWindow {
 
  protected:
   void Update();
+  void OnResize(int width, int height);
+
   // void exposeEvent(QExposeEvent*) override;
-  // void resizeEvent(QResizeEvent*) override;
+  void resizeEvent(QResizeEvent*) override;
   // void paintEvent(QPaintEvent*) override;
   // void moveEvent(QMoveEvent*) override;
   // void focusInEvent(QFocusEvent*) override;

@@ -361,4 +361,8 @@ void GraphicsCore::Release() {
   }
 }
 
+void GraphicsCore::Resize(int width, int height) {
+  Display::Resize(width, height);
+}
+
 }  // namespace re::engine::render
