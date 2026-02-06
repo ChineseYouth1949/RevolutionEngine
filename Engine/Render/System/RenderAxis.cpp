@@ -27,9 +27,9 @@ void RenderAxis::Init(shared_ptr<GraphicsCore> gc, shared_ptr<SharedInfo> si) {
   m_PSO.SetRootSignature(m_RootSignature);
 
   // 2. 设置渲染状态 (使用 MiniEngine 默认的常用状态)
-  m_PSO.SetRasterizerState(Graphics::RasterizerDefault);      // 默认剔除和填充模式
-  m_PSO.SetBlendState(Graphics::BlendDisable);                // 不开启混合
-  m_PSO.SetDepthStencilState(Graphics::DepthStateReadWrite);  // 开启深度读写
+  m_PSO.SetRasterizerState(Graphics::RasterizerTwoSided);
+  m_PSO.SetBlendState(Graphics::BlendDisable);
+  m_PSO.SetDepthStencilState(Graphics::DepthStateReadOnly);
 
   // 3. 配置输入布局和拓扑类型
   m_PSO.SetInputLayout(_countof(vertElem), vertElem);

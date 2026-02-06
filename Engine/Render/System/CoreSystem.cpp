@@ -19,13 +19,13 @@ void CoreSystem::Init(engine::shared_ptr<GraphicsCore> gc) {
   m_SharedInfo->camera.LookAt({0, 2, -5}, {0, 0, 0}, {0, 1, 0});
   float aspectHeightOverWidth = static_cast<float>(1280) / static_cast<float>(720);
 
-  auto renColorVertex = GAlloc::make_shared<RenderColorVertex>();
-  renColorVertex->Init(m_GC, m_SharedInfo);
-  AddChild(renColorVertex);
-
   auto renAxis = GAlloc::make_shared<RenderAxis>();
   renAxis->Init(m_GC, m_SharedInfo);
   AddChild(renAxis);
+
+  auto renColorVertex = GAlloc::make_shared<RenderColorVertex>();
+  renColorVertex->Init(m_GC, m_SharedInfo);
+  AddChild(renColorVertex);
 }
 
 void CoreSystem::OnAttach(ecs::World* world) {

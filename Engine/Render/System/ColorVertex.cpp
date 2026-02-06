@@ -139,14 +139,14 @@ void RenderColorVertex::OnAttach(ecs::World* world) {
   System::OnAttach(world);
 
   array<ColorVertex, 8> vertices = {
-      ColorVertex{glm::vec3(-1.0f, -1.0f, -1.0f), glm::vec4(1.0f, 1.0f, 1.0f, 1.0f)},  // White
-      ColorVertex{glm::vec3(-1.0f, +1.0f, -1.0f), glm::vec4(0.0f, 0.0f, 0.0f, 1.0f)},  // Black
-      ColorVertex{glm::vec3(+1.0f, +1.0f, -1.0f), glm::vec4(1.0f, 0.0f, 0.0f, 1.0f)},  // Red
-      ColorVertex{glm::vec3(+1.0f, -1.0f, -1.0f), glm::vec4(0.0f, 1.0f, 0.0f, 1.0f)},  // Green
-      ColorVertex{glm::vec3(-1.0f, -1.0f, +1.0f), glm::vec4(0.0f, 0.0f, 1.0f, 1.0f)},  // Blue
-      ColorVertex{glm::vec3(-1.0f, +1.0f, +1.0f), glm::vec4(1.0f, 1.0f, 0.0f, 1.0f)},  // Yellow
-      ColorVertex{glm::vec3(+1.0f, +1.0f, +1.0f), glm::vec4(0.0f, 1.0f, 1.0f, 1.0f)},  // Cyan
-      ColorVertex{glm::vec3(+1.0f, -1.0f, +1.0f), glm::vec4(1.0f, 0.0f, 1.0f, 1.0f)}   // Magenta
+      ColorVertex{glm::vec3(-1.0f, -1.0f, -1.0f), glm::vec4(1.0f, 1.0f, 1.0f, 0.7f)},  // White
+      ColorVertex{glm::vec3(-1.0f, +1.0f, -1.0f), glm::vec4(0.0f, 0.0f, 0.0f, 0.7f)},  // Black
+      ColorVertex{glm::vec3(+1.0f, +1.0f, -1.0f), glm::vec4(1.0f, 0.0f, 0.0f, 0.7f)},  // Red
+      ColorVertex{glm::vec3(+1.0f, -1.0f, -1.0f), glm::vec4(0.0f, 1.0f, 0.0f, 0.7f)},  // Green
+      ColorVertex{glm::vec3(-1.0f, -1.0f, +1.0f), glm::vec4(0.0f, 0.0f, 1.0f, 0.7f)},  // Blue
+      ColorVertex{glm::vec3(-1.0f, +1.0f, +1.0f), glm::vec4(1.0f, 1.0f, 0.0f, 0.7f)},  // Yellow
+      ColorVertex{glm::vec3(+1.0f, +1.0f, +1.0f), glm::vec4(0.0f, 1.0f, 1.0f, 0.7f)},  // Cyan
+      ColorVertex{glm::vec3(+1.0f, -1.0f, +1.0f), glm::vec4(1.0f, 0.0f, 1.0f, 0.7f)}   // Magenta
   };
 
   m_DefaultVertexBuffer.Create(L"DefaultColorVertexVB", vertices.size(), sizeof(ColorVertex), vertices.data());
@@ -169,7 +169,7 @@ void RenderColorVertex::OnAttach(ecs::World* world) {
 
   com.vertexs.reserve(vertices.size());
   for (auto vertex : vertices) {
-    vertex.position += glm::vec3(30.0f, 20.0f, 15.0f);
+    vertex.position += glm::vec3(0.0f, 2.0f, 0.0f);
     com.vertexs.push_back(vertex);
   }
 
