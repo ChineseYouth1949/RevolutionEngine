@@ -15,7 +15,7 @@ RE_FINLINE void Print(const char* msg) {
   OutputDebugStringA(msg);
 }
 RE_FINLINE void Print(const wchar_t* msg) {
-  OutputDebugString(msg);
+  OutputDebugStringW(msg);
 }
 #endif
 
@@ -30,7 +30,8 @@ RE_FINLINE void Printf(const char* format, ...) {
   int size = std::vsnprintf(nullptr, 0, format, ap_copy);
 #endif
   va_end(ap_copy);
-  if (size < 0) size = 0;
+  if (size < 0)
+    size = 0;
   std::string buf(static_cast<size_t>(size) + 1, '\0');
 #if defined(_MSC_VER)
   vsprintf_s(buf.data(), buf.size(), format, ap);
@@ -38,7 +39,8 @@ RE_FINLINE void Printf(const char* format, ...) {
   std::vsnprintf(buf.data(), buf.size(), format, ap);
 #endif
   va_end(ap);
-  if (!buf.empty() && buf.back() == '\0') buf.pop_back();
+  if (!buf.empty() && buf.back() == '\0')
+    buf.pop_back();
   Print(buf.c_str());
 }
 
@@ -53,7 +55,8 @@ RE_FINLINE void Printf(const wchar_t* format, ...) {
   int size = std::vswprintf(nullptr, 0, format, ap_copy);
 #endif
   va_end(ap_copy);
-  if (size < 0) size = 0;
+  if (size < 0)
+    size = 0;
   std::wstring buf(static_cast<size_t>(size) + 1, L'\0');
 #if defined(_MSC_VER)
   vswprintf_s(buf.data(), buf.size(), format, ap);
@@ -61,7 +64,8 @@ RE_FINLINE void Printf(const wchar_t* format, ...) {
   std::vswprintf(buf.data(), buf.size(), format, ap);
 #endif
   va_end(ap);
-  if (!buf.empty() && buf.back() == L'\0') buf.pop_back();
+  if (!buf.empty() && buf.back() == L'\0')
+    buf.pop_back();
   Print(buf.c_str());
 }
 

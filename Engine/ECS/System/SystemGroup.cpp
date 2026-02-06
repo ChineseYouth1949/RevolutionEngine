@@ -1,7 +1,7 @@
 #include "SystemGroup.h"
 
 namespace re::engine::ecs {
-void SystemGroup::AddSystem(shared_ptr<System> sys) {
+void SystemGroup::AddChild(shared_ptr<System> sys) {
   m_ChildSystem.push_back(sys);
 }
 

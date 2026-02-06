@@ -37,7 +37,7 @@ class RenderAxis : public ecs::System {
     glm::vec3 position;
   };
 
-  struct ConstBuffer {
+  struct alignas(16) ConstBuffer {
     glm::vec4 backgroundColor;
     glm::vec4 gridColor;
     glm::vec3 cameraPos;

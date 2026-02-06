@@ -38,7 +38,7 @@ class RenderWindow : public QWindow {
   bool m_Init{false};
   engine::shared_ptr<engine::ecs::Scene> m_Scene;
   engine::shared_ptr<engine::render::GraphicsCore> m_GC;
-  engine::shared_ptr<engine::render::RenderSystem> m_RenderSystem;
+  engine::shared_ptr<engine::render::CoreSystem> m_RenderCoreSystem;
 
   QTimer m_RunTimer;
 

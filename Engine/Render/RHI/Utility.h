@@ -28,7 +28,7 @@ RE_FINLINE void Print(const char* msg) {
   OutputDebugStringA(msg);
 }
 RE_FINLINE void Print(const wchar_t* msg) {
-  OutputDebugString(msg);
+  OutputDebugStringW(msg);
 }
 #endif
 

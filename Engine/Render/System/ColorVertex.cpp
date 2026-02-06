@@ -151,7 +151,7 @@ void RenderColorVertex::OnPreUpdate() {
   PollAddCom();
 }
 void RenderColorVertex::OnPostUpdate() {
-  Render();
+  // Render();
 }
 
 }  // namespace re::engine::render

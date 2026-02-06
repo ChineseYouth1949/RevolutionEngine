@@ -37,10 +37,10 @@ void RenderWindow::Init() {
     info.swapChainHWND = hwnd;
     m_GC->Initialize(info);
 
-    m_RenderSystem = GAlloc::make_shared<RenderSystem>();
-    m_RenderSystem->Init(m_GC);
+    m_RenderCoreSystem = GAlloc::make_shared<CoreSystem>();
+    m_RenderCoreSystem->Init(m_GC);
 
-    m_Scene->AddSystem(m_RenderSystem);
+    m_Scene->AddSystem(m_RenderCoreSystem);
   }
 
   connect(&m_RunTimer, &QTimer::timeout, this, &RenderWindow::Update);
@@ -66,8 +66,8 @@ void RenderWindow::Update() {
 // void RenderWindow::closeEvent(QCloseEvent*) {}
 
 void RenderWindow::keyPressEvent(QKeyEvent* event) {
-  auto& camera = m_RenderSystem->GetSharedInfo()->camera;
-  m_RenderSystem->GetSharedInfo()->Change();
+  auto& camera = m_RenderCoreSystem->GetSharedInfo()->camera;
+  m_RenderCoreSystem->GetSharedInfo()->Change();
 
   switch (event->key()) {
     case Qt::Key_W:
@@ -93,8 +93,8 @@ void RenderWindow::keyPressEvent(QKeyEvent* event) {
 // void RenderWindow::mouseReleaseEvent(QMouseEvent*) {}
 // void RenderWindow::mouseDoubleClickEvent(QMouseEvent*) {}
 void RenderWindow::mouseMoveEvent(QMouseEvent* event) {
-  auto& camera = m_RenderSystem->GetSharedInfo()->camera;
-  m_RenderSystem->GetSharedInfo()->Change();
+  auto& camera = m_RenderCoreSystem->GetSharedInfo()->camera;
+  m_RenderCoreSystem->GetSharedInfo()->Change();
 
   if (event->buttons() & Qt::MiddleButton) {
     QPoint currentPos = event->pos();

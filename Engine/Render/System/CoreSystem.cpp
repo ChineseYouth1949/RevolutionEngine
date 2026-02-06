@@ -1,4 +1,4 @@
-#include "RenderSystem.h"
+#include "CoreSystem.h"
 
 #include "ColorVertex.h"
 #include "RenderAxis.h"
@@ -6,12 +6,12 @@
 namespace re::engine::render {
 using namespace re::engine::ecs;
 
-RenderSystem::RenderSystem() {}
-RenderSystem::~RenderSystem() {}
+CoreSystem::CoreSystem() {}
+CoreSystem::~CoreSystem() {}
 
-void RenderSystem::Init(engine::shared_ptr<GraphicsCore> gc) {
+void CoreSystem::Init(engine::shared_ptr<GraphicsCore> gc) {
   m_GC = gc;
-  m_SharedInfo = re::engine::shared_ptr<SharedInfo>(new SharedInfo());
+  m_SharedInfo = GAlloc::make_shared<SharedInfo>();
 
   m_SharedInfo->width = 1280;
   m_SharedInfo->height = 720;
@@ -19,19 +19,19 @@ void RenderSystem::Init(engine::shared_ptr<GraphicsCore> gc) {
   m_SharedInfo->camera.LookAt({0, 2, -5}, {0, 0, 0}, {0, 1, 0});
   float aspectHeightOverWidth = static_cast<float>(1280) / static_cast<float>(720);
 
-  re::engine::shared_ptr<RenderColorVertex> renColorVertex(new RenderColorVertex());
+  auto renColorVertex = GAlloc::make_shared<RenderColorVertex>();
   renColorVertex->Init(m_GC, m_SharedInfo);
-  AddSystem(renColorVertex);
+  AddChild(renColorVertex);
 
-  re::engine::shared_ptr<RenderAxis> renAxis(new RenderAxis());
+  auto renAxis = GAlloc::make_shared<RenderAxis>();
   renAxis->Init(m_GC, m_SharedInfo);
-  AddSystem(renAxis);
+  AddChild(renAxis);
 }
 
-void RenderSystem::OnAttach(ecs::World* world) {
+void CoreSystem::OnAttach(ecs::World* world) {
   SystemGroup::OnAttach(world);
 }
-void RenderSystem::OnDetach() {
+void CoreSystem::OnDetach() {
   // Ensure all GPU work is complete before detaching render system
   auto* ctx = m_GC->GetGraphicsContext();
   if (ctx != nullptr) {
@@ -40,18 +40,20 @@ void RenderSystem::OnDetach() {
   SystemGroup::OnDetach();
 }
 
-void RenderSystem::OnEnable() {
+void CoreSystem::OnEnable() {
   SystemGroup::OnEnable();
 }
-void RenderSystem::OnDisable() {
+void CoreSystem::OnDisable() {
   SystemGroup::OnDisable();
 }
 
-void RenderSystem::OnPreUpdate() {
+void CoreSystem::OnPreUpdate() {
+  m_GC->Begin();
   SystemGroup::OnPreUpdate();
 }
-void RenderSystem::OnPostUpdate() {
+void CoreSystem::OnPostUpdate() {
   SystemGroup::OnPostUpdate();
+  m_GC->End();
 }
 
 }  // namespace re::engine::render

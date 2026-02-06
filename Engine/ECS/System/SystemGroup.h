@@ -8,7 +8,7 @@ class SystemGroup : public System {
   SystemGroup() = default;
   ~SystemGroup() {}
 
-  void AddSystem(shared_ptr<System> sys);
+  void AddChild(shared_ptr<System> sys);
 
   void OnAttach(World* world) override;
   void OnDetach() override;

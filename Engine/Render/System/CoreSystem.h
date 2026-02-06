@@ -8,10 +8,10 @@
 
 namespace re::engine::render {
 
-class RE_API RenderSystem : public ecs::SystemGroup {
+class RE_API CoreSystem : public ecs::SystemGroup {
  public:
-  RenderSystem();
-  ~RenderSystem();
+  CoreSystem();
+  ~CoreSystem();
 
   void Init(engine::shared_ptr<GraphicsCore> gc);
 
