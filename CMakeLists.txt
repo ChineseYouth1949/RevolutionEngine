@@ -1,4 +1,4 @@
-cmake_minimum_required(VERSION 3.10...3.31)
+cmake_minimum_required(VERSION 3.24)
 
 project(Revolution VERSION 1.0)
 

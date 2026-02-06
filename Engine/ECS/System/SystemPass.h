@@ -20,35 +20,12 @@ class WriteComponent {};
 
 class RE_API SystemPass : public Pass {
  public:
-  SystemPass(PassId id = PassIdFactory::Null, const string& name = "") : Pass(id, name) {}
+  SystemPass() = default;
+  SystemPass(PassId id, const string& name) : Pass(id, name) {}
 
   RE_FINLINE void Init(World* world) {
     m_ResourceVisitor = world->GetResourceManager()->RequestResourceVisitor();
     m_RegistryVisitor = world->RequestRegistryVisitor();
-  }
-
-  template <typename T>
-  RE_FINLINE void SetReadResource() {
-    static const PassMutexId mutexId = PassIdFactory::GetClassId<ReadResource<T>>();
-    AddMutexId(mutexId);
-  }
-
-  template <typename T>
-  RE_FINLINE void SetWriteResource() {
-    static const PassMutexId mutexId = PassIdFactory::GetClassId<WriteResource<T>>();
-    AddMutexId(mutexId);
-  }
-
-  template <typename T>
-  RE_FINLINE void SetReadComponent() {
-    static const PassMutexId mutexId = PassIdFactory::GetClassId<ReadComponent<T>>();
-    AddMutexId(mutexId);
-  }
-
-  template <typename T>
-  RE_FINLINE void SetWriteComponent() {
-    static const PassMutexId mutexId = PassIdFactory::GetClassId<WriteComponent<T>>();
-    AddMutexId(mutexId);
   }
 
  protected:

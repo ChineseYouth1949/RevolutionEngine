@@ -31,8 +31,9 @@ class RE_API Scene {
       return false;
     }
 
-    sys->OnAttach(m_World);
+    sys->OnAttach(m_World.get());
     m_Systems[std::type_index(typeid(T))] = sys;
+    m_SystemsDirty = true;  // Mark for recompilation on next Run()
     return true;
   }
 
@@ -54,5 +55,6 @@ class RE_API Scene {
   utility::Timer m_TimerDt;
   utility::Timer m_TimerTotal;
   bool m_FirstRun = true;
+  bool m_SystemsDirty = true;  // Track if systems changed and need recompilation
 };
 }  // namespace re::engine::ecs

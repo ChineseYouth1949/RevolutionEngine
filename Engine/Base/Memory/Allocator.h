@@ -73,6 +73,8 @@ class Allocator {
   RE_FINLINE static T* create(Args&&... args) {
     size_t alignment = alignof(T);
     void* p = (alignment > 16) ? mallocAligned(sizeof(T), alignment) : malloc(sizeof(T));
+    if (!p)
+      return nullptr;
     return new (p) T(std::forward<Args>(args)...);
   }
 
@@ -82,11 +84,22 @@ class Allocator {
     if (!p)
       return nullptr;
 
-    // Construct objects
-    for (size_t i = 0; i < count; ++i) {
-      new (&p[i]) T(std::forward<Args>(args)...);
+    // Construct objects with exception-safety: if a constructor throws,
+    // destruct previously constructed objects and free memory, then rethrow.
+    size_t constructed = 0;
+    try {
+      for (size_t i = 0; i < count; ++i) {
+        new (&p[i]) T(std::forward<Args>(args)...);
+        ++constructed;
+      }
+      return p;
+    } catch (...) {
+      for (size_t i = 0; i < constructed; ++i) {
+        p[i].~T();
+      }
+      free(static_cast<void*>(p));
+      throw;
     }
-    return p;
   }
 
   template <typename T>
@@ -139,4 +152,4 @@ class Allocator {
 
 // Convenient macro
 #define RE_CLASS_ALLOCATOR(Type) using Alloc = re::engine::memory::Allocator<re::engine::memory::AllocType::Type>;
-#define RE_NAME_ALLOCATOR(Name, Type) using Name = re::engine::memory::Allocator<re::engine::memory::AllocType::Type>;
+#define RE_NAME_ALLOCATOR(Name, Type) using Name = re::engine::memory::Allocator<re::engine::memory::AllocType::Type>

@@ -20,21 +20,20 @@ class RenderColorVertex : public ecs::System {
   RenderColorVertex();
   ~RenderColorVertex();
 
-  void Init(shared_ptr<GraphicsCore> gc, shared_ptr<SharedInfo> si);
+  void Init(engine::shared_ptr<GraphicsCore> gc, engine::shared_ptr<SharedInfo> si);
 
-  bool OnAttach() override;
-  bool OnDetach() override;
+  void OnAttach(ecs::World* world) override;
+  void OnDetach() override;
 
   void OnEnable() override;
   void OnDisable() override;
 
-  void OnPreUpdate(const ecs::UpdateInfo& info) override;
-  void OnUpdate(const ecs::UpdateInfo& info) override;
-  void OnPostUpdate(const ecs::UpdateInfo& info) override;
+  void OnPreUpdate() override;
+  void OnPostUpdate() override;
 
  private:
-  shared_ptr<GraphicsCore> m_GC;
-  shared_ptr<SharedInfo> m_SharedInfo;
+  engine::shared_ptr<GraphicsCore> m_GC;
+  engine::shared_ptr<SharedInfo> m_SharedInfo;
 
   GraphicsPSO m_PSO;
   RootSignature m_RootSignature;

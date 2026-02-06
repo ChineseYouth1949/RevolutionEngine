@@ -21,7 +21,10 @@
 #include <wrl/client.h>
 #include <wrl/event.h>
 
+#include <typeindex>
+
 #include "STL/STL.h"
+
 #include <mutex>
 #include <thread>
 #include <assert.h>

@@ -1,8 +1,6 @@
-cmake_minimum_required(VERSION 3.19)
+cmake_minimum_required(VERSION 3.24)
 
 project(REditor VERSION 1.0)
-
-list(APPEND CMAKE_PREFIX_PATH "D:/Software/Qt/6.9.3/msvc2022_64")
 
 set(CMAKE_CXX_STANDARD 20)
 set(CMAKE_CXX_STANDARD_REQUIRED ON)
@@ -10,7 +8,7 @@ set(CMAKE_INCLUDE_CURRENT_DIR ON)
 
 set(CMAKE_AUTOUIC ON)
 set(CMAKE_AUTORCC ON)
-set(CMAKE_AUTOMOC ON)   
+set(CMAKE_AUTOMOC ON)
 
 set(CodePath ${CMAKE_SOURCE_DIR}/Editor)
 
@@ -23,6 +21,7 @@ file(GLOB_RECURSE RESOURCE_FILE
 
 add_executable(${PROJECT_NAME} ${SOURCE_FILE} ${RESOURCE_FILE})
 
+# Link against namespaced engine target
 RE_TARGET_SET(${PROJECT_NAME})
 set_target_properties(${PROJECT_NAME} PROPERTIES
     OUTPUT_NAME "REditor"
@@ -32,10 +31,16 @@ if(CMAKE_BUILD_TYPE STREQUAL "Debug")
     target_compile_definitions(${PROJECT_NAME} PUBLIC _DEBUG)
 endif()
 
+# Add Qt paths from QT_ROOT if defined
+if(DEFINED RE_QT_ROOT)
+    list(APPEND CMAKE_PREFIX_PATH "${RE_QT_ROOT}")
+endif()
+
+
 find_package(Qt${QT_VERSION_MAJOR} COMPONENTS Gui Quick Qml Core Widgets REQUIRED)
 
 target_link_libraries(${PROJECT_NAME} PRIVATE 
-    REngine
+    Revolution::Engine
     Qt${QT_VERSION_MAJOR}::Core
     Qt${QT_VERSION_MAJOR}::Gui
     Qt${QT_VERSION_MAJOR}::Widgets

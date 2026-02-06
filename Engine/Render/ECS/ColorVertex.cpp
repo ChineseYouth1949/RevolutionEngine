@@ -135,24 +135,23 @@ void RenderColorVertex::Render() {
   }
 }
 
-bool RenderColorVertex::OnAttach() {
-  return true;
+void RenderColorVertex::OnAttach(ecs::World* world) {
+  System::OnAttach(world);
 }
-bool RenderColorVertex::OnDetach() {
-  return true;
+void RenderColorVertex::OnDetach() {
+  System::OnDetach();
 }
 
 void RenderColorVertex::OnEnable() {}
 void RenderColorVertex::OnDisable() {}
 
-void RenderColorVertex::OnPreUpdate(const ecs::UpdateInfo& info) {
+void RenderColorVertex::OnPreUpdate() {
   PollDelCom();
   PollChangeCom();
   PollAddCom();
 }
-void RenderColorVertex::OnUpdate(const ecs::UpdateInfo& info) {
-  // Render();
+void RenderColorVertex::OnPostUpdate() {
+  Render();
 }
-void RenderColorVertex::OnPostUpdate(const ecs::UpdateInfo& info) {}
 
 }  // namespace re::engine::render

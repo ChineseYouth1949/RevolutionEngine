@@ -119,24 +119,23 @@ void RenderAxis::Render() {
   pGfxContext->Draw(m_VertexBuffer.GetElementCount());
 }
 
-bool RenderAxis::OnAttach() {
-  return true;
+void RenderAxis::OnAttach(ecs::World* world) {
+  System::OnAttach(world);
 }
-bool RenderAxis::OnDetach() {
-  return true;
+void RenderAxis::OnDetach() {
+  System::OnDetach();
 }
 
 void RenderAxis::OnEnable() {}
 void RenderAxis::OnDisable() {}
 
-void RenderAxis::OnPreUpdate(const ecs::UpdateInfo& info) {
+void RenderAxis::OnPreUpdate() {
   if (m_SharedInfo->Dirty()) {
     UpdateCB();
   }
 }
-void RenderAxis::OnUpdate(const ecs::UpdateInfo& info) {
+void RenderAxis::OnPostUpdate() {
   Render();
 }
-void RenderAxis::OnPostUpdate(const ecs::UpdateInfo& info) {}
 
 }  // namespace re::engine::render

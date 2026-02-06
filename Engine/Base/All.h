@@ -11,5 +11,6 @@
 #include "Utility/Descriptor.h"
 #include "Utility/Class.h"
 #include "Utility/IdFactory.h"
+#include "Utility/Common.h"
 
 #include "Container.h"

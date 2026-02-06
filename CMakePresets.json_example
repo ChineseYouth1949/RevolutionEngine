@@ -23,7 +23,7 @@
                 "CMAKE_TOOLCHAIN_FILE": "$env{RE_VCPKG_ROOT}/scripts/buildsystems/vcpkg.cmake",
                 "QT_ROOT": "$env{RE_QT_ROOT}",
                 "QT_VERSION_MAJOR": "5",
-                "SDK_ROOT": "$env{RE_SDK_ROOT}"
+                "SDK_ROOT": "$env{RE_SDK_ROOT}",
                 "DX12_Agility_VERSION": "616"
             }
         },

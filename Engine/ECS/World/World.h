@@ -52,11 +52,13 @@ class RE_API World {
 
   template <typename T>
   RE_FINLINE T& GetComponent(Entity e) {
+    RE_ASSERT(HasComponents<T>(e), "Component not found on entity. Did you call Flush()?");
     return m_Reg.get<T>(e);
   }
 
   template <typename T>
   RE_FINLINE const T& GetComponent(Entity e) const {
+    RE_ASSERT(HasComponents<T>(e), "Component not found on entity. Did you call Flush()?");
     return m_Reg.get<T>(e);
   }
 

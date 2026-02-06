@@ -32,6 +32,10 @@ struct GCInitInfo {
 
 using GraphicsContext = ::GraphicsContext;
 
+// NOTE: GraphicsCore is the singleton wrapper for RHI graphics device management.
+// It owns and manages the global D3D12 device and command context lifecycle.
+// Do NOT create duplicate Device instances - use GetDevice() to access the single global device.
+// This ensures proper resource lifetime management and prevents device lost scenarios.
 class RE_API GraphicsCore {
  public:
   GraphicsCore();

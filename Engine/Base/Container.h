@@ -73,3 +73,12 @@ using u16string = basic_string<char16_t>;
 }  // namespace re::engine
 
 #include "Container.inl"
+
+#ifdef RE_USE_EASTL
+namespace eastl {
+template <>
+struct hash<std::type_index> {
+  size_t operator()(const std::type_index& idx) const noexcept { return idx.hash_code(); }
+};
+}  // namespace eastl
+#endif

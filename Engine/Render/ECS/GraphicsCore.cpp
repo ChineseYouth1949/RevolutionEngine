@@ -101,7 +101,7 @@ void GraphicsCore::Initialize(GCInitInfo info) {
         }
       }
     } else {
-      RE_WARN_ONCE_IF(0, "WARNING:  Unable to enable D3D12 debug validation layer\n")
+      RE_WARN_ONCE_IF(0, "WARNING:  Unable to enable D3D12 debug validation layer\n");
     }
 
     if (info.enableDXGIDebugInfo) {
@@ -195,7 +195,7 @@ void GraphicsCore::Initialize(GCInitInfo info) {
       RegCloseKey(hKey);
     }
 
-    RE_WARN_ONCE_IF_NOT(DeveloperModeEnabled, "Enable Developer Mode on Windows 10 to get consistent profiling results")
+    RE_WARN_ONCE_IF_NOT(DeveloperModeEnabled, "Enable Developer Mode on Windows 10 to get consistent profiling results");
 
     // Prevent the GPU from overclocking or underclocking to get consistent timings
     if (DeveloperModeEnabled) {

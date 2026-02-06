@@ -1,24 +1,24 @@
 # only header lib
 find_package(directx-headers CONFIG REQUIRED)
-find_package(taskflow CONFIG REQUIRED)
+find_package(taskflow CONFIG REQUIRED)  # Accept any version from vcpkg
 find_package(sol2 CONFIG REQUIRED)
 
-find_package(glm CONFIG REQUIRED)
+find_package(glm CONFIG REQUIRED)  # Accept any version
 target_link_libraries(${PROJECT_NAME} PRIVATE glm::glm)
 
-find_package(fmt CONFIG REQUIRED)
+find_package(fmt CONFIG REQUIRED)  # Accept any version
 target_link_libraries(${PROJECT_NAME} PRIVATE fmt::fmt)
 
-find_package(EnTT CONFIG REQUIRED)
+find_package(EnTT CONFIG REQUIRED)  # Accept any version
 target_link_libraries(${PROJECT_NAME} PRIVATE EnTT::EnTT)
 
 find_package(mimalloc CONFIG REQUIRED)
 target_link_libraries(${PROJECT_NAME} PUBLIC mimalloc)
 
-find_package(EASTL CONFIG REQUIRED)
+find_package(EASTL CONFIG REQUIRED)  # Accept any version
 target_link_libraries(${PROJECT_NAME} PUBLIC EASTL)
 
-find_package(flatbuffers CONFIG REQUIRED)
+find_package(flatbuffers CONFIG REQUIRED)  # Accept any version
 target_link_libraries(${PROJECT_NAME} PUBLIC flatbuffers::flatbuffers)
 
 # LUAJIT

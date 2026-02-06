@@ -1,4 +1,4 @@
-cmake_minimum_required(VERSION 3.30)
+cmake_minimum_required(VERSION 3.24)
 
 project(REngine VERSION 1.0)
 
@@ -13,6 +13,9 @@ file(GLOB_RECURSE SOURCE_FILE
     "${CodePath}/*.cpp")
 
 add_library(${PROJECT_NAME} SHARED ${SOURCE_FILE})
+
+# Create namespace alias for modern CMake conventions
+add_library(Revolution::Engine ALIAS ${PROJECT_NAME})
 
 # Target config
 RE_TARGET_SET(${PROJECT_NAME})

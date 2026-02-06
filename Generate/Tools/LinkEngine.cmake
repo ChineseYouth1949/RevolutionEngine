@@ -1,6 +1,6 @@
 function(LinkEngine target_name)
     add_dependencies(${target_name} REngine)
-    target_link_libraries(${target_name} PUBLIC REngine)
+    target_link_libraries(${target_name} PUBLIC Revolution::Engine)
 
     set(DEPLOY_TARGET_NAME "${target_name}LinkREngine")
 

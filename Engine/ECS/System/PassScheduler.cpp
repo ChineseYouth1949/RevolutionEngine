@@ -6,16 +6,18 @@ struct PassInfo {
   tf::Task flowTask;
 };
 
-struct PassMutexinfo {
-  vector<PassId> passsIds;
-  unique_ptr<tf::Semaphore> sem;
+struct AccessInfo {
+  unordered_map<PassMutex::AccessType, vector<PassId>> typeToPassIds;
+  vector<unique_ptr<tf::Semaphore>> semaphores;
 };
 
 struct PassScheduler::Impl {
   tf::Executor executor;
   tf::Taskflow taskflow;
   unordered_map<PassId, PassInfo> infoMap;
-  unordered_map<PassMutexId, PassMutexinfo> mutexInfoMap;
+  unordered_map<PassMutex::Type, vector<PassId>> mutexTypeToPassIds;
+
+  unordered_map<uint32_t, AccessInfo> accessInfoMap;
 };
 
 PassScheduler::PassScheduler() {
@@ -29,21 +31,25 @@ PassScheduler::~PassScheduler() {
 void PassScheduler::Compile(const vector<shared_ptr<Pass>>& paaes) {
   d()->taskflow.clear();
   d()->infoMap.clear();
-  d()->mutexInfoMap.clear();
+  d()->mutexTypeToPassIds.clear();
+  d()->accessInfoMap.clear();
 
   d()->infoMap.reserve(paaes.size());
 
   for (auto pas : paaes) {
-    if (pas->GetId() != PassIdFactory::Null) {
+    if (pas->GetId().IsValid()) {
       PassInfo info;
       info.pass = pas;
       info.flowTask = d()->taskflow.emplace([pas]() { pas->Execute(); }).name(Convert<std::string>(pas->GetName()));
 
       d()->infoMap.insert({pas->GetId(), std::move(info)});
 
-      auto& mutexIds = pas->GetMutexIds();
-      for (auto mi : mutexIds) {
-        d()->mutexInfoMap[mi].passsIds.push_back(pas->GetId());
+      auto& mutexs = pas->GetMutexs();
+      for (auto& mut : mutexs) {
+        d()->mutexTypeToPassIds[mut.type].push_back(pas->GetId());
+        if (mut.type == PassMutex::Type::ResourceAccess || mut.type == PassMutex::Type::ComponentAccess) {
+          d()->accessInfoMap[mut.data.accessTag].typeToPassIds[mut.data.accessType].push_back(pas->GetId());
+        }
       }
     }
   }
@@ -57,18 +63,49 @@ void PassScheduler::Compile(const vector<shared_ptr<Pass>>& paaes) {
     }
   }
 
-  for (auto& [mutexId, mutexInfo] : d()->mutexInfoMap) {
-    mutexInfo.sem = GAlloc::make_unique<tf::Semaphore>(1);
+  for (auto& [tag, info] : d()->accessInfoMap) {
+    auto& readPasses = info.typeToPassIds[PassMutex::AccessType::Read];
+    auto& rwPasses = info.typeToPassIds[PassMutex::AccessType::ReadWrite];
 
-    for (auto passId : mutexInfo.passsIds) {
-      auto& task = d()->infoMap[passId].flowTask;
-      task.acquire(*(mutexInfo.sem)).release(*(mutexInfo.sem));
+    // Multiple readers can access simultaneously, but writer needs exclusive access
+    if (!readPasses.empty() && !rwPasses.empty()) {
+      // Read-Write scenario: Create semaphore for each reader
+      info.semaphores.reserve(readPasses.size() + 1);
+      for (size_t i = 0; i < readPasses.size(); ++i) {
+        info.semaphores.push_back(GAlloc::make_unique<tf::Semaphore>(1));
+        auto& passId = readPasses[i];
+        auto& task = d()->infoMap[passId].flowTask;
+        task.acquire(*(info.semaphores[i]));
+      }
+      // Create semaphore for writers (must wait for all readers)
+      info.semaphores.push_back(GAlloc::make_unique<tf::Semaphore>(1));
+      for (auto& passId : rwPasses) {
+        auto& task = d()->infoMap[passId].flowTask;
+        for (auto& sem : info.semaphores) {
+          task.acquire(*sem);
+        }
+      }
+    } else if (!readPasses.empty()) {
+      // Read-only scenario: no sync needed (multiple readers OK)
+      // No semaphore required
+    } else if (!rwPasses.empty()) {
+      // Write-only scenario: single writer exclusivity
+      info.semaphores.push_back(GAlloc::make_unique<tf::Semaphore>(1));
+      for (auto& passId : rwPasses) {
+        auto& task = d()->infoMap[passId].flowTask;
+        task.acquire(*(info.semaphores.back()));
+      }
     }
   }
 }
 
 void PassScheduler::Execute() {
-  d()->executor.run(d()->taskflow).wait();
+  try {
+    d()->executor.run(d()->taskflow).wait();
+  } catch (const std::exception& e) {
+    RE_ERROR("PassScheduler execution failed: %s", e.what());
+    throw;  // Rethrow for caller to handle
+  }
 }
 
 void PassScheduler::DumpGraph(const string& path) {

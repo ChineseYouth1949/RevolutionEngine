@@ -5,7 +5,7 @@ function(FlatGenerateFun)
   set(multi_value_args "SCHEMAS" "INCLUDE" "FLAGS")
   cmake_parse_arguments(PARSE_ARGV 0 FLATBUFFERS_GENERATE_HEADERS "${options}" "${one_value_args}" "${multi_value_args}")
 
-  # 1. 确保找到 flatc 可执行文件（这是你之前运行失败的核心原因）
+  # 1. 确保找到 flatc 可执行文件
   set(FLATC_DEPENDS "")
   if(TARGET flatbuffers::flatc)
     set(FLATC flatbuffers::flatc)
@@ -14,12 +14,10 @@ function(FlatGenerateFun)
     set(FLATC "${FLATBUFFERS_FLATC_EXECUTABLE}")
   else()
     find_program(FLATC_BIN flatc)
-    if(FLATC_BIN)
-      set(FLATC "${FLATC_BIN}")
-    else()
-    set(FLATC "${FLATC_BIN}")
+    if(NOT FLATC_BIN)
       message(FATAL_ERROR "无法定位 flatc 可执行文件！请确保安装并设置环境变量，或手动指定 FLATBUFFERS_FLATC_EXECUTABLE。")
     endif()
+    set(FLATC "${FLATC_BIN}")
   endif()
 
   # 2. 确定所有 Schema 文件的**公共基准路径** (Base Directory)
@@ -64,8 +62,8 @@ function(FlatGenerateFun)
         set(current_generated_include_dir "${current_generated_output_dir}")
     endif()
 
-    # 注意：这里我们使用 --filename-suffix "Flat"，所以文件名是 filename + Flat.h
-    set(generated_include "${current_generated_include_dir}/${filename}.h")
+    # 注意：这里我们使用 --filename-suffix ".flat"，所以文件名是 filename.flat.h
+    set(generated_include "${current_generated_include_dir}/${filename}.flat.h")
 
     # Add custom command for generation
     add_custom_command(
