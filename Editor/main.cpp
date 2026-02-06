@@ -8,21 +8,21 @@ RE_EXPORT_D3D12_AGILITY_SDK
 int main(int argc, char* argv[]) {
   QApplication app(argc, argv);
 
-  QGuiApplication::setHighDpiScaleFactorRoundingPolicy(Qt::HighDpiScaleFactorRoundingPolicy::PassThrough);
-  QCoreApplication::setAttribute(Qt::AA_EnableHighDpiScaling);
-  QCoreApplication::setAttribute(Qt::AA_UseHighDpiPixmaps);
-
   app.setApplicationName("REditor");
   app.setApplicationVersion("1.0");
   app.setOrganizationName("Revolution");
 
-  // re::editor::MainWindow window;
-  // window.resize(800, 600);
-  // window.show();
+#define TestSceneView 1
 
+#if defined(TestSceneView)
   re::editor::RenderWindow renderWindow(nullptr);
   renderWindow.Init();
   renderWindow.showFullScreen();
+#else
+  re::editor::MainWindow window;
+  window.resize(800, 600);
+  window.show();
+#endif
 
   return app.exec();
 }

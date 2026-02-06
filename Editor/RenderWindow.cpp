@@ -55,7 +55,7 @@ void RenderWindow::Update() {
 }
 
 void RenderWindow::OnResize(int width, int height) {
-  if (m_Init) {
+  if (m_Init && width > 0 && height > 0) {
     m_RenderCoreSystem->GetSharedInfo()->width = width;
     m_RenderCoreSystem->GetSharedInfo()->height = height;
     m_RenderCoreSystem->GetSharedInfo()->Change();
