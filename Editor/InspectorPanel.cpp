@@ -6,6 +6,8 @@
 #include <QFormLayout>
 #include <QPushButton>
 #include <QComboBox>
+#include <QDoubleSpinBox>
+#include <QHBoxLayout>
 #include <QDockWidget>
 
 #include "Engine/Render/System/ColorVertex.h"
@@ -77,14 +79,97 @@ void InspectorPanel::ShowTransform() {
   if (!m_world)
     return;
   auto& t = m_world->GetComponent<engine::ecs::Transform>(m_entity);
-
   auto* group = new QGroupBox("Transform", m_contents);
-  auto* form = new QFormLayout(group);
-  form->addRow("Position", new QLabel(QString::fromStdString(std::to_string(t.position.x) + ", " + std::to_string(t.position.y) + ", " +
-                                                             std::to_string(t.position.z))));
-  form->addRow("Scale",
-               new QLabel(QString::fromStdString(std::to_string(t.scale.x) + ", " + std::to_string(t.scale.y) + ", " + std::to_string(t.scale.z))));
+  auto* vlay = new QVBoxLayout(group);
+
+  // Position
+  auto* posLay = new QHBoxLayout();
+  m_posX = new QDoubleSpinBox(group);
+  m_posY = new QDoubleSpinBox(group);
+  m_posZ = new QDoubleSpinBox(group);
+  for (auto* s : {m_posX, m_posY, m_posZ}) {
+    s->setRange(-1e6, 1e6);
+    s->setDecimals(4);
+    s->setSingleStep(0.1);
+  }
+  m_posX->setValue(t.position.x);
+  m_posY->setValue(t.position.y);
+  m_posZ->setValue(t.position.z);
+  posLay->addWidget(new QLabel("Position", group));
+  posLay->addWidget(m_posX);
+  posLay->addWidget(m_posY);
+  posLay->addWidget(m_posZ);
+  vlay->addLayout(posLay);
+
+  // Rotation
+  auto* rotLay = new QHBoxLayout();
+  m_rotX = new QDoubleSpinBox(group);
+  m_rotY = new QDoubleSpinBox(group);
+  m_rotZ = new QDoubleSpinBox(group);
+  for (auto* s : {m_rotX, m_rotY, m_rotZ}) {
+    s->setRange(-360.0, 360.0);
+    s->setDecimals(4);
+    s->setSingleStep(1.0);
+  }
+  m_rotX->setValue(t.rotation.x);
+  m_rotY->setValue(t.rotation.y);
+  m_rotZ->setValue(t.rotation.z);
+  rotLay->addWidget(new QLabel("Rotation", group));
+  rotLay->addWidget(m_rotX);
+  rotLay->addWidget(m_rotY);
+  rotLay->addWidget(m_rotZ);
+  vlay->addLayout(rotLay);
+
+  // Scale
+  auto* scaleLay = new QHBoxLayout();
+  m_scaleX = new QDoubleSpinBox(group);
+  m_scaleY = new QDoubleSpinBox(group);
+  m_scaleZ = new QDoubleSpinBox(group);
+  for (auto* s : {m_scaleX, m_scaleY, m_scaleZ}) {
+    s->setRange(-1e3, 1e3);
+    s->setDecimals(4);
+    s->setSingleStep(0.1);
+  }
+  m_scaleX->setValue(t.scale.x);
+  m_scaleY->setValue(t.scale.y);
+  m_scaleZ->setValue(t.scale.z);
+  scaleLay->addWidget(new QLabel("Scale", group));
+  scaleLay->addWidget(m_scaleX);
+  scaleLay->addWidget(m_scaleY);
+  scaleLay->addWidget(m_scaleZ);
+  vlay->addLayout(scaleLay);
+
   m_contents->layout()->addWidget(group);
+
+  // connect editingFinished to apply changes (use lambda to capture current values)
+  auto applyTransform = [this]() {
+    if (!m_world || m_entity == entt::null)
+      return;
+    engine::ecs::Transform nt;
+    nt.position.x = static_cast<float>(m_posX->value());
+    nt.position.y = static_cast<float>(m_posY->value());
+    nt.position.z = static_cast<float>(m_posZ->value());
+    nt.rotation.x = static_cast<float>(m_rotX->value());
+    nt.rotation.y = static_cast<float>(m_rotY->value());
+    nt.rotation.z = static_cast<float>(m_rotZ->value());
+    nt.scale.x = static_cast<float>(m_scaleX->value());
+    nt.scale.y = static_cast<float>(m_scaleY->value());
+    nt.scale.z = static_cast<float>(m_scaleZ->value());
+    // use ChangeComponentDelay to schedule component update
+    m_world->ChangeComponentDelay<engine::ecs::Transform>(m_entity, nt);
+    // Refresh view to reflect any derived data
+    InspectEntity(m_entity);
+  };
+
+  connect(m_posX, &QDoubleSpinBox::editingFinished, this, applyTransform);
+  connect(m_posY, &QDoubleSpinBox::editingFinished, this, applyTransform);
+  connect(m_posZ, &QDoubleSpinBox::editingFinished, this, applyTransform);
+  connect(m_rotX, &QDoubleSpinBox::editingFinished, this, applyTransform);
+  connect(m_rotY, &QDoubleSpinBox::editingFinished, this, applyTransform);
+  connect(m_rotZ, &QDoubleSpinBox::editingFinished, this, applyTransform);
+  connect(m_scaleX, &QDoubleSpinBox::editingFinished, this, applyTransform);
+  connect(m_scaleY, &QDoubleSpinBox::editingFinished, this, applyTransform);
+  connect(m_scaleZ, &QDoubleSpinBox::editingFinished, this, applyTransform);
 }
 
 void InspectorPanel::ShowMeshInfo() {

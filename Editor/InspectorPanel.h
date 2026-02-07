@@ -4,6 +4,7 @@
 #include <QWidget>
 #include <QComboBox>
 #include <QPushButton>
+#include <QDoubleSpinBox>
 
 #include <Engine/All.h>
 
@@ -28,6 +29,17 @@ class InspectorPanel : public ads::CDockWidget {
   QWidget* m_topWidget{nullptr};
   QComboBox* m_compCombo{nullptr};
   QPushButton* m_addBtn{nullptr};
+
+  // Transform editors
+  QDoubleSpinBox* m_posX{nullptr};
+  QDoubleSpinBox* m_posY{nullptr};
+  QDoubleSpinBox* m_posZ{nullptr};
+  QDoubleSpinBox* m_rotX{nullptr};
+  QDoubleSpinBox* m_rotY{nullptr};
+  QDoubleSpinBox* m_rotZ{nullptr};
+  QDoubleSpinBox* m_scaleX{nullptr};
+  QDoubleSpinBox* m_scaleY{nullptr};
+  QDoubleSpinBox* m_scaleZ{nullptr};
 
   engine::ecs::World* m_world{nullptr};
   engine::ecs::Entity m_entity{entt::null};
