@@ -25,8 +25,6 @@ int main(int argc, char* argv[]) {
   re::editor::MainWindow mainWindow;
   mainWindow.resize(800, 600);
   mainWindow.show();
-
-  ads::CDockManager* m_DockManager = new ads::CDockManager(&mainWindow);
 #endif
 
   return app.exec();
