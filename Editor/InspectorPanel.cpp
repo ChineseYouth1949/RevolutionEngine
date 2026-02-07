@@ -9,6 +9,7 @@
 #include <QDoubleSpinBox>
 #include <QHBoxLayout>
 #include <QDockWidget>
+#include <QTimer>
 
 #include "Engine/Render/System/ColorVertex.h"
 
@@ -141,35 +142,42 @@ void InspectorPanel::ShowTransform() {
 
   m_contents->layout()->addWidget(group);
 
-  // connect editingFinished to apply changes (use lambda to capture current values)
-  auto applyTransform = [this]() {
-    if (!m_world || m_entity == entt::null)
-      return;
-    engine::ecs::Transform nt;
-    nt.position.x = static_cast<float>(m_posX->value());
-    nt.position.y = static_cast<float>(m_posY->value());
-    nt.position.z = static_cast<float>(m_posZ->value());
-    nt.rotation.x = static_cast<float>(m_rotX->value());
-    nt.rotation.y = static_cast<float>(m_rotY->value());
-    nt.rotation.z = static_cast<float>(m_rotZ->value());
-    nt.scale.x = static_cast<float>(m_scaleX->value());
-    nt.scale.y = static_cast<float>(m_scaleY->value());
-    nt.scale.z = static_cast<float>(m_scaleZ->value());
-    // use ChangeComponentDelay to schedule component update
-    m_world->ChangeComponentDelay<engine::ecs::Transform>(m_entity, nt);
-    // Refresh view to reflect any derived data
-    InspectEntity(m_entity);
-  };
+  // connect editingFinished to class slot to avoid reentrancy issues
+  connect(m_posX, &QDoubleSpinBox::editingFinished, this, &InspectorPanel::OnTransformEdited);
+  connect(m_posY, &QDoubleSpinBox::editingFinished, this, &InspectorPanel::OnTransformEdited);
+  connect(m_posZ, &QDoubleSpinBox::editingFinished, this, &InspectorPanel::OnTransformEdited);
+  connect(m_rotX, &QDoubleSpinBox::editingFinished, this, &InspectorPanel::OnTransformEdited);
+  connect(m_rotY, &QDoubleSpinBox::editingFinished, this, &InspectorPanel::OnTransformEdited);
+  connect(m_rotZ, &QDoubleSpinBox::editingFinished, this, &InspectorPanel::OnTransformEdited);
+  connect(m_scaleX, &QDoubleSpinBox::editingFinished, this, &InspectorPanel::OnTransformEdited);
+  connect(m_scaleY, &QDoubleSpinBox::editingFinished, this, &InspectorPanel::OnTransformEdited);
+  connect(m_scaleZ, &QDoubleSpinBox::editingFinished, this, &InspectorPanel::OnTransformEdited);
+}
 
-  connect(m_posX, &QDoubleSpinBox::editingFinished, this, applyTransform);
-  connect(m_posY, &QDoubleSpinBox::editingFinished, this, applyTransform);
-  connect(m_posZ, &QDoubleSpinBox::editingFinished, this, applyTransform);
-  connect(m_rotX, &QDoubleSpinBox::editingFinished, this, applyTransform);
-  connect(m_rotY, &QDoubleSpinBox::editingFinished, this, applyTransform);
-  connect(m_rotZ, &QDoubleSpinBox::editingFinished, this, applyTransform);
-  connect(m_scaleX, &QDoubleSpinBox::editingFinished, this, applyTransform);
-  connect(m_scaleY, &QDoubleSpinBox::editingFinished, this, applyTransform);
-  connect(m_scaleZ, &QDoubleSpinBox::editingFinished, this, applyTransform);
+void InspectorPanel::OnTransformEdited() {
+  if (!m_world || m_entity == entt::null)
+    return;
+
+  engine::ecs::Transform nt;
+  nt.position.x = static_cast<float>(m_posX->value());
+  nt.position.y = static_cast<float>(m_posY->value());
+  nt.position.z = static_cast<float>(m_posZ->value());
+  nt.rotation.x = static_cast<float>(m_rotX->value());
+  nt.rotation.y = static_cast<float>(m_rotY->value());
+  nt.rotation.z = static_cast<float>(m_rotZ->value());
+  nt.scale.x = static_cast<float>(m_scaleX->value());
+  nt.scale.y = static_cast<float>(m_scaleY->value());
+  nt.scale.z = static_cast<float>(m_scaleZ->value());
+
+  // schedule component change (delay)
+  m_world->ChangeComponentDelay<engine::ecs::Transform>(m_entity, nt);
+
+  // Defer UI refresh to avoid deleting widgets while they are emitting signals
+  QTimer::singleShot(0, this, [this, e = m_entity]() {
+    if (e != entt::null) {
+      InspectEntity(e);
+    }
+  });
 }
 
 void InspectorPanel::ShowMeshInfo() {

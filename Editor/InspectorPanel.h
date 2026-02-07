@@ -2,6 +2,7 @@
 
 #include "QADS/DockWidget.h"
 #include <QWidget>
+#include <QObject>
 #include <QComboBox>
 #include <QPushButton>
 #include <QDoubleSpinBox>
@@ -26,24 +27,28 @@ class InspectorPanel : public ads::CDockWidget {
   void ShowMeshInfo();
   void OnAddComponentClicked();
 
-  QWidget* m_topWidget{nullptr};
-  QComboBox* m_compCombo{nullptr};
-  QPushButton* m_addBtn{nullptr};
+  QWidget* m_topWidget = nullptr;
+  QComboBox* m_compCombo = nullptr;
+  QPushButton* m_addBtn = nullptr;
 
   // Transform editors
-  QDoubleSpinBox* m_posX{nullptr};
-  QDoubleSpinBox* m_posY{nullptr};
-  QDoubleSpinBox* m_posZ{nullptr};
-  QDoubleSpinBox* m_rotX{nullptr};
-  QDoubleSpinBox* m_rotY{nullptr};
-  QDoubleSpinBox* m_rotZ{nullptr};
-  QDoubleSpinBox* m_scaleX{nullptr};
-  QDoubleSpinBox* m_scaleY{nullptr};
-  QDoubleSpinBox* m_scaleZ{nullptr};
+  QDoubleSpinBox* m_posX = nullptr;
+  QDoubleSpinBox* m_posY = nullptr;
+  QDoubleSpinBox* m_posZ = nullptr;
+  QDoubleSpinBox* m_rotX = nullptr;
+  QDoubleSpinBox* m_rotY = nullptr;
+  QDoubleSpinBox* m_rotZ = nullptr;
+  QDoubleSpinBox* m_scaleX = nullptr;
+  QDoubleSpinBox* m_scaleY = nullptr;
+  QDoubleSpinBox* m_scaleZ = nullptr;
 
-  engine::ecs::World* m_world{nullptr};
-  engine::ecs::Entity m_entity{entt::null};
-  QWidget* m_contents{nullptr};
+ private Q_SLOTS:
+  void OnTransformEdited();
+
+ private:
+  engine::ecs::World* m_world = nullptr;
+  engine::ecs::Entity m_entity = entt::null;
+  QWidget* m_contents = nullptr;
 };
 
 }  // namespace re::editor

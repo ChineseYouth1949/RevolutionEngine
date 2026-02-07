@@ -201,13 +201,13 @@ void RenderColorVertex::OnPreUpdate() {
   PollChangeComponent();
   PollAddComponent();
 
-  for (auto& [e, sysCom] : m_World->GetRegistry()->view<SysComType>().each()) {
-    auto newCom = sysCom;
-    for (auto& vertex : newCom.vertexs) {
-      vertex.position += glm::vec3(0.01f, 0.01f, 0.001f);
-    }
-    m_World->ChangeComponentDelay<SysComType>(e, newCom);
-  }
+  // for (auto& [e, sysCom] : m_World->GetRegistry()->view<SysComType>().each()) {
+  //   auto newCom = sysCom;
+  //   for (auto& vertex : newCom.vertexs) {
+  //     vertex.position += glm::vec3(0.01f, 0.01f, 0.001f);
+  //   }
+  //   m_World->ChangeComponentDelay<SysComType>(e, newCom);
+  // }
 }
 void RenderColorVertex::OnPostUpdate() {
   Render();
