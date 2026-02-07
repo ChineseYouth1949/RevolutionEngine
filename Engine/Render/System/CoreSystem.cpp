@@ -17,6 +17,9 @@ void CoreSystem::Init(engine::shared_ptr<GraphicsCore> gc) {
   m_SharedInfo->height = 720;
 
   m_SharedInfo->camera.LookAt({0, 2, -5}, {0, 0, 0}, {0, 1, 0});
+  m_SharedInfo->Change();
+  m_SharedInfo->camera.UpdateViewProj();
+
   float aspectHeightOverWidth = static_cast<float>(1280) / static_cast<float>(720);
 
   auto renAxis = GAlloc::make_shared<RenderAxis>();
