@@ -3,6 +3,9 @@ find_package(directx-headers CONFIG REQUIRED)
 find_package(taskflow CONFIG REQUIRED)  # Accept any version from vcpkg
 find_package(sol2 CONFIG REQUIRED)
 
+find_package(assimp CONFIG REQUIRED)
+target_link_libraries(${PROJECT_NAME} PRIVATE assimp::assimp)
+
 find_package(glm CONFIG REQUIRED)  # Accept any version
 target_link_libraries(${PROJECT_NAME} PRIVATE glm::glm)
 

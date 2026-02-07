@@ -2,6 +2,7 @@
 
 #include "ColorVertex.h"
 #include "RenderAxis.h"
+#include "AssimpModel.h"
 
 namespace re::engine::render {
 using namespace re::engine::ecs;
@@ -29,6 +30,10 @@ void CoreSystem::Init(engine::shared_ptr<GraphicsCore> gc) {
   auto renColorVertex = GAlloc::make_shared<RenderColorVertex>();
   renColorVertex->Init(m_GC, m_SharedInfo);
   AddChild(renColorVertex);
+
+  auto renAssimp = GAlloc::make_shared<RenderAssimpModel>();
+  renAssimp->Init(m_GC, m_SharedInfo);
+  AddChild(renAssimp);
 }
 
 void CoreSystem::OnAttach(ecs::World* world) {
