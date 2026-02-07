@@ -62,3 +62,32 @@ if(WIN32)
 endif()
 
 LinkEngine(${PROJECT_NAME})
+
+if(CMAKE_BUILD_TYPE STREQUAL "Debug")
+    set(SDK_BIN_PATH "${SDK_ROOT}/debug/bin")
+    set(SDK_LIB_PATH "${SDK_ROOT}/debug/lib")
+    set(VCPKG_LIB_PATH "${VCPKG_INSTALL_PATH}/debug/lib")
+endif()
+
+# 包含VCPKG头、SDK头
+target_include_directories(${PROJECT_NAME}
+    PUBLIC
+    # ${VCPKG_INSTALL_PATH}/include
+    # ${VCPKG_INSTALL_PATH}/include/luajit
+    ${SDK_INCLUDE_PATH}
+)
+
+file(GLOB_RECURSE EXTERNAL_LIBS
+    "${SDK_LIB_PATH}/alembic-md.lib"
+    "${SDK_LIB_PATH}/libfbxsdk-md.lib"
+    "${SDK_LIB_PATH}/libxml2-md.lib"
+    "${SDK_LIB_PATH}/zlib-md.lib"
+    "${SDK_LIB_PATH}/qtadvanceddocking-qt6d_static.lib"
+)
+
+if(EXTERNAL_LIBS)
+    target_link_libraries(${PROJECT_NAME} PRIVATE ${EXTERNAL_LIBS})
+    message(STATUS "Linked external libraries: ${EXTERNAL_LIBS}")
+else()
+    message(WARNING "No external libraries found in ${EXTERNAL_LIB_DIR}")
+endif()

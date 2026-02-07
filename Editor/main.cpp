@@ -3,6 +3,9 @@
 #include "mainwindow.h"
 #include "RenderWindow.h"
 
+#include "QADS/DockManager.h"
+#include "QADS/DockWidget.h"
+
 RE_EXPORT_D3D12_AGILITY_SDK
 
 int main(int argc, char* argv[]) {
@@ -19,9 +22,11 @@ int main(int argc, char* argv[]) {
   renderWindow.Init();
   renderWindow.showFullScreen();
 #else
-  re::editor::MainWindow window;
-  window.resize(800, 600);
-  window.show();
+  re::editor::MainWindow mainWindow;
+  mainWindow.resize(800, 600);
+  mainWindow.show();
+
+  ads::CDockManager* m_DockManager = new ads::CDockManager(&mainWindow);
 #endif
 
   return app.exec();
