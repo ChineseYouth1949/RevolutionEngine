@@ -4,6 +4,7 @@
 #include <QVBoxLayout>
 #include <QInputDialog>
 #include <QMessageBox>
+#include <QDockWidget>
 
 namespace re::editor {
 
@@ -22,6 +23,12 @@ HierarchyPanel::HierarchyPanel(QWidget* parent) : ads::CDockWidget("Hierarchy", 
   m_menu->addAction("Delete", this, &HierarchyPanel::OnDeleteEntity);
 
   setWidget(w);
+
+  // Allow docking on left/right and enable moving/floating if underlying widget supports QDockWidget API
+  if (auto dock = qobject_cast<QDockWidget*>(this)) {
+    dock->setAllowedAreas(Qt::LeftDockWidgetArea | Qt::RightDockWidgetArea | Qt::BottomDockWidgetArea);
+    dock->setFeatures(QDockWidget::DockWidgetMovable | QDockWidget::DockWidgetFloatable | QDockWidget::DockWidgetClosable);
+  }
 
   connect(m_list, &QListWidget::itemClicked, this, &HierarchyPanel::OnItemClicked);
   connect(m_list, &QListWidget::customContextMenuRequested, this, &HierarchyPanel::OnContextRequested);

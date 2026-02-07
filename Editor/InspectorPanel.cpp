@@ -6,6 +6,7 @@
 #include <QFormLayout>
 #include <QPushButton>
 #include <QComboBox>
+#include <QDockWidget>
 
 #include "Engine/Render/System/ColorVertex.h"
 
@@ -37,6 +38,12 @@ void InspectorPanel::BuildUI() {
   layout->addWidget(m_topWidget);
 
   setWidget(m_contents);
+
+  // Allow docking areas and enable movable/floatable if underlying widget is a QDockWidget
+  if (auto dock = qobject_cast<QDockWidget*>(this)) {
+    dock->setAllowedAreas(Qt::LeftDockWidgetArea | Qt::RightDockWidgetArea | Qt::BottomDockWidgetArea);
+    dock->setFeatures(QDockWidget::DockWidgetMovable | QDockWidget::DockWidgetFloatable | QDockWidget::DockWidgetClosable);
+  }
 
   connect(m_addBtn, &QPushButton::clicked, this, &InspectorPanel::OnAddComponentClicked);
 }

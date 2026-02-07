@@ -3,6 +3,7 @@
 #include <QVBoxLayout>
 #include <QDir>
 #include <QTreeWidgetItem>
+#include <QDockWidget>
 
 namespace re::editor {
 
@@ -10,6 +11,12 @@ ProjectPanel::ProjectPanel(QWidget* parent) : ads::CDockWidget("Project", parent
   m_tree = new QTreeWidget(this);
   m_tree->setHeaderHidden(true);
   setWidget(m_tree);
+
+  // Allow bottom docking and movable/floating if underlying widget supports QDockWidget API
+  if (auto dock = qobject_cast<QDockWidget*>(this)) {
+    dock->setAllowedAreas(Qt::BottomDockWidgetArea | Qt::LeftDockWidgetArea | Qt::RightDockWidgetArea);
+    dock->setFeatures(QDockWidget::DockWidgetMovable | QDockWidget::DockWidgetFloatable | QDockWidget::DockWidgetClosable);
+  }
 }
 
 void ProjectPanel::SetRootPath(const QString& path) {
