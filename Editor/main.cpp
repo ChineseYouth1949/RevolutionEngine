@@ -22,7 +22,8 @@ int main(int argc, char* argv[]) {
     renderWindow.showFullScreen();
 #else
     re::editor::MainWindow mainWindow;
-    mainWindow.resize(800, 600);
+    // Prefer the larger default from MainWindow, but ensure initial size is generous
+    mainWindow.resize(1600, 800);
     mainWindow.show();
 #endif
 

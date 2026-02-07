@@ -190,10 +190,12 @@ void MainWindow::SetupUnityLayout() {
 
   m_dockManager->addDockWidget(ads::RightDockWidgetArea, m_inspectorPanel);
 
-  auto* bottomArea = m_dockManager->addDockWidget(ads::BottomDockWidgetArea, m_assetsPanel);
+  // Make Project occupy the full bottom row (spanning columns 1-3)
+  auto* bottomArea = m_dockManager->addDockWidget(ads::BottomDockWidgetArea, m_projectPanel);
 
+  // Put Assets and Console as tabs in the bottom area alongside Project
+  m_dockManager->addDockWidgetTabToArea(m_assetsPanel, bottomArea);
   m_dockManager->addDockWidgetTabToArea(m_consolePanel, bottomArea);
-  m_dockManager->addDockWidgetTabToArea(m_projectPanel, bottomArea);
 }
 
 void MainWindow::InitializeWorldConnections() {
