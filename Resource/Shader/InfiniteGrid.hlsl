@@ -1,73 +1,79 @@
+/* 
+   优化版网格 Shader：解决远距离及大倾角摩尔纹
+*/
+
 cbuffer CameraCB : register(b0) {
     float4x4 view;
     float4x4 proj;
     float4x4 viewProj;
 };
 
+cbuffer GridConstants : register(b1) {
+    float4 backgroundColor;
+    float4 gridColor;
+    float3 cameraPos;
+    float padding; // 对齐
+    int2 screenResolution;
+    float gridSize;
+    float lineWidth;     // 推荐设为 1.0 (像素单位)
+    float lineSoftness;  // 推荐设为 1.0 (像素单位)
+};
+
 struct VSInput {
-  float3 position : POSITION;
+    float3 position : POSITION;
 };
 
 struct PSInput {
-  float4 position : SV_POSITION;
-  float3 worldPos : TEXCOORD0;
+    float4 position : SV_POSITION;
+    float3 worldPos : TEXCOORD0;
 };
 
 PSInput VSMain(VSInput input) {
-  PSInput output;
-
-  float4 pos = float4(input.position, 1.0f);
-
-  float4 projPos = mul(viewProj, pos);
-
-  output.position = projPos;
-  output.worldPos = input.position;
-
-  return output;
+    PSInput output;
+    float4 pos = float4(input.position, 1.0f);
+    output.position = mul(viewProj, pos);
+    output.worldPos = input.position;
+    return output;
 }
 
-cbuffer GridConstants : register(b1) {
-  float4 backgroundColor;
-  float4 gridColor;
-  float3 cameraPos;
-  int2 screenResolution;
-  float gridSize;
-  float lineWidth;
-  float lineSoftness;
-};
-
 float4 PSMain(PSInput input) : SV_TARGET {
-      float2 coord = input.worldPos.xz / gridSize;
+    // 1. 准备坐标与偏导数
+    float2 uv = input.worldPos.xz / gridSize;
+    float2 dUV = fwidth(uv); // 获取当前像素跨越的 UV 范围
     
-    // 1. 使用 fwidth 获取当前像素在网格坐标系下的变化率
-    float2 derivative = fwidth(coord);
+    // 2. 核心：计算平滑网格线
+    // 使用 N-step 过滤：在 0-1 范围内寻找网格线
+    // 将线宽从“世界单位”映射到“像素单位”
+    float2 grid = abs(frac(uv - 0.5) - 0.5);
     
-    // 2. 计算网格线逻辑：使用 fract 对齐并居中
-    // 这能确保 grid 值在网格线处趋近于 0
-    float2 grid = abs(frac(coord - 0.5) - 0.5) / derivative;
+    // 计算线宽在 UV 空间的大小
+    // lineWidth * dUV 表示线在当前像素下占据的 UV 厚度
+    float2 targetWidth = lineWidth * dUV;
     
-    // 3. 取 x 和 y 的最小值，即为到最近网格线的距离
-    float lineDist = min(grid.x, grid.y);
+    // 使用 smoothstep 进行抗锯齿
+    // 基于像素变化率 dUV 动态调整边缘模糊度
+    float2 drawPos = smoothstep(targetWidth + lineSoftness * dUV, targetWidth, grid);
     
-    // 4. 关键：抗锯齿平滑处理
-    // 这里的 1.0 代表 1 个像素宽度的抗锯齿过渡区
-    float lineMask = 1.0 - smoothstep(0.0, 1.0, lineDist);
+    // 取 X 和 Z 轴的最大值（合并网格线）
+    float lineMask = max(drawPos.x, drawPos.y);
 
-    // 5. 增强型距离衰减
+    // 3. 解决摩尔纹的关键：当网格太密时进行淡出 (Fading)
+    // 如果单个像素已经跨越了将近半个网格周期(0.5)，则强制让网格消失
+    float2 cellDensity = dUV; 
+    float fadeOut = saturate(1.0 - max(cellDensity.x, cellDensity.y) * 2.0);
+
+    // 4. 距离衰减 (距离相机太远时淡出)
     float3 viewDir = input.worldPos - cameraPos;
     float dist = length(viewDir);
-    
-    // 使用非线性衰减，让远方平滑消失，避免出现硬切边界
-    float fade = exp(-0.01 * dist); 
-    // 进一步限制：太远的地方直接不渲染网格，防止浮点数精度引起的闪烁
-    fade *= saturate(1.0 - dist / 500.0); 
+    float distFade = exp(-0.005 * dist); // 调整参数控制远近
+    distFade *= saturate(1.0 - dist / 800.0);
 
-    // 6. 最终颜色混合
-    // 注意：网格通常需要开启 Alpha Blend 以达到最佳效果
-    float4 color = gridColor;
-    color.a *= lineMask * fade;
+    // 5. 混合最终颜色
+    // 推荐：在应用层开启 Alpha Blending (SrcAlpha, InvSrcAlpha)
+    // 如果不开启，则按下方 lerp 处理
+    float finalAlpha = lineMask * gridColor.a * fadeOut * distFade;
     
-    // 如果不开启 Blend，则使用 lerp
-    float3 finalRGB = lerp(backgroundColor.rgb, gridColor.rgb, color.a);
+    float3 finalRGB = lerp(backgroundColor.rgb, gridColor.rgb, finalAlpha);
+    
     return float4(finalRGB, 1.0);
 }
