@@ -170,7 +170,7 @@ void InspectorPanel::OnTransformEdited() {
   nt.scale.z = static_cast<float>(m_scaleZ->value());
 
   // schedule component change (delay)
-  m_world->ChangeComponentDelay<engine::ecs::Transform>(m_entity, nt);
+  m_world->ChangeComponent<engine::ecs::Transform>(m_entity, nt);
 
   // Defer UI refresh to avoid deleting widgets while they are emitting signals
   QTimer::singleShot(0, this, [this, e = m_entity]() {
