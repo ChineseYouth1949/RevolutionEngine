@@ -1,0 +1,33 @@
+#include "ProjectPanel.h"
+
+#include <QVBoxLayout>
+#include <QDir>
+#include <QTreeWidgetItem>
+
+namespace re::editor {
+
+ProjectPanel::ProjectPanel(QWidget* parent) : QDockWidget("Project", parent) {
+  m_tree = new QTreeWidget(this);
+  m_tree->setHeaderHidden(true);
+  setWidget(m_tree);
+}
+
+void ProjectPanel::SetRootPath(const QString& path) {
+  m_root = path;
+  Refresh();
+}
+
+void ProjectPanel::Refresh() {
+  m_tree->clear();
+  if (m_root.isEmpty())
+    return;
+  QDir dir(m_root);
+  auto list = dir.entryList(QDir::Files | QDir::Dirs | QDir::NoDotAndDotDot);
+  for (auto& name : list) {
+    QTreeWidgetItem* item = new QTreeWidgetItem(m_tree);
+    item->setText(0, name);
+    m_tree->addTopLevelItem(item);
+  }
+}
+
+}  // namespace re::editor

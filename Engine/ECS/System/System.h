@@ -38,13 +38,13 @@ class System {
 
  protected:
   template <typename ComponentType>
-  bool PollAddComponent();
+  bool PollAddComponentTemp();
 
   template <typename ComponentType>
-  bool PollDelComponent();
+  bool PollDelComponentTemp();
 
   template <typename ComponentType>
-  bool PollChangeComponent();
+  bool PollChangeComponentTemp();
 
   World* m_World = nullptr;
   bool m_Enabled = false;

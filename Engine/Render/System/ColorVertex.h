@@ -14,9 +14,9 @@ struct ColorVertex {
 };
 
 class RenderColorVertex : public ecs::System {
+ public:
   using SysComType = Mesh<ColorVertex, uint32_t>;
 
- public:
   RenderColorVertex();
   ~RenderColorVertex();
 
@@ -38,9 +38,9 @@ class RenderColorVertex : public ecs::System {
   GraphicsPSO m_PSO;
   RootSignature m_RootSignature;
 
-  void PollAddCom();
-  void PollDelCom();
-  void PollChangeCom();
+  void PollAddComponent();
+  void PollRemoveComponent();
+  void PollChangeComponent();
 
   ByteAddressBuffer m_DefaultVertexBuffer;
   ByteAddressBuffer m_DefaultIndexBuffer;
@@ -51,8 +51,7 @@ class RenderColorVertex : public ecs::System {
   };
   Resource GetResource(SysComType& com);
   void Render();
-
-  unordered_map<ecs::Entity, Resource> m_EntityResrouce;
+  unordered_map<ecs::Entity, Resource> m_EntityResources;
 };
 
 }  // namespace re::engine::render

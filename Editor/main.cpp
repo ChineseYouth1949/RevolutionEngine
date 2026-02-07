@@ -12,7 +12,7 @@ int main(int argc, char* argv[]) {
   app.setApplicationVersion("1.0");
   app.setOrganizationName("Revolution");
 
-#define TestSceneView 1
+  // #define TestSceneView 1
 
 #if defined(TestSceneView)
   re::editor::RenderWindow renderWindow(nullptr);

@@ -73,38 +73,42 @@ RenderColorVertex::Resource RenderColorVertex::GetResource(RenderColorVertex::Sy
   return resource;
 }
 
-void RenderColorVertex::PollAddCom() {
+void RenderColorVertex::PollAddComponent() {
   auto reg = m_World->GetRegistry();
 
   auto& stateStorage = reg->storage<AddComponentTag<SysComType>>();
   for (auto [e, addCom] : stateStorage.each()) {
     auto resource = GetResource(addCom.data);
-    m_EntityResrouce.insert({e, resource});
+    m_EntityResources.insert({e, resource});
   }
 
-  PollAddComponent<SysComType>();
+  PollAddComponentTemp<SysComType>();
 }
 
-void RenderColorVertex::PollDelCom() {
+void RenderColorVertex::PollRemoveComponent() {
   auto reg = m_World->GetRegistry();
 
   auto& stateStorage = reg->storage<DelComponentTag<SysComType>>();
   for (auto [e] : stateStorage.each()) {
-    auto it = m_EntityResrouce.find(e);
-    m_EntityResrouce.erase(it);
+    auto it = m_EntityResources.find(e);
+    if (it != m_EntityResources.end()) {
+      m_EntityResources.erase(it);
+    }
   }
 
-  PollDelComponent<SysComType>();
+  PollDelComponentTemp<SysComType>();
 }
-void RenderColorVertex::PollChangeCom() {
+void RenderColorVertex::PollChangeComponent() {
   auto reg = m_World->GetRegistry();
 
   auto& stateStorage = reg->storage<ChangeComponentTag<SysComType>>();
   for (auto [e, com] : stateStorage.each()) {
-    auto it = m_EntityResrouce.find(e);
-    it->second = GetResource(com.data);
+    auto it = m_EntityResources.find(e);
+    if (it != m_EntityResources.end()) {
+      it->second = GetResource(com.data);
+    }
   }
-  PollChangeComponent<SysComType>();
+  PollChangeComponentTemp<SysComType>();
 }
 
 void RenderColorVertex::Render() {
@@ -121,16 +125,22 @@ void RenderColorVertex::Render() {
 
   pGfxContext->SetDynamicConstantBufferView(0, sizeof(cameraCB), &cameraCB);
 
-  ModelCB modelCB;
-  modelCB.model = glm::identity<glm::mat4>();
-  pGfxContext->SetDynamicConstantBufferView(1, sizeof(modelCB), &modelCB);
+  // For each entity we render, set model CB from its Transform component
+  for (auto& [entity, resource] : m_EntityResources) {
+    ModelCB modelCB;
+    if (m_World->HasComponents<Transform>(entity)) {
+      auto& t = m_World->GetComponent<Transform>(entity);
+      // Convert glm::mat4 to caller's expected type (glm used here)
+      modelCB.model = t.GetModelMatrix();
+    } else {
+      modelCB.model = glm::identity<glm::mat4>();
+    }
 
-  auto it = m_EntityResrouce.begin();
-  while (it != m_EntityResrouce.end()) {
-    pGfxContext->SetVertexBuffer(0, it->second.vertexBuffer.VertexBufferView());
-    pGfxContext->SetIndexBuffer(it->second.indexBuffer.IndexBufferView());
-    pGfxContext->DrawIndexedInstanced(it->second.indexBuffer.GetElementCount(), 1, 0, 0, 0);
-    it++;
+    pGfxContext->SetDynamicConstantBufferView(1, sizeof(modelCB), &modelCB);
+
+    pGfxContext->SetVertexBuffer(0, resource.vertexBuffer.VertexBufferView());
+    pGfxContext->SetIndexBuffer(resource.indexBuffer.IndexBufferView());
+    pGfxContext->DrawIndexedInstanced(resource.indexBuffer.GetElementCount(), 1, 0, 0, 0);
   }
 }
 
@@ -177,7 +187,7 @@ void RenderColorVertex::OnAttach(ecs::World* world) {
   }
 
   auto e = m_World->CreateEntity();
-  m_World->AddComponentDely<SysComType>(e, com);
+  m_World->AddComponentDelay<SysComType>(e, com);
 }
 void RenderColorVertex::OnDetach() {
   System::OnDetach();
@@ -187,15 +197,16 @@ void RenderColorVertex::OnEnable() {}
 void RenderColorVertex::OnDisable() {}
 
 void RenderColorVertex::OnPreUpdate() {
-  PollDelCom();
-  PollChangeCom();
-  PollAddCom();
+  PollRemoveComponent();
+  PollChangeComponent();
+  PollAddComponent();
 
   for (auto& [e, sysCom] : m_World->GetRegistry()->view<SysComType>().each()) {
-    auto& newCom = m_World->ChangeComponentDely<SysComType>(e, sysCom);
+    auto newCom = sysCom;
     for (auto& vertex : newCom.vertexs) {
       vertex.position += glm::vec3(0.01f, 0.01f, 0.001f);
     }
+    m_World->ChangeComponentDelay<SysComType>(e, newCom);
   }
 }
 void RenderColorVertex::OnPostUpdate() {

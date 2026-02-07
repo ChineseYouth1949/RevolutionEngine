@@ -3,6 +3,7 @@
 #include "Engine/ECS/Resource/ResourceManager.h"
 
 #include "ComponentTag.h"
+#include "Transform.h"
 #include "RegistryCommandBuffer.h"
 
 namespace re::engine::ecs {
@@ -14,18 +15,33 @@ class RE_API World {
   virtual ~World();
 
   RE_FINLINE bool HasEntity(Entity e) const { return m_Reg.valid(e); }
-  RE_FINLINE Entity CreateEntity() { return m_Reg.create(); }
-  RE_FINLINE void DestryEntity(Entity e, bool dely = false) {
-    if (dely) {
+  RE_FINLINE Entity CreateEntity() {
+    Entity e = m_Reg.create();
+    m_Reg.emplace_or_replace<Transform>(e);
+    return e;
+  }
+
+  RE_FINLINE void DestroyEntity(Entity e, bool delay = false) {
+    if (delay) {
       m_DestryEntitys.push_back(e);
     } else {
       m_Reg.destroy(e);
     }
   }
 
-  template <typename... T>
-  RE_FINLINE bool HasComponents(Entity e) const {
+  template <typename T>
+  bool HasComponents(Entity e) const {
     return m_Reg.all_of<T>(e);
+  }
+
+  template <typename T>
+  T& GetComponent(Entity e) {
+    return m_Reg.get<T>(e);
+  }
+
+  template <typename T>
+  const T& GetComponent(Entity e) const {
+    return m_Reg.get<T>(e);
   }
 
   template <typename T, typename... Args>
@@ -34,21 +50,19 @@ class RE_API World {
   }
 
   template <typename T, typename... Args>
-  T& AddComponentDely(Entity e, Args&&... args) {
+  T& AddComponentDelay(Entity e, Args&&... args) {
     auto& wrapper = m_Reg.emplace_or_replace<AddComponentTag<T>>(e, std::forward<Args>(args)...);
     return wrapper.data;
   }
 
   template <typename T, typename... Args>
-  T& ChangeComponent(Entity e, Args&&... args) {
+  void ChangeComponent(Entity e, Args&&... args) {
     m_Reg.emplace_or_replace<T>(e, std::forward<Args>(args)...);
-    return m_Reg.get<T>(e);
   }
 
   template <typename T, typename... Args>
-  T& ChangeComponentDely(Entity e, Args&&... args) {
-    auto& wrapper = m_Reg.emplace_or_replace<ChangeComponentTag<T>>(e, std::forward<Args>(args)...);
-    return wrapper.data;
+  void ChangeComponentDelay(Entity e, Args&&... args) {
+    m_Reg.emplace_or_replace<ChangeComponentTag<T>>(e, std::forward<Args>(args)...);
   }
 
   template <typename T>
@@ -57,25 +71,13 @@ class RE_API World {
   }
 
   template <typename T>
-  bool RemoveComponentDely(Entity e) {
+  bool RemoveComponentDelay(Entity e) {
     if (HasComponents<T>(e)) {
       m_Reg.emplace_or_replace<DelComponentTag<T>>(e);
       m_Reg.remove<AddComponentTag<T>>(e);
       return true;
     }
     return false;
-  }
-
-  template <typename T>
-  RE_FINLINE T& GetComponent(Entity e) {
-    RE_ASSERT(HasComponents<T>(e), "Component not found on entity. Did you call Flush()?");
-    return m_Reg.get<T>(e);
-  }
-
-  template <typename T>
-  RE_FINLINE const T& GetComponent(Entity e) const {
-    RE_ASSERT(HasComponents<T>(e), "Component not found on entity. Did you call Flush()?");
-    return m_Reg.get<T>(e);
   }
 
   RE_FINLINE Registry* GetRegistry() { return &m_Reg; }

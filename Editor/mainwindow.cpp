@@ -3,6 +3,11 @@
 
 #include <QDockWidget>
 #include "SGWidget.h"
+#include "HierarchyPanel.h"
+#include "InspectorPanel.h"
+#include "ProjectPanel.h"
+
+#include "RenderWindow.h"
 
 namespace re::editor {
 MainWindow::MainWindow(QWidget* parent) : QMainWindow(parent), ui(new Ui::MainWindow) {
@@ -65,9 +70,9 @@ MainWindow::MainWindow(QWidget* parent) : QMainWindow(parent), ui(new Ui::MainWi
   // 2. 开启嵌套和合并属性（这是灵魂）
   setDockOptions(QMainWindow::AllowNestedDocks | QMainWindow::AllowTabbedDocks);
 
-  auto* hierarchy = new QDockWidget("Hierarchy", this);
-  auto* inspector = new QDockWidget("Inspector", this);
-  auto* project = new QDockWidget("Project", this);
+  auto* hierarchy = new re::editor::HierarchyPanel(this);
+  auto* inspector = new re::editor::InspectorPanel(this);
+  auto* project = new ProjectPanel(this);
 
   auto* scene = new SGWidget("", this);  // 包含 DX12 QWindow
 
@@ -85,6 +90,24 @@ MainWindow::MainWindow(QWidget* parent) : QMainWindow(parent), ui(new Ui::MainWi
 
   // 尝试将 project 放置在 hierarchy 的下方
   splitDockWidget(hierarchy, project, Qt::Vertical);
+  // 将 World 传递给面板（SGWidget 已创建 RenderWindow 并初始化 Scene）
+  if (scene && scene->GetSceneWindow() && scene->GetSceneWindow()->GetScene()) {
+    auto scenePtr = scene->GetSceneWindow()->GetScene();
+    auto worldPtr = scenePtr->GetWorld();
+    if (worldPtr) {
+      hierarchy->SetWorld(worldPtr);
+      inspector->SetWorld(worldPtr);
+      // set project root to app Resource folder by default
+      QString appPathQt = QCoreApplication::applicationDirPath();
+      QString luaDir = appPathQt + "/Resource";
+      ProjectPanel* proj = static_cast<ProjectPanel*>(project);
+      proj->SetRootPath(luaDir);
+    }
+  }
+  // 连接面板
+  hierarchy->SetInspector(inspector);
+
+  // 如果 RenderWindow later provides World, panels will be set from there
 }
 
 MainWindow::~MainWindow() {

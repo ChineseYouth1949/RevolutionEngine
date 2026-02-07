@@ -14,6 +14,7 @@ class RenderWindow : public QWindow {
   ~RenderWindow();
 
   void Init();
+  engine::shared_ptr<engine::ecs::Scene> GetScene() const { return m_Scene; }
 
  protected:
   void Update();
@@ -41,6 +42,7 @@ class RenderWindow : public QWindow {
   engine::shared_ptr<engine::ecs::Scene> m_Scene;
   engine::shared_ptr<engine::render::GraphicsCore> m_GC;
   engine::shared_ptr<engine::render::CoreSystem> m_RenderCoreSystem;
+  engine::shared_ptr<re::engine::script::ScriptManager> m_ScriptManager;
 
   QTimer m_RunTimer;
 

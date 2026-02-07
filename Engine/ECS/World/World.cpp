@@ -22,9 +22,9 @@ void World::Flush() {
       if (op.first == RegistryCommandBuffer::OpType::Create) {
         *(createEntitys[op.second]) = CreateEntity();
       } else if (op.first == RegistryCommandBuffer::OpType::Destroy) {
-        DestryEntity(destryEntitys[op.second]);
+        DestroyEntity(destryEntitys[op.second]);
       } else if (op.first == RegistryCommandBuffer::OpType::DestryDelay) {
-        DestryEntity(destryDelyEntitys[op.second], true);
+        DestroyEntity(destryDelyEntitys[op.second], true);
       }
     }
 

@@ -1,5 +1,7 @@
 #include "RenderWindow.h"
 
+#include "Engine/Script/ScriptManager.h"
+
 #include <QCoreApplication>
 #include <QKeyEvent>
 
@@ -43,6 +45,22 @@ void RenderWindow::Init() {
     m_Scene->AddSystem(m_RenderCoreSystem);
   }
 
+  // Script system: initialize and load scripts from Resource/Lua
+  {
+    // Create a ResourceVisitor copy from ResourceManager
+    auto rv = m_Scene->GetWorld()->GetResourceManager()->RequestResourceVisitor();
+    m_ScriptManager = GAlloc::make_shared<re::engine::script::ScriptManager>();
+    m_ScriptManager->Initialize(m_Scene->GetWorld());
+
+    // Compute script directory path relative to application dir
+    QString appPathQt = QCoreApplication::applicationDirPath();
+    std::string luaDir = appPathQt.toStdString() + "/Resource/Lua";
+    m_ScriptManager->LoadScriptsFromDirectory(luaDir);
+    // Execute init.lua if present
+    std::string initPath = luaDir + "/init.lua";
+    m_ScriptManager->ExecuteScript(initPath);
+  }
+
   connect(&m_RunTimer, &QTimer::timeout, this, &RenderWindow::Update);
 
   m_RunTimer.start(1);
@@ -52,6 +70,9 @@ void RenderWindow::Init() {
 
 void RenderWindow::Update() {
   m_Scene->Run();
+  if (m_ScriptManager) {
+    m_ScriptManager->CheckAndReloadChangedScripts();
+  }
 }
 
 void RenderWindow::OnResize(int width, int height) {

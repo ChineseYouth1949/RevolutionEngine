@@ -6,7 +6,7 @@
 
 namespace re::engine::ecs {
 template <typename ComponentType>
-bool System::PollAddComponent() {
+bool System::PollAddComponentTemp() {
   auto reg = m_World->GetRegistry();
 
   auto& stateStorage = reg->storage<AddComponentTag<ComponentType>>();
@@ -33,7 +33,7 @@ bool System::PollAddComponent() {
 }
 
 template <typename ComponentType>
-bool System::PollDelComponent() {
+bool System::PollDelComponentTemp() {
   auto reg = m_World->GetRegistry();
 
   auto& stateStorage = reg->storage<DelComponentTag<ComponentType>>();
@@ -50,7 +50,7 @@ bool System::PollDelComponent() {
 }
 
 template <typename ComponentType>
-bool System::PollChangeComponent() {
+bool System::PollChangeComponentTemp() {
   auto reg = m_World->GetRegistry();
 
   auto& stateStorage = reg->storage<ChangeComponentTag<ComponentType>>();
