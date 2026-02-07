@@ -20,7 +20,7 @@ class MainWindow : public QMainWindow {
 
  private:
   Ui::MainWindow* ui;
-  QADS::DockManager* m_dockManager{nullptr};
+  ads::CDockManager* m_dockManager{nullptr};
 };
 #endif  // MAINWINDOW_H
 }

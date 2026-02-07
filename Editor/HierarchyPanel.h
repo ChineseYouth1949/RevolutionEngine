@@ -9,7 +9,7 @@ namespace re::editor {
 
 class InspectorPanel;
 
-class HierarchyPanel : public QADS::DockWidget {
+class HierarchyPanel : public ads::CDockWidget {
   Q_OBJECT
  public:
   explicit HierarchyPanel(QWidget* parent = nullptr);

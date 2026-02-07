@@ -8,7 +8,7 @@
 namespace re::editor {
 class RenderWindow;
 
-class SGWidget : public QADS::DockWidget {
+class SGWidget : public ads::CDockWidget {
   Q_OBJECT
  public:
   explicit SGWidget(const QString& title, QWidget* parent);

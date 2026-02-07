@@ -9,7 +9,7 @@
 
 namespace re::editor {
 
-class InspectorPanel : public QADS::DockWidget {
+class InspectorPanel : public ads::CDockWidget {
   Q_OBJECT
  public:
   explicit InspectorPanel(QWidget* parent = nullptr);

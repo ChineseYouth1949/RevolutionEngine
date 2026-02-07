@@ -64,7 +64,7 @@ MainWindow::MainWindow(QWidget* parent) : QMainWindow(parent), ui(new Ui::MainWi
   )");
 
   // 1. 创建 DockManager 作为中心管理器（使用 QADS 适配器）
-  m_dockManager = new QADS::DockManager(this);
+  m_dockManager = new ads::CDockManager(this);
   setCentralWidget(m_dockManager);
 
   // 2. 开启嵌套和合并属性（作用到 DockManager）

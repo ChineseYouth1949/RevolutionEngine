@@ -11,7 +11,7 @@
 
 namespace re::editor {
 
-InspectorPanel::InspectorPanel(QWidget* parent) : QADS::DockWidget("Inspector", parent) {
+InspectorPanel::InspectorPanel(QWidget* parent) : ads::CDockWidget("Inspector", parent) {
   setObjectName("InspectorPanel");
   BuildUI();
 }

@@ -5,7 +5,7 @@
 
 namespace re::editor {
 
-class ProjectPanel : public QADS::DockWidget {
+class ProjectPanel : public ads::CDockWidget {
   Q_OBJECT
  public:
   explicit ProjectPanel(QWidget* parent = nullptr);

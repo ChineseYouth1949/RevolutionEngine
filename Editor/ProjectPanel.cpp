@@ -6,7 +6,7 @@
 
 namespace re::editor {
 
-ProjectPanel::ProjectPanel(QWidget* parent) : QADS::DockWidget("Project", parent) {
+ProjectPanel::ProjectPanel(QWidget* parent) : ads::CDockWidget("Project", parent) {
   m_tree = new QTreeWidget(this);
   m_tree->setHeaderHidden(true);
   setWidget(m_tree);
