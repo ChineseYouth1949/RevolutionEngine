@@ -208,6 +208,10 @@ void RenderColorVertex::OnPreUpdate() {
   //   }
   //   m_World->ChangeComponentDelay<SysComType>(e, newCom);
   // }
+
+  for (auto& [e, sysCom] : m_World->GetRegistry()->view<Transform>().each()) {
+    sysCom.position += glm::vec3(0.01f, 0.01f, 0.001f);
+  }
 }
 void RenderColorVertex::OnPostUpdate() {
   Render();
