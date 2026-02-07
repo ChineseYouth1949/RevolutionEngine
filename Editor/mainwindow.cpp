@@ -8,8 +8,8 @@
 #include "RenderWindow.h"
 
 #include <QCoreApplication>
-// 必须包含这个头文件，否则无法识别 CDockAreaWidget 类型及其成员函数
 #include <QADS/DockAreaWidget.h>
+#include <QADS/DockSplitter.h>
 
 namespace re::editor {
 
@@ -48,9 +48,7 @@ void MainWindow::ApplyUnityStyle() {
 }
 
 void MainWindow::CreateDockManager() {
-  // 删除了报错的 RetainTabSizeWhenFloating
   ads::CDockManager::setConfigFlag(ads::CDockManager::OpaqueSplitterResize, true);
-
   m_dockManager = new ads::CDockManager(this);
   setCentralWidget(m_dockManager);
 }
@@ -82,21 +80,34 @@ void MainWindow::CreatePanels() {
 }
 
 void MainWindow::SetupUnityLayout() {
-  // 1. 添加核心区域
-  ads::CDockAreaWidget* centerArea = m_dockManager->addDockWidget(ads::CenterDockWidgetArea, m_sceneGameWidget);
+  // 1. 创建基础停靠结构
+  ads::CDockAreaWidget* sceneArea = m_dockManager->addDockWidget(ads::CenterDockWidgetArea, m_sceneGameWidget);
+  ads::CDockAreaWidget* hierarchyArea = m_dockManager->addDockWidget(ads::LeftDockWidgetArea, m_hierarchyPanel, sceneArea);
+  ads::CDockAreaWidget* inspectorArea = m_dockManager->addDockWidget(ads::RightDockWidgetArea, m_inspectorPanel, sceneArea);
+  ads::CDockAreaWidget* projectArea = m_dockManager->addDockWidget(ads::BottomDockWidgetArea, m_projectPanel);
 
-  // 2. 左右两侧停靠（相对于中心区域进行水平切分）
-  m_dockManager->addDockWidget(ads::LeftDockWidgetArea, m_hierarchyPanel, centerArea);
-  m_dockManager->addDockWidget(ads::RightDockWidgetArea, m_inspectorPanel, centerArea);
+  // 2. 调整水平比例 (15% : 70% : 15%)
+  if (sceneArea) {
+    if (auto* horizSplitter = sceneArea->parentSplitter()) {
+      horizSplitter->setStretchFactor(horizSplitter->indexOf(hierarchyArea), 15);
+      horizSplitter->setStretchFactor(horizSplitter->indexOf(sceneArea), 70);
+      horizSplitter->setStretchFactor(horizSplitter->indexOf(inspectorArea), 15);
 
-  // 3. 底部停靠（不传第三个参数，使其相对于全局 DockManager 停靠，从而跨越全宽）
-  ads::CDockAreaWidget* bottomArea = m_dockManager->addDockWidget(ads::BottomDockWidgetArea, m_projectPanel);
+      // --- 关键修复：调整垂直比例 (80% : 20%) ---
+      // 在 ADS 中，Splitter 的 parent 是一个 QWidget (通常是上级 Splitter 或 DockContainer)
+      if (auto* parentWidget = horizSplitter->parentWidget()) {
+        if (auto* vertSplitter = qobject_cast<ads::CDockSplitter*>(parentWidget)) {
+          vertSplitter->setStretchFactor(vertSplitter->indexOf(horizSplitter), 80);
+          vertSplitter->setStretchFactor(vertSplitter->indexOf(projectArea), 20);
+        }
+      }
+    }
+  }
 
-  // 4. 将 Assets 和 Console 作为页签添加到底部区域
-  // 必须确保 bottomArea 不为空
-  if (bottomArea) {
-    m_dockManager->addDockWidgetTabToArea(m_assetsPanel, bottomArea);
-    m_dockManager->addDockWidgetTabToArea(m_consolePanel, bottomArea);
+  // 3. 合并页签
+  if (projectArea) {
+    m_dockManager->addDockWidgetTabToArea(m_assetsPanel, projectArea);
+    m_dockManager->addDockWidgetTabToArea(m_consolePanel, projectArea);
   }
 }
 
