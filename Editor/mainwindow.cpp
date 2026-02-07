@@ -1,7 +1,6 @@
 #include "mainwindow.h"
 #include "./ui_mainwindow.h"
 
-#include <QDockWidget>
 #include "SGWidget.h"
 #include "HierarchyPanel.h"
 #include "InspectorPanel.h"
@@ -64,11 +63,12 @@ MainWindow::MainWindow(QWidget* parent) : QMainWindow(parent), ui(new Ui::MainWi
       }
   )");
 
-  // 1. 将中心控件设为空
-  setCentralWidget(nullptr);
+  // 1. 创建 DockManager 作为中心管理器（使用 QADS 适配器）
+  m_dockManager = new QADS::DockManager(this);
+  setCentralWidget(m_dockManager);
 
-  // 2. 开启嵌套和合并属性（这是灵魂）
-  setDockOptions(QMainWindow::AllowNestedDocks | QMainWindow::AllowTabbedDocks);
+  // 2. 开启嵌套和合并属性（作用到 DockManager）
+  m_dockManager->setDockOptions(QMainWindow::AllowNestedDocks | QMainWindow::AllowTabbedDocks);
 
   auto* hierarchy = new re::editor::HierarchyPanel(this);
   auto* inspector = new re::editor::InspectorPanel(this);
@@ -77,19 +77,19 @@ MainWindow::MainWindow(QWidget* parent) : QMainWindow(parent), ui(new Ui::MainWi
   auto* scene = new SGWidget("", this);  // 包含 DX12 QWindow
 
   // --- 1. 先建立上半部分的布局 (Hierarchy + Scene) ---
-  addDockWidget(Qt::LeftDockWidgetArea, hierarchy);
-  splitDockWidget(hierarchy, scene, Qt::Horizontal);  // 此时上半部分是 [H | S]
+  m_dockManager->addDockWidget(Qt::LeftDockWidgetArea, hierarchy);
+  m_dockManager->splitDockWidget(hierarchy, scene, Qt::Horizontal);  // 此时上半部分是 [H | S]
 
   // --- 2. 建立右侧布局 ---
-  splitDockWidget(scene, inspector, Qt::Horizontal);  // 此时整体是 [H | S | I]
+  m_dockManager->splitDockWidget(scene, inspector, Qt::Horizontal);  // 此时整体是 [H | S | I]
 
   // --- 3. 关键：将 Project 垂直切分到【上半部分整体】的下面 ---
   // 我们不再以 scene 为基准，而是以最左侧的 hierarchy 为基准进行垂直切分
   // 并且必须开启嵌套选项
-  setDockOptions(QMainWindow::AllowNestedDocks | QMainWindow::AllowTabbedDocks);
+  m_dockManager->setDockOptions(QMainWindow::AllowNestedDocks | QMainWindow::AllowTabbedDocks);
 
   // 尝试将 project 放置在 hierarchy 的下方
-  splitDockWidget(hierarchy, project, Qt::Vertical);
+  m_dockManager->splitDockWidget(hierarchy, project, Qt::Vertical);
   // 将 World 传递给面板（SGWidget 已创建 RenderWindow 并初始化 Scene）
   if (scene && scene->GetSceneWindow() && scene->GetSceneWindow()->GetScene()) {
     auto scenePtr = scene->GetSceneWindow()->GetScene();

@@ -4,7 +4,7 @@
 #include <QDebug>
 
 namespace re::editor {
-SGWidget::SGWidget(const QString& title, QWidget* parent) : QDockWidget(title, parent) {
+SGWidget::SGWidget(const QString& title, QWidget* parent) : QADS::DockWidget(title, parent) {
   // 1. 创建主容器和 Tab 控件
   auto* mainWidget = new QWidget();
   auto* layout = new QVBoxLayout(mainWidget);

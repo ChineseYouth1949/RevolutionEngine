@@ -48,17 +48,17 @@ void RenderWindow::Init() {
   // Script system: initialize and load scripts from Resource/Lua
   {
     // Create a ResourceVisitor copy from ResourceManager
-    auto rv = m_Scene->GetWorld()->GetResourceManager()->RequestResourceVisitor();
-    m_ScriptManager = GAlloc::make_shared<re::engine::script::ScriptManager>();
-    m_ScriptManager->Initialize(m_Scene->GetWorld());
+    // auto rv = m_Scene->GetWorld()->GetResourceManager()->RequestResourceVisitor();
+    // m_ScriptManager = GAlloc::make_shared<re::engine::script::ScriptManager>();
+    // m_ScriptManager->Initialize(m_Scene->GetWorld());
 
-    // Compute script directory path relative to application dir
-    QString appPathQt = QCoreApplication::applicationDirPath();
-    std::string luaDir = appPathQt.toStdString() + "/Resource/Lua";
-    m_ScriptManager->LoadScriptsFromDirectory(luaDir);
-    // Execute init.lua if present
-    std::string initPath = luaDir + "/init.lua";
-    m_ScriptManager->ExecuteScript(initPath);
+    // // Compute script directory path relative to application dir
+    // QString appPathQt = QCoreApplication::applicationDirPath();
+    // std::string luaDir = appPathQt.toStdString() + "/Resource/Lua";
+    // m_ScriptManager->LoadScriptsFromDirectory(luaDir);
+    // // Execute init.lua if present
+    // std::string initPath = luaDir + "/init.lua";
+    // m_ScriptManager->ExecuteScript(initPath);
   }
 
   connect(&m_RunTimer, &QTimer::timeout, this, &RenderWindow::Update);

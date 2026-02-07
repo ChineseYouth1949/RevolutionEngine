@@ -1,6 +1,6 @@
 #pragma once
 
-#include <QDockWidget>
+#include "QADS/DockWidget.h"
 #include <QWidget>
 #include <QComboBox>
 #include <QPushButton>
@@ -9,7 +9,7 @@
 
 namespace re::editor {
 
-class InspectorPanel : public QDockWidget {
+class InspectorPanel : public QADS::DockWidget {
   Q_OBJECT
  public:
   explicit InspectorPanel(QWidget* parent = nullptr);

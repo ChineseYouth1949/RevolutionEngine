@@ -1,6 +1,6 @@
 #pragma once
 
-#include <QDockWidget>
+#include "QADS/DockWidget.h"
 #include <QTabWidget>
 #include <QVBoxLayout>
 #include <QWidget>
@@ -8,7 +8,7 @@
 namespace re::editor {
 class RenderWindow;
 
-class SGWidget : public QDockWidget {
+class SGWidget : public QADS::DockWidget {
   Q_OBJECT
  public:
   explicit SGWidget(const QString& title, QWidget* parent);

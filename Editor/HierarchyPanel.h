@@ -1,6 +1,6 @@
 #pragma once
 
-#include <QDockWidget>
+#include "QADS/DockWidget.h"
 #include <QListWidget>
 #include <QMenu>
 #include <Engine/All.h>
@@ -9,7 +9,7 @@ namespace re::editor {
 
 class InspectorPanel;
 
-class HierarchyPanel : public QDockWidget {
+class HierarchyPanel : public QADS::DockWidget {
   Q_OBJECT
  public:
   explicit HierarchyPanel(QWidget* parent = nullptr);

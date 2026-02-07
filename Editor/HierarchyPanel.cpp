@@ -7,7 +7,7 @@
 
 namespace re::editor {
 
-HierarchyPanel::HierarchyPanel(QWidget* parent) : QDockWidget("Hierarchy", parent) {
+HierarchyPanel::HierarchyPanel(QWidget* parent) : QADS::DockWidget("Hierarchy", parent) {
   setObjectName("HierarchyPanel");
   QWidget* w = new QWidget(this);
   QVBoxLayout* l = new QVBoxLayout(w);

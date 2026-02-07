@@ -1,11 +1,11 @@
 #pragma once
 
-#include <QDockWidget>
+#include "QADS/DockWidget.h"
 #include <QTreeWidget>
 
 namespace re::editor {
 
-class ProjectPanel : public QDockWidget {
+class ProjectPanel : public QADS::DockWidget {
   Q_OBJECT
  public:
   explicit ProjectPanel(QWidget* parent = nullptr);
