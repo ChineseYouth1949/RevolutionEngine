@@ -16,8 +16,6 @@ class SGWidget : public ads::CDockWidget {
   RenderWindow* GetSceneWindow() const { return m_sceneWindow; }
   RenderWindow* GetGameWindow() const { return m_gameWindow; }
 
-  void resizeEvent(QResizeEvent* event);
-
  private:
   QTabWidget* m_tabWidget;
   RenderWindow* m_sceneWindow;
