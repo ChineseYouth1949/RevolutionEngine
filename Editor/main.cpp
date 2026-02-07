@@ -3,9 +3,6 @@
 #include "mainwindow.h"
 #include "RenderWindow.h"
 
-#include "QADS/DockManager.h"
-#include "QADS/DockWidget.h"
-
 RE_EXPORT_D3D12_AGILITY_SDK
 
 int main(int argc, char* argv[]) {
