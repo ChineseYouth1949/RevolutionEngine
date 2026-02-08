@@ -31,9 +31,9 @@ void CoreSystem::Init(engine::shared_ptr<GraphicsCore> gc) {
   renColorVertex->Init(m_GC, m_SharedInfo);
   AddChild(renColorVertex);
 
-  auto renAssimp = GAlloc::make_shared<RenderAssimpModel>();
-  renAssimp->Init(m_GC, m_SharedInfo);
-  AddChild(renAssimp);
+  // auto renAssimp = GAlloc::make_shared<RenderAssimpModel>();
+  // renAssimp->Init(m_GC, m_SharedInfo);
+  // AddChild(renAssimp);
 }
 
 void CoreSystem::OnAttach(ecs::World* world) {
