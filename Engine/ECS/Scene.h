@@ -1,7 +1,7 @@
 #pragma once
 
-#include "Resource/ResourceManager.h"
-#include "Resource/ResourceVisitor.h"
+#include "Engine/Resource/ResourceManager.h"
+#include "Engine/Resource/ResourceVisitor.h"
 
 #include "World/World.h"
 #include "World/RegistryVisitor.h"

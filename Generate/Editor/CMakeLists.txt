@@ -77,13 +77,7 @@ target_include_directories(${PROJECT_NAME}
     ${SDK_INCLUDE_PATH}
 )
 
-file(GLOB_RECURSE EXTERNAL_LIBS
-    "${SDK_LIB_PATH}/alembic-md.lib"
-    "${SDK_LIB_PATH}/libfbxsdk-md.lib"
-    "${SDK_LIB_PATH}/libxml2-md.lib"
-    "${SDK_LIB_PATH}/zlib-md.lib"
-    "${SDK_LIB_PATH}/qtadvanceddocking-qt6d_static.lib"
-)
+file(GLOB_RECURSE EXTERNAL_LIBS "${SDK_LIB_PATH}/*.lib")
 
 if(EXTERNAL_LIBS)
     target_link_libraries(${PROJECT_NAME} PRIVATE ${EXTERNAL_LIBS})

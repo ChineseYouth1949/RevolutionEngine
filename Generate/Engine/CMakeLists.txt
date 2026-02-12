@@ -12,6 +12,11 @@ file(GLOB_RECURSE HEAD_FILE
 file(GLOB_RECURSE SOURCE_FILE
     "${CodePath}/*.cpp")
 
+list(FILTER HEAD_FILE EXCLUDE REGEX ".*/Render/.*")
+list(FILTER SOURCE_FILE EXCLUDE REGEX ".*/Render/.*")
+list(FILTER HEAD_FILE EXCLUDE REGEX ".*/Script/.*")
+list(FILTER SOURCE_FILE EXCLUDE REGEX ".*/Script/.*")
+
 add_library(${PROJECT_NAME} SHARED ${SOURCE_FILE})
 
 # Create namespace alias for modern CMake conventions
@@ -43,8 +48,7 @@ endif()
 # PCH file
 target_precompile_headers(${PROJECT_NAME}
     PUBLIC
-    "${CodePath}/Base/PCH.h"
-    "${CodePath}/Base/All.h"
+    "${CodePath}/PCH.h"
 )
 
 # include my head file

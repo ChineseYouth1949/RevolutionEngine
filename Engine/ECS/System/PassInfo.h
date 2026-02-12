@@ -1,13 +1,15 @@
 #pragma once
 
-#include "Engine/Base/All.h"
+#include "Engine/Macros.h"
+
+#include <atomic>
 
 namespace re::engine::ecs {
 struct RE_API PassId {
-  constexpr explicit PassId(uint32_t val = utility::MAX_NUM_UINT32) noexcept : value(val) {}
+  constexpr explicit PassId(uint32_t val = RE_UINT32_MAX) noexcept : value(val) {}
 
-  RE_FINLINE constexpr bool IsValid() const noexcept { return value != utility::MAX_NUM_UINT32; }
-  constexpr explicit operator bool() const noexcept { return IsValid(); }
+  RE_FINLINE constexpr bool IsNull() const noexcept { return value != RE_UINT32_MAX; }
+  constexpr explicit operator bool() const noexcept { return IsNull(); }
   auto operator<=>(const PassId& other) const = default;
 
   uint32_t value;
@@ -34,8 +36,8 @@ struct PassMutex {
 
   PassMutex(Type _type = Type::None) : type(_type) {}
 
-  constexpr bool IsValid() const noexcept { return type != Type::None; }
-  constexpr explicit operator bool() const noexcept { return IsValid(); }
+  constexpr bool IsNull() const noexcept { return type != Type::None; }
+  constexpr explicit operator bool() const noexcept { return IsNull(); }
   auto operator<=>(const PassMutex& other) const = default;
 
   Type type;

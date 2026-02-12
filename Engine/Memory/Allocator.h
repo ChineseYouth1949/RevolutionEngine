@@ -1,10 +1,13 @@
 #pragma once
 
-#include "Engine/Base/PCH.h"
+#include "Engine/Type/Common.h"
+#include "Engine/Macros.h"
+
+#define RE_MALLOC_ALIGNMENT 16
 
 namespace re::engine::memory {
 
-enum struct AllocType : std::uint8_t { STD, MiMalloc };
+enum struct AllocType : uint8 { STD, MiMalloc };
 
 // Support STL and MiMalloc
 template <AllocType type, typename T>
@@ -17,62 +20,62 @@ class StlAllocator;
 *  In short, using mimalloc to implement the Allocator performs well enough.
 */
 template <AllocType type>
-class Allocator {
+class RE_API Allocator {
  public:
   // No type alloc
-  RE_FINLINE static void* malloc(size_t size);
-  RE_FINLINE static void* zalloc(size_t size);
-  RE_FINLINE static void* calloc(size_t count, size_t size);
+  RE_FINLINE static void* malloc(size_t size) noexcept;
+  RE_FINLINE static void* zalloc(size_t size) noexcept;
+  RE_FINLINE static void* calloc(size_t count, size_t size) noexcept;
 
-  RE_FINLINE static void* realloc(void* p, size_t newSize);
-  RE_FINLINE static void* reallocN(void* p, size_t count, size_t newSize);
-  RE_FINLINE static bool expand(void* p, size_t newSize);
+  RE_FINLINE static void* realloc(void* p, size_t newSize) noexcept;
+  RE_FINLINE static void* reallocN(void* p, size_t count, size_t newSize) noexcept;
+  RE_FINLINE static bool expand(void* p, size_t newSize) noexcept;
 
-  RE_FINLINE static void* mallocAligned(size_t size, size_t alignment);
-  RE_FINLINE static void* zallocAligned(size_t size, size_t alignment);
-  RE_FINLINE static void* callocAligned(size_t count, size_t size, size_t alignment);
-  RE_FINLINE static void* reallocAligned(void* p, size_t newsize, size_t alignment);
+  RE_FINLINE static void* mallocAligned(size_t size, size_t alignment) noexcept;
+  RE_FINLINE static void* zallocAligned(size_t size, size_t alignment) noexcept;
+  RE_FINLINE static void* callocAligned(size_t count, size_t size, size_t alignment) noexcept;
+  RE_FINLINE static void* reallocAligned(void* p, size_t newsize, size_t alignment) noexcept;
 
-  RE_FINLINE static void* mallocAlignedAt(size_t size, size_t alignment, size_t offset);
-  RE_FINLINE static void* zallocAlignedAt(size_t size, size_t alignment, size_t offset);
-  RE_FINLINE static void* callocAlignedAt(size_t count, size_t size, size_t alignment, size_t offset);
-  RE_FINLINE static void* reallocAlignedAt(void* p, size_t newsize, size_t alignment, size_t offset);
+  RE_FINLINE static void* mallocAlignedAt(size_t size, size_t alignment, size_t offset) noexcept;
+  RE_FINLINE static void* zallocAlignedAt(size_t size, size_t alignment, size_t offset) noexcept;
+  RE_FINLINE static void* callocAlignedAt(size_t count, size_t size, size_t alignment, size_t offset) noexcept;
+  RE_FINLINE static void* reallocAlignedAt(void* p, size_t newsize, size_t alignment, size_t offset) noexcept;
 
-  RE_FINLINE static void free(void* p);
+  RE_FINLINE static void free(void* p) noexcept;
 
   // Type alloc
   template <typename T>
-  RE_FINLINE static T* mallocType() {
+  RE_FINLINE static T* mallocType() noexcept {
     void* p = nullptr;
     p = malloc(sizeof(T));
     return static_cast<T*>(p);
   }
 
   template <typename T>
-  RE_FINLINE static T* mallocTypeArray(size_t count) {
+  RE_FINLINE static T* mallocTypeArray(size_t count) noexcept {
     size_t alignment = alignof(T);
-    void* p = (alignment > 16) ? mallocAligned(count * sizeof(T), alignment) : malloc(count * sizeof(T));
+    void* p = (alignment > RE_MALLOC_ALIGNMENT) ? mallocAligned(count * sizeof(T), alignment) : malloc(count * sizeof(T));
     return static_cast<T*>(p);
   }
 
   template <typename T>
-  RE_FINLINE static T* zallocType() {
+  RE_FINLINE static T* zallocType() noexcept {
     void* p = nullptr;
     p = zalloc(sizeof(T));
     return static_cast<T*>(p);
   }
 
   template <typename T>
-  RE_FINLINE static T* zallocTypeArray(size_t count) {
+  RE_FINLINE static T* zallocTypeArray(size_t count) noexcept {
     size_t alignment = alignof(T);
-    void* p = (alignment > 16) ? zallocAligned(count * sizeof(T), alignment) : zalloc(count * sizeof(T));
+    void* p = (alignment > RE_MALLOC_ALIGNMENT) ? zallocAligned(count * sizeof(T), alignment) : zalloc(count * sizeof(T));
     return static_cast<T*>(p);
   }
 
   template <typename T, typename... Args>
   RE_FINLINE static T* create(Args&&... args) {
     size_t alignment = alignof(T);
-    void* p = (alignment > 16) ? mallocAligned(sizeof(T), alignment) : malloc(sizeof(T));
+    void* p = (alignment > RE_MALLOC_ALIGNMENT) ? mallocAligned(sizeof(T), alignment) : malloc(sizeof(T));
     if (!p)
       return nullptr;
     return new (p) T(std::forward<Args>(args)...);
@@ -103,7 +106,7 @@ class Allocator {
   }
 
   template <typename T>
-  RE_FINLINE static void destroy(T* ptr) {
+  RE_FINLINE static void destroy(T* ptr) noexcept {
     if (!ptr) {
       return;
     }
@@ -114,7 +117,7 @@ class Allocator {
   }
 
   template <typename T>
-  RE_FINLINE static void destroyArray(T* ptr, size_t count) {
+  RE_FINLINE static void destroyArray(T* ptr, size_t count) noexcept {
     if (!ptr)
       return;
 
@@ -130,22 +133,11 @@ class Allocator {
     void operator()(T* p) const noexcept { destroy<T>(p); }
   };
 
-  template <typename T>
-  using shared_ptr = stl::shared_ptr<T>;
+  template <template <typename> typename SharedPtr, typename T>
+  using temp_shared_ptr = SharedPtr<T>;
 
-  template <typename T>
-  using unique_ptr = stl::unique_ptr<T, Deleter<T>>;
-
-  template <typename T, typename... Args>
-  RE_FINLINE static stl::shared_ptr<T> make_shared(Args&&... args) {
-    return stl::allocate_shared<T, StlAllocator<type, T>>(StlAllocator<type, T>(), std::forward<Args>(args)...);
-  }
-
-  template <typename T, typename... Args>
-  RE_FINLINE static stl::unique_ptr<T, Deleter<T>> make_unique(Args&&... args) {
-    T* ptr = create<T>(stl::forward<Args>(args)...);
-    return stl::unique_ptr<T, Deleter<T>>(ptr);
-  }
+  template <template <typename, typename> typename UniquePtr, typename T>
+  using temp_unique_ptr = UniquePtr<T, Deleter<T>>;
 };
 
 }  // namespace re::engine::memory
@@ -153,3 +145,7 @@ class Allocator {
 // Convenient macro
 #define RE_CLASS_ALLOCATOR(Type) using Alloc = re::engine::memory::Allocator<re::engine::memory::AllocType::Type>;
 #define RE_NAME_ALLOCATOR(Name, Type) using Name = re::engine::memory::Allocator<re::engine::memory::AllocType::Type>
+
+#include "Mimalloc.h"
+#include "StlAllocator.h"
+#include "OverNewDelete.h"

@@ -1,8 +1,10 @@
 #pragma once
 
-#include "Engine/Base/All.h"
+#include "Engine/Macros.h"
 
-namespace re::engine::ecs {
+#include <typeindex>
+
+namespace re::engine::resource {
 struct RE_API Resource {
   Resource() = default;
   ~Resource() { Destroy(); }
@@ -98,4 +100,4 @@ struct RE_API Resource {
   std::type_index m_TypeInfo = typeid(void);
 #endif
 };
-}  // namespace re::engine::ecs
+}  // namespace re::engine::resource

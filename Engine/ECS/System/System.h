@@ -16,20 +16,36 @@ class System {
   RE_FINLINE bool IsAttach() const { return m_Attach; }
   RE_FINLINE bool IsEnabled() const { return m_Enabled; }
 
-  virtual void OnAttach(World* world) {
-    m_World = world;
-    m_Attach = true;
-    for (auto& pass : m_Passes) {
-      pass->Init(world);
+  virtual bool OnAttach(World* world) {
+    if (world && m_Attach == false) {
+      m_World = world;
+      m_Attach = true;
+      for (auto& pass : m_Passes) {
+        pass->Init(world);
+      }
     }
+    return m_Attach;
   }
-  virtual void OnDetach() {
-    m_World = nullptr;
-    m_Attach = false;
+  virtual bool OnDetach() {
+    if (m_Attach) {
+      m_World = nullptr;
+      m_Attach = false;
+    }
+    return !m_Attach;
   }
 
-  virtual void OnEnable() { m_Enabled = true; }
-  virtual void OnDisable() { m_Enabled = false; }
+  virtual bool OnEnable() {
+    if (!m_Enabled) {
+      m_Enabled = true;
+    }
+    return m_Enabled;
+  }
+  virtual bool OnDisable() {
+    if (m_Enabled) {
+      m_Enabled = true;
+    }
+    return !m_Enabled;
+  }
 
   virtual void OnPreUpdate() {}
   virtual void OnPostUpdate() {}

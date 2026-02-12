@@ -1,6 +1,6 @@
 #pragma once
 
-namespace re::engine {
+namespace re::engine::container {
 // Conversion between different types
 template <typename SrcType, typename DstType>
 RE_FINLINE DstType wstringToStringTemp(const SrcType& wstr) {
@@ -54,4 +54,4 @@ template <typename DstType>
 RE_FINLINE DstType Convert(string str) {
   return stringCopyTemp<string, DstType>(str);
 }
-}  // namespace re::engine
+}  // namespace re::engine::container

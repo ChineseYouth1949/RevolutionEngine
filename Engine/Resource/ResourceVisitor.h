@@ -21,14 +21,14 @@ class RE_API ResourceVisitor {
   }
 
   template <typename T>
-  ResId GetTypeResId() const {
+  ResId FindTypeResId() const {
     RE_ASSERT(m_ResourceManager != nullptr);
     return m_ResourceManager->GetTypeResId<T>();
   }
 
-  RE_FINLINE ResId GetStringResId(const string& str) const {
+  RE_FINLINE ResId FindStringResId(const string& str) const {
     RE_ASSERT(m_ResourceManager != nullptr);
-    return m_ResourceManager->GetStringResId(str);
+    return m_ResourceManager->FindStringResId(str);
   }
 
   RE_FINLINE void Submit() {

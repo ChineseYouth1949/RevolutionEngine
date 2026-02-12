@@ -1,6 +1,6 @@
 #pragma once
 
-#include "Engine/Base/Macros.h"
+#include "Engine/Macros.h"
 
 #ifdef RE_USE_EASTL
 #define STL_NAMESPACE eastl
@@ -99,19 +99,19 @@ using namespace STL_NAMESPACE;
 }
 
 #ifdef RE_USE_EASTL
-RE_FINLINE void* operator new(size_t size, const char* name, int flags, unsigned debugFlags, const char* file, int line) {
-  return ::operator new(size);
+RE_FINLINE void* operator new[](size_t size, const char* pName, int flags, unsigned debugFlags, const char* file, int line) {
+  return mi_malloc(size);
 }
-RE_FINLINE void* operator new(size_t size, size_t alignment, size_t alignmentOffset, const char* name, int flags, unsigned debugFlags,
-                              const char* file, int line) {
-  return _aligned_malloc(size, alignment);
-}
-RE_FINLINE void* operator new[](size_t size, const char* name, int flags, unsigned debugFlags, const char* file, int line) {
-  return ::operator new[](size);
-}
-RE_FINLINE void* operator new[](size_t size, size_t alignment, size_t alignmentOffset, const char* name, int flags, unsigned debugFlags,
+RE_FINLINE void* operator new[](size_t size, size_t alignment, size_t alignmentOffset, const char* pName, int flags, unsigned debugFlags,
                                 const char* file, int line) {
-  return _aligned_malloc(size, alignment);
+  return mi_malloc_aligned(size, alignment);
+}
+RE_FINLINE void* operator new(size_t size, const char* pName, int flags, unsigned debugFlags, const char* file, int line) {
+  return mi_malloc(size);
+}
+RE_FINLINE void* operator new(size_t size, size_t alignment, size_t alignmentOffset, const char* pName, int flags, unsigned debugFlags,
+                              const char* file, int line) {
+  return mi_malloc_aligned(size, alignment);
 }
 #endif
 

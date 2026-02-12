@@ -1,6 +1,6 @@
 #pragma once
 
-#define RE_DECLARE_PRIVATE(Class)    \
+#define RE_DECLARE_PRIVATE           \
  private:                            \
   struct Impl;                       \
   unique_ptr<Impl> m_pImpl;          \

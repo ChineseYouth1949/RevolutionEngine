@@ -13,7 +13,7 @@ class RE_API PassScheduler {
   void Execute();
   void DumpGraph(const string& path);
 
-  RE_DECLARE_PRIVATE(PassScheduler);
+  RE_DECLARE_PRIVATE
 };
 
 }  // namespace re::engine::ecs
